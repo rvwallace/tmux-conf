@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET_CONF="${HOME}/.tmux.conf"
+SCRIPT_DIR="${HOME}/.config/tmux/scripts"
+TARGET_SCRIPT="${SCRIPT_DIR}/edit-scrollback.sh"
+PLUGIN_DIR="${HOME}/.config/tmux/plugins"
+TPM_DIR="${PLUGIN_DIR}/tpm"
+TPM_REPO="https://github.com/tmux-plugins/tpm"
+
+echo "Repo dir: ${REPO_DIR}"
+
+mkdir -p "${PLUGIN_DIR}"
+mkdir -p "${SCRIPT_DIR}"
+
+if [ -L "${TARGET_CONF}" ] || [ -e "${TARGET_CONF}" ]; then
+  rm -f "${TARGET_CONF}"
+fi
+ln -s "${REPO_DIR}/.tmux.conf" "${TARGET_CONF}"
+echo "Linked ${TARGET_CONF} -> ${REPO_DIR}/.tmux.conf"
+
+if [ -L "${TARGET_SCRIPT}" ] || [ -e "${TARGET_SCRIPT}" ]; then
+  rm -f "${TARGET_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/edit-scrollback.sh" "${TARGET_SCRIPT}"
+echo "Linked ${TARGET_SCRIPT} -> ${REPO_DIR}/scripts/edit-scrollback.sh"
+
+if [ ! -d "${TPM_DIR}/.git" ]; then
+  git clone "${TPM_REPO}" "${TPM_DIR}"
+  echo "Cloned TPM into ${TPM_DIR}"
+else
+  echo "TPM already present at ${TPM_DIR}"
+fi
+
+cat <<'EOF'
+
+Next steps:
+  1. Start tmux or reload it with: tmux source-file ~/.tmux.conf
+  2. Install/update declared plugins with: prefix + I
+
+EOF

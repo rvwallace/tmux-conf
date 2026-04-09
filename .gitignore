@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# AI / agent tooling
+.codex
+.claude/
+.gemini/
+memory/
+
+# IDEs
+.vscode/
+.cursor/
+.antigravity/

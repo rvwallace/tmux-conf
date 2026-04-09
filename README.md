@@ -1,0 +1,136 @@
+# tmux-conf
+
+Minimal tmux configuration managed from this repo.
+
+The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`](./.tmux.conf) changes the live config source.
+
+## Files
+
+- [`./.tmux.conf`](./.tmux.conf): source of truth for tmux configuration.
+- [`./bootstrap.sh`](./bootstrap.sh): sets up the `~/.tmux.conf` symlink and TPM path on a machine.
+- [`./validate.sh`](./validate.sh): checks symlinks, TPM, tmux reloadability, and expected live settings.
+- [`./CHEATSHEET.md`](./CHEATSHEET.md): commonly used key bindings and commands.
+- [`./AGENTS.md`](./AGENTS.md): maintenance rules for future edits.
+- [`./scripts/edit-scrollback.sh`](./scripts/edit-scrollback.sh): captures pane output and opens it in `$VISUAL` or `$EDITOR`.
+
+## Current Behavior
+
+This config intentionally stays small:
+
+- prefix is `Ctrl-a`
+- `default-terminal` is set to `tmux-256color`
+- RGB terminal features are enabled for common terminals
+- extended keyboard reporting is enabled for `xterm-256color` and `tmux-256color` so modified keys such as `Shift-Enter` can reach apps inside tmux
+- history limit is `100000`
+- mouse mode starts enabled
+- command prompt and copy mode use vi keys
+- windows and panes are numbered from `1`
+- windows are renumbered after closes
+- new windows and splits inherit the current pane path
+- the status bar sits at the top with a distinct dark background
+- the active window is highlighted in yellow and inactive windows are muted
+- the right side can show `PREFIX`, `mouse`, and `sync` state indicators when active
+- the right side shows both local time and UTC time for log-reading/reference
+
+## Key Bindings Added Here
+
+These are the bindings this repo adds or overrides directly:
+
+- `prefix + r`: reload `~/.tmux.conf`
+- `prefix + m`: toggle mouse mode
+- `prefix + Ctrl-e`: capture the current pane plus scrollback into `$VISUAL` or `$EDITOR` in a new tmux window
+- `prefix + Ctrl-s`: open a popup attached to the reusable `Scratch-Terminal` session
+- `prefix + prefix`: send literal `Ctrl-a` to the pane
+- `prefix + c`: new window in current pane path
+- `prefix + "`: vertical split in current pane path
+- `prefix + %`: horizontal split in current pane path
+
+This config also explicitly removes stale bindings from previously used plugins:
+
+- `prefix + Tab`
+- `prefix + Space`
+- `prefix + ?`
+- `prefix + F`
+
+## Plugins
+
+Plugins are managed with TPM from:
+
+- `~/.config/tmux/plugins/tpm`
+
+Current plugins:
+
+- `tmux-plugins/tmux-sensible`
+- `tmux-plugins/tmux-cowboy`
+- `sainnhe/tmux-fzf`
+
+Notes:
+
+- `tmux-sensible` provides sane defaults and a few standard bindings.
+- `tmux-cowboy` provides `prefix + *` to send `SIGKILL` to the foreground process in the current pane.
+- `tmux-fzf` provides a fuzzy menu for tmux sessions, windows, panes, buffers, and more.
+
+## Reloading
+
+From inside tmux:
+
+```sh
+tmux source-file ~/.tmux.conf
+```
+
+Or use:
+
+```text
+prefix + r
+```
+
+## Bootstrap On A New Machine
+
+Run:
+
+```sh
+./bootstrap.sh
+```
+
+This script:
+
+- recreates the `~/.tmux.conf` symlink to this repo
+- recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
+- ensures `~/.config/tmux/plugins/` exists
+- clones TPM into `~/.config/tmux/plugins/tpm` if needed
+
+## Validation
+
+Run:
+
+```sh
+./validate.sh
+```
+
+It checks:
+
+- `~/.tmux.conf` symlink target
+- `~/.config/tmux/scripts/edit-scrollback.sh` symlink target
+- TPM installation path
+- `tmux source-file ~/.tmux.conf`
+- expected live tmux options, terminal features, and key bindings
+
+## Portability
+
+The config is intended to work on both macOS and Linux.
+
+- plugin and helper-script paths are installed under `~/.config/tmux/`
+- the scrollback helper avoids GNU-only `mktemp` usage
+- the scrollback helper uses `$VISUAL`, then `$EDITOR`, then `nvim`
+
+## Installing Or Updating Plugins
+
+TPM bindings:
+
+- `prefix + I`: install plugins
+- `prefix + U`: update plugins
+- `prefix + Alt-u`: clean removed plugins
+
+## Maintenance
+
+When `.tmux.conf` changes, update this README and [`./CHEATSHEET.md`](./CHEATSHEET.md) in the same change so they stay aligned with actual behavior.
