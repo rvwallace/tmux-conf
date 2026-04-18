@@ -40,10 +40,20 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + m`: toggle mouse mode
 - `prefix + Ctrl-e`: capture the current pane plus scrollback into `$VISUAL` or `$EDITOR` in a new tmux window
 - `prefix + Ctrl-s`: open a popup attached to the reusable `Scratch-Terminal` session
+- `prefix + T`: open a `sesh` session picker in an `fzf-tmux` popup and connect to the selected entry
 - `prefix + prefix`: send literal `Ctrl-a` to the pane
 - `prefix + c`: new window in current pane path
 - `prefix + "`: vertical split in current pane path
 - `prefix + %`: horizontal split in current pane path
+
+Inside the `prefix + T` picker:
+
+- `Ctrl-a`: show all `sesh` entries
+- `Ctrl-t`: show tmux sessions only
+- `Ctrl-g`: show config sessions only
+- `Ctrl-x`: show zoxide sessions only
+- `Ctrl-f`: run a directory search (`fd`) and show matches
+- `Ctrl-d`: kill the selected tmux session, then refresh
 
 This config also explicitly removes stale bindings from previously used plugins:
 

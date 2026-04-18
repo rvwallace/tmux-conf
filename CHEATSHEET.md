@@ -29,10 +29,20 @@ Ctrl-a
 - `prefix + m`: toggle mouse mode
 - `prefix + Ctrl-e`: open current pane output plus scrollback in `$VISUAL` or `$EDITOR`
 - `prefix + Ctrl-s`: open the reusable `Scratch-Terminal` popup session
+- `prefix + T`: open the `sesh` session picker popup
 - `prefix + prefix`: send literal `Ctrl-a` to the current pane
 - `prefix + c`: create a new window in the current pane path
 - `prefix + "`: split vertically in the current pane path
 - `prefix + %`: split horizontally in the current pane path
+
+Inside the `prefix + T` sesh picker:
+
+- `Ctrl-a`: all entries
+- `Ctrl-t`: tmux entries
+- `Ctrl-g`: config entries
+- `Ctrl-x`: zoxide entries
+- `Ctrl-f`: find directories with `fd`
+- `Ctrl-d`: kill selected tmux session and refresh
 
 ## Plugin Bindings
 
