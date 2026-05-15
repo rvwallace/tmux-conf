@@ -5,6 +5,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_CONF="${HOME}/.tmux.conf"
 TARGET_SCRIPT="${HOME}/.config/tmux/scripts/edit-scrollback.sh"
+TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
 TPM_DIR="${HOME}/.config/tmux/plugins/tpm"
 
 fail() {
@@ -48,6 +49,13 @@ expect_contains() {
 
 expect_symlink_target "$TARGET_CONF" "$REPO_DIR/.tmux.conf"
 expect_symlink_target "$TARGET_SCRIPT" "$REPO_DIR/scripts/edit-scrollback.sh"
+expect_symlink_target "$TARGET_PALETTE_DIR" "$REPO_DIR/tmux-palette"
+
+[ -f "$TARGET_PALETTE_DIR/commands.json" ] || fail "tmux-palette commands.json missing"
+pass "tmux-palette commands.json present"
+
+[ -f "$TARGET_PALETTE_DIR/palettes/plugin-tmux-fzf.json" ] || fail "tmux-fzf palette missing"
+pass "tmux-fzf palette present"
 
 [ -d "$TPM_DIR/.git" ] || fail "TPM is not installed at $TPM_DIR"
 pass "TPM installed at $TPM_DIR"
@@ -67,5 +75,6 @@ expect_contains "tmux show -g terminal-features" "xterm-256color:RGB:extkeys" "x
 expect_contains "tmux show -g terminal-features" "tmux-256color:RGB:extkeys" "nested tmux extended keys terminal feature"
 expect_contains "tmux list-keys" "bind-key    -T prefix       C-s" "scratch popup binding"
 expect_contains "tmux list-keys" "bind-key    -T prefix       C-e" "scrollback editor binding"
+expect_contains "tmux list-keys -T root C-p" "tmux-palette/bin/tmux-palette.sh" "tmux-palette root binding"
 
 printf '\nValidation completed successfully.\n'

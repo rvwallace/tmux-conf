@@ -12,6 +12,7 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./CHEATSHEET.md`](./CHEATSHEET.md): commonly used key bindings and commands.
 - [`./AGENTS.md`](./AGENTS.md): maintenance rules for future edits.
 - [`./scripts/edit-scrollback.sh`](./scripts/edit-scrollback.sh): captures pane output and opens it in `$VISUAL` or `$EDITOR`.
+- [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
 
 ## Current Behavior
 
@@ -73,12 +74,30 @@ Current plugins:
 - `tmux-plugins/tmux-sensible`
 - `tmux-plugins/tmux-cowboy`
 - `sainnhe/tmux-fzf`
+- `eduwass/tmux-palette`
 
 Notes:
 
 - `tmux-sensible` provides sane defaults and a few standard bindings.
 - `tmux-cowboy` provides `prefix + *` to send `SIGKILL` to the foreground process in the current pane.
 - `tmux-fzf` provides a fuzzy menu for tmux sessions, windows, panes, buffers, and more.
+- `tmux-palette` provides the `Ctrl-p` command palette and reads repo-managed JSON from `~/.config/tmux-palette`.
+
+## tmux-palette
+
+The palette config is tracked in this repo at:
+
+```text
+./tmux-palette/
+```
+
+Bootstrap links it to:
+
+```text
+~/.config/tmux-palette
+```
+
+The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, `TPM`, `tmux-cowboy`, and `tmux-sensible`. It also adds tmux utility commands such as capture pane to file, synchronize panes, clear scrollback, show messages, and the scratch popup.
 
 ## Reloading
 
@@ -106,6 +125,7 @@ This script:
 
 - recreates the `~/.tmux.conf` symlink to this repo
 - recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
+- recreates the `~/.config/tmux-palette` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
 
@@ -121,6 +141,7 @@ It checks:
 
 - `~/.tmux.conf` symlink target
 - `~/.config/tmux/scripts/edit-scrollback.sh` symlink target
+- `~/.config/tmux-palette` symlink target
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`
 - expected live tmux options, terminal features, and key bindings

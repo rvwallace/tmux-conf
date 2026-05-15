@@ -46,11 +46,22 @@ Inside the `prefix + T` sesh picker:
 
 ## Plugin Bindings
 
+- `Ctrl-p`: open `tmux-palette`
 - `prefix + *`: kill the foreground process in the current pane with `SIGKILL` via `tmux-cowboy`
 - `prefix + F`: open `tmux-fzf`
 - `prefix + I`: install plugins with TPM
 - `prefix + U`: update plugins with TPM
 - `prefix + Alt-u`: remove plugins no longer declared in `.tmux.conf`
+
+## tmux-palette
+
+Open with `Ctrl-p`.
+
+Repo-managed additions:
+
+- `Panes`: capture pane to file, synchronize panes, clear scrollback
+- `System`: show messages, scratch popup
+- `TMUX Plugins`: individual palettes for `tmux-fzf`, `TPM`, `tmux-cowboy`, and `tmux-sensible`
 
 ## Useful tmux-sensible Bindings
 

@@ -1,0 +1,62 @@
+{
+  "title": "tmux-fzf",
+  "grouped": true,
+  "items": [
+    {
+      "icon": "󰈺",
+      "title": "tmux-fzf Full Menu",
+      "category": "Menus",
+      "description": "open the full tmux-fzf menu",
+      "action": { "tmux": "run-shell -b '~/.config/tmux/plugins/tmux-fzf/main.sh'" }
+    },
+    {
+      "icon": "󱂬",
+      "title": "Sessions",
+      "category": "Pickers",
+      "description": "switch, create, rename, detach, kill",
+      "action": { "tmux": "run-shell -b '~/.config/tmux/plugins/tmux-fzf/scripts/session.sh'" }
+    },
+    {
+      "icon": "󰖲",
+      "title": "Windows",
+      "category": "Pickers",
+      "description": "switch, link, move, swap, rename, kill",
+      "action": { "tmux": "run-shell -b '~/.config/tmux/plugins/tmux-fzf/scripts/window.sh'" }
+    },
+    {
+      "icon": "󰍉",
+      "title": "Panes",
+      "category": "Pickers",
+      "description": "switch, break, join, swap, layout, kill, resize",
+      "action": { "tmux": "run-shell -b '~/.config/tmux/plugins/tmux-fzf/scripts/pane.sh'" }
+    },
+    {
+      "icon": "󰘳",
+      "title": "Key Bindings",
+      "category": "Pickers",
+      "description": "search bindings and execute",
+      "action": { "tmux": "run-shell -b '~/.config/tmux/plugins/tmux-fzf/scripts/keybinding.sh'" }
+    },
+    {
+      "icon": "󰘵",
+      "title": "Commands",
+      "category": "Pickers",
+      "description": "search tmux commands",
+      "action": { "tmux": "run-shell -b '~/.config/tmux/plugins/tmux-fzf/scripts/command.sh'" }
+    },
+    {
+      "icon": "󰅌",
+      "title": "Clipboard",
+      "category": "Pickers",
+      "description": "search tmux buffers or CopyQ",
+      "action": { "tmux": "run-shell -b '~/.config/tmux/plugins/tmux-fzf/scripts/clipboard.sh'" }
+    },
+    {
+      "icon": "󰒍",
+      "title": "Processes",
+      "category": "Pickers",
+      "description": "inspect and signal processes",
+      "action": { "tmux": "run-shell -b '~/.config/tmux/plugins/tmux-fzf/scripts/process.sh'" }
+    }
+  ]
+}

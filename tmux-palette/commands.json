@@ -1,0 +1,71 @@
+[
+  {
+    "icon": "󰆏",
+    "title": "Capture Pane to File",
+    "category": "Panes",
+    "description": "save current pane scrollback to ~/tmux-captures",
+    "action": {
+      "tmux": "run-shell 'mkdir -p \"$HOME/tmux-captures\"; file=\"$HOME/tmux-captures/tmux-capture-$(date +%Y%m%d-%H%M%S).txt\"; tmux capture-pane -pS - -t \"#{pane_id}\" > \"$file\"; tmux display-message \"Captured pane to $file\"'"
+    }
+  },
+  {
+    "icon": "󰓦",
+    "title": "Synchronize Panes",
+    "category": "Panes",
+    "description": "toggle input to all panes in this window",
+    "action": {
+      "tmux": "set-window-option synchronize-panes \\; display-message 'synchronize-panes #{?pane_synchronized,on,off}'"
+    }
+  },
+  {
+    "icon": "󰃢",
+    "title": "Clear Scrollback",
+    "category": "Panes",
+    "description": "clear visible screen and pane history",
+    "action": { "tmux": "send-keys C-l \\; clear-history" }
+  },
+  {
+    "icon": "󰍡",
+    "title": "Show Messages",
+    "category": "System",
+    "description": "show recent tmux messages",
+    "action": { "tmux": "show-messages" }
+  },
+  {
+    "icon": "󰒉",
+    "title": "Scratch Popup",
+    "category": "System",
+    "description": "open or attach Scratch-Terminal popup",
+    "action": {
+      "tmux": "display-popup -E -h '80%' -w '80%' \"tmux new-session -A -s 'Scratch-Terminal'\""
+    }
+  },
+  {
+    "icon": "󰈺",
+    "title": "tmux-fzf",
+    "category": "TMUX Plugins",
+    "description": "fzf-powered tmux pickers",
+    "action": { "palette": "plugin-tmux-fzf" }
+  },
+  {
+    "icon": "󰏖",
+    "title": "TPM",
+    "category": "TMUX Plugins",
+    "description": "install, update, and clean plugins",
+    "action": { "palette": "plugin-tpm" }
+  },
+  {
+    "icon": "󰒃",
+    "title": "tmux-cowboy",
+    "category": "TMUX Plugins",
+    "description": "signal the current pane process",
+    "action": { "palette": "plugin-tmux-cowboy" }
+  },
+  {
+    "icon": "󰘚",
+    "title": "tmux-sensible",
+    "category": "TMUX Plugins",
+    "description": "inspect effective sensible defaults",
+    "action": { "palette": "plugin-tmux-sensible" }
+  }
+]
