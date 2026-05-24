@@ -67,5 +67,19 @@
     "category": "TMUX Plugins",
     "description": "inspect effective sensible defaults",
     "action": { "palette": "plugin-tmux-sensible" }
+  },
+  {
+    "icon": "󰦛",
+    "title": "tmux-resurrect",
+    "category": "TMUX Plugins",
+    "description": "save, restore, and inspect saved sessions",
+    "action": { "palette": "plugin-tmux-resurrect" }
+  },
+  {
+    "icon": "󰑓",
+    "title": "tmux-continuum",
+    "category": "TMUX Plugins",
+    "description": "inspect and trigger autosave behavior",
+    "action": { "palette": "plugin-tmux-continuum" }
   }
 ]

@@ -32,6 +32,9 @@ This config intentionally stays small:
 - the active window is highlighted in yellow and inactive windows are muted
 - the right side can show `PREFIX`, `mouse`, and `sync` state indicators when active
 - the right side shows both local time and UTC time for log-reading/reference
+- sessions, windows, panes, working directories, and captured pane output can be saved and restored with `tmux-resurrect`
+- sessions are autosaved every 15 minutes while tmux is running and the status line is enabled
+- saved sessions are restored automatically when a new tmux server starts
 
 ## Key Bindings Added Here
 
@@ -41,6 +44,8 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + m`: toggle mouse mode
 - `prefix + Ctrl-e`: capture the current pane plus scrollback into `$VISUAL` or `$EDITOR` in a new tmux window
 - `prefix + Ctrl-s`: open a popup attached to the reusable `Scratch-Terminal` session
+- `prefix + S`: save the current tmux state with `tmux-resurrect`
+- `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open a `sesh` session picker in an `fzf-tmux` popup and connect to the selected entry
 - `prefix + prefix`: send literal `Ctrl-a` to the pane
 - `prefix + c`: new window in current pane path
@@ -75,6 +80,8 @@ Current plugins:
 - `tmux-plugins/tmux-cowboy`
 - `sainnhe/tmux-fzf`
 - `eduwass/tmux-palette`
+- `tmux-plugins/tmux-resurrect`
+- `tmux-plugins/tmux-continuum`
 
 Notes:
 
@@ -82,6 +89,18 @@ Notes:
 - `tmux-cowboy` provides `prefix + *` to send `SIGKILL` to the foreground process in the current pane.
 - `tmux-fzf` provides a fuzzy menu for tmux sessions, windows, panes, buffers, and more.
 - `tmux-palette` provides the `Ctrl-p` command palette and reads repo-managed JSON from `~/.config/tmux-palette`.
+- `tmux-resurrect` saves and restores tmux sessions, layouts, working directories, and captured pane output.
+- `tmux-continuum` autosaves every 15 minutes and restores the most recent saved state when a new tmux server starts.
+- `tmux-continuum` must stay last in `.tmux.conf` because it hooks through `status-right`.
+
+`tmux-continuum` does not start tmux at OS login in this config. Start tmux after a reboot, then let continuum restore automatically or use `prefix + Ctrl-r`.
+
+Saved tmux state lives in the `tmux-resurrect` save directory. This config does not set `@resurrect-dir`, so the plugin uses its default lookup:
+
+- `~/.tmux/resurrect` if that directory already exists
+- otherwise `${XDG_DATA_HOME:-~/.local/share}/tmux/resurrect`
+
+On this machine, saves are currently under `~/.local/share/tmux/resurrect`, with `last` pointing at the most recent save file.
 
 ## tmux-palette
 
@@ -97,7 +116,9 @@ Bootstrap links it to:
 ~/.config/tmux-palette
 ```
 
-The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, `TPM`, `tmux-cowboy`, and `tmux-sensible`. It also adds tmux utility commands such as capture pane to file, synchronize panes, clear scrollback, show messages, and the scratch popup.
+The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, synchronize panes, clear scrollback, show messages, and the scratch popup.
+
+The `tmux-resurrect` palette can save and restore tmux state, list saved snapshots from the active save directory, show the latest save target, and inspect resurrect options. The `tmux-continuum` palette can trigger save/restore scripts, show continuum status, inspect autosave settings, and list autosave files. It intentionally does not include boot-start commands.
 
 ## Reloading
 
@@ -112,6 +133,14 @@ Or use:
 ```text
 prefix + r
 ```
+
+After adding or updating plugins, install them with:
+
+```text
+prefix + I
+```
+
+Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
 
 ## Bootstrap On A New Machine
 
@@ -144,7 +173,7 @@ It checks:
 - `~/.config/tmux-palette` symlink target
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`
-- expected live tmux options, terminal features, and key bindings
+- expected live tmux options, terminal features, plugin declarations, and key bindings
 
 ## Portability
 

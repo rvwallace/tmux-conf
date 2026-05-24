@@ -11,6 +11,7 @@ The status bar uses:
 - top position
 - right-side state flags for prefix, mouse, and synchronized panes
 - both local time and UTC time are shown on the right
+- the status line must remain enabled because `tmux-continuum` uses it for autosave
 
 Terminal input behavior:
 
@@ -29,6 +30,8 @@ Ctrl-a
 - `prefix + m`: toggle mouse mode
 - `prefix + Ctrl-e`: open current pane output plus scrollback in `$VISUAL` or `$EDITOR`
 - `prefix + Ctrl-s`: open the reusable `Scratch-Terminal` popup session
+- `prefix + S`: save tmux state now with `tmux-resurrect`
+- `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open the `sesh` session picker popup
 - `prefix + prefix`: send literal `Ctrl-a` to the current pane
 - `prefix + c`: create a new window in the current pane path
@@ -52,6 +55,17 @@ Inside the `prefix + T` sesh picker:
 - `prefix + I`: install plugins with TPM
 - `prefix + U`: update plugins with TPM
 - `prefix + Alt-u`: remove plugins no longer declared in `.tmux.conf`
+- `prefix + S`: save sessions, windows, panes, working directories, and captured pane output with `tmux-resurrect`
+- `prefix + Ctrl-r`: restore saved tmux state with `tmux-resurrect`
+
+## Reboot Recovery
+
+- Before a planned reboot, run `prefix + S` to save immediately.
+- After reboot, start tmux. `tmux-continuum` restores the most recent saved state when the new tmux server starts.
+- If automatic restore does not run or you need to restore explicitly, use `prefix + Ctrl-r`.
+- Autosave runs every 15 minutes while tmux is running and the status line is enabled.
+- Captured pane output is restored as a recovery net, but important command output should still be saved with a log file, `tee`, or another durable artifact.
+- Saved state is currently under `~/.local/share/tmux/resurrect`; `last` points at the most recent save. If `~/.tmux/resurrect` exists or `@resurrect-dir` is set, Resurrect can use that path instead.
 
 ## tmux-palette
 
@@ -61,7 +75,12 @@ Repo-managed additions:
 
 - `Panes`: capture pane to file, synchronize panes, clear scrollback
 - `System`: show messages, scratch popup
-- `TMUX Plugins`: individual palettes for `tmux-fzf`, `TPM`, `tmux-cowboy`, and `tmux-sensible`
+- `TMUX Plugins`: individual palettes for `tmux-fzf`, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`
+
+Useful plugin palette actions:
+
+- `tmux-resurrect`: save state, restore state, list saved states from the active save directory, show latest save, show options
+- `tmux-continuum`: run continuum save, run continuum restore, show status, show options, list autosave files
 
 ## Useful tmux-sensible Bindings
 

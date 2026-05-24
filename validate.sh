@@ -57,6 +57,12 @@ pass "tmux-palette commands.json present"
 [ -f "$TARGET_PALETTE_DIR/palettes/plugin-tmux-fzf.json" ] || fail "tmux-fzf palette missing"
 pass "tmux-fzf palette present"
 
+[ -f "$TARGET_PALETTE_DIR/palettes/plugin-tmux-resurrect.json" ] || fail "tmux-resurrect palette missing"
+pass "tmux-resurrect palette present"
+
+[ -f "$TARGET_PALETTE_DIR/palettes/plugin-tmux-continuum.json" ] || fail "tmux-continuum palette missing"
+pass "tmux-continuum palette present"
+
 [ -d "$TPM_DIR/.git" ] || fail "TPM is not installed at $TPM_DIR"
 pass "TPM installed at $TPM_DIR"
 
@@ -73,8 +79,25 @@ expect_contains "tmux show -g status-right" "local #(LC_ALL=C date +'%%Y-%%m-%%d
 expect_contains "tmux show -g status-right" "UTC #(LC_ALL=C TZ=UTC date +'%%Y-%%m-%%d %%H:%%M')" "status-right UTC clock"
 expect_contains "tmux show -g terminal-features" "xterm-256color:RGB:extkeys" "xterm extended keys terminal feature"
 expect_contains "tmux show -g terminal-features" "tmux-256color:RGB:extkeys" "nested tmux extended keys terminal feature"
+expect_contains "grep -F \"set -g @plugin 'tmux-plugins/tmux-resurrect'\" \"$REPO_DIR/.tmux.conf\"" "tmux-plugins/tmux-resurrect" "tmux-resurrect plugin declaration"
+expect_contains "grep -F \"set -g @plugin 'tmux-plugins/tmux-continuum'\" \"$REPO_DIR/.tmux.conf\"" "tmux-plugins/tmux-continuum" "tmux-continuum plugin declaration"
+expect_tmux_option "tmux show -g @resurrect-capture-pane-contents" "@resurrect-capture-pane-contents on"
+expect_tmux_option "tmux show -g @continuum-restore" "@continuum-restore on"
+expect_tmux_option "tmux show -g @continuum-save-interval" "@continuum-save-interval 15"
+expect_tmux_option "tmux show -g status" "status on"
+expect_contains "tmux show -g default-command" "default-command" "default-command present"
+if tmux show -g default-command | grep -E '&&|\|\|' >/dev/null; then
+  fail "default-command contains shell conditionals that can interfere with restore"
+fi
+pass "default-command restore-compatible"
 expect_contains "tmux list-keys" "bind-key    -T prefix       C-s" "scratch popup binding"
+expect_contains "tmux list-keys -T prefix S" "tmux-resurrect/scripts/save.sh" "tmux-resurrect save binding"
+expect_contains "tmux list-keys -T prefix C-r" "tmux-resurrect/scripts/restore.sh" "tmux-resurrect restore binding"
 expect_contains "tmux list-keys" "bind-key    -T prefix       C-e" "scrollback editor binding"
 expect_contains "tmux list-keys -T root C-p" "tmux-palette/bin/tmux-palette.sh" "tmux-palette root binding"
+expect_contains "grep -F '\"palette\": \"plugin-tmux-resurrect\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-tmux-resurrect" "tmux-resurrect palette root entry"
+expect_contains "grep -F '\"palette\": \"plugin-tmux-continuum\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-tmux-continuum" "tmux-continuum palette root entry"
+expect_contains "grep -F 'tmux-resurrect/scripts/save.sh' \"$REPO_DIR/tmux-palette/palettes/plugin-tmux-resurrect.json\"" "tmux-resurrect/scripts/save.sh" "tmux-resurrect palette save command"
+expect_contains "grep -F 'tmux-continuum/scripts/continuum_save.sh' \"$REPO_DIR/tmux-palette/palettes/plugin-tmux-continuum.json\"" "tmux-continuum/scripts/continuum_save.sh" "tmux-continuum palette save command"
 
 printf '\nValidation completed successfully.\n'
