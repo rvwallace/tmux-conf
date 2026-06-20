@@ -28,10 +28,10 @@ This config intentionally stays small:
 - windows and panes are numbered from `1`
 - windows are renumbered after closes
 - new windows and splits inherit the current pane path
-- the status bar sits at the top with a distinct dark background
-- the active window is highlighted in yellow and inactive windows are muted
-- the right side can show `PREFIX`, `mouse`, and `sync` state indicators when active
-- the right side shows both local time and UTC time for log-reading/reference
+- the status bar sits at the top with a distinct dark background and Nerd Font icons
+- the active window is highlighted in yellow, inactive windows are muted, and zoomed windows are marked
+- the right side can show `PREFIX`, copy mode, mouse, and synchronized-pane state indicators
+- the right side shows the active command, working-directory basename, local date/time, UTC time, and hostname
 - sessions, windows, panes, working directories, and captured pane output can be saved and restored with `tmux-resurrect`
 - sessions are autosaved every 15 minutes while tmux is running and the status line is enabled
 - saved sessions are restored automatically when a new tmux server starts
@@ -49,8 +49,11 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + T`: open a `sesh` session picker in an `fzf-tmux` popup and connect to the selected entry
 - `prefix + prefix`: send literal `Ctrl-a` to the pane
 - `prefix + c`: new window in current pane path
+- `prefix + n`: next window, explicitly restored for long-lived tmux servers
 - `prefix + "`: vertical split in current pane path
 - `prefix + %`: horizontal split in current pane path
+- `prefix + -`: vertical split in current pane path
+- `prefix + |`: horizontal split in current pane path
 
 Inside the `prefix + T` picker:
 
@@ -141,6 +144,8 @@ prefix + I
 ```
 
 Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
+
+The status icons require a [Nerd Font](https://www.nerdfonts.com/) in the outer terminal. The status line remains usable if those glyphs are unavailable, but the icons will render as missing-character boxes.
 
 ## Bootstrap On A New Machine
 

@@ -2,15 +2,15 @@
 
 This sheet documents the most useful keys and commands for the current config.
 
-The status bar uses:
+The status bar uses (with a Nerd Font configured in the outer terminal):
 
-- blue session block on the left
-- yellow active window highlight
-- muted inactive windows
+- blue session block with a terminal icon on the left
+- yellow active window highlight, muted inactive windows, and a zoom marker
 - dark background so it stays visually separate from pane content
 - top position
-- right-side state flags for prefix, mouse, and synchronized panes
-- both local time and UTC time are shown on the right
+- right-side state flags for prefix, copy mode, mouse, and synchronized panes
+- active command and working-directory basename
+- local date/time, UTC time, and hostname
 - the status line must remain enabled because `tmux-continuum` uses it for autosave
 
 Terminal input behavior:
@@ -35,8 +35,11 @@ Ctrl-a
 - `prefix + T`: open the `sesh` session picker popup
 - `prefix + prefix`: send literal `Ctrl-a` to the current pane
 - `prefix + c`: create a new window in the current pane path
+- `prefix + n`: next window
 - `prefix + "`: split vertically in the current pane path
 - `prefix + %`: split horizontally in the current pane path
+- `prefix + -`: split vertically in the current pane path
+- `prefix + |`: split horizontally in the current pane path
 
 Inside the `prefix + T` sesh picker:
 
@@ -91,7 +94,6 @@ Useful plugin palette actions:
 
 ## Useful Built-In tmux Bindings
 
-- `prefix + n`: next window
 - `prefix + p`: previous window
 - `prefix + 1..9`: jump to window by index
 - window and pane numbering starts at `1`
