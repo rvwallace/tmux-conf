@@ -75,6 +75,7 @@ expect_tmux_option "tmux show-window -g pane-base-index" "pane-base-index 1"
 expect_tmux_option "tmux show -g status-position" "status-position top"
 expect_tmux_option "tmux show -g status-interval" "status-interval 5"
 expect_tmux_option "tmux show -g extended-keys" "extended-keys on"
+expect_tmux_option "tmux show -g extended-keys-format" "extended-keys-format csi-u"
 
 expect_contains "tmux show -g status-right" "#{pane_current_command}" "status-right active command"
 expect_contains "tmux show -g status-right" "#{b:pane_current_path}" "status-right working directory"

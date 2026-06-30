@@ -15,7 +15,7 @@ The status bar uses (with a Nerd Font configured in the outer terminal):
 
 Terminal input behavior:
 
-- modified keys are forwarded with tmux extended key reporting enabled
+- modified keys are forwarded with tmux extended key reporting enabled in CSI-u format
 - this is intended to let apps inside tmux distinguish keys such as `Shift-Enter` from plain `Enter` when the outer terminal supports extended keys
 
 Assume the tmux prefix is the default:

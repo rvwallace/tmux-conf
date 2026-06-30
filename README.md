@@ -21,7 +21,7 @@ This config intentionally stays small:
 - prefix is `Ctrl-a`
 - `default-terminal` is set to `tmux-256color`
 - RGB terminal features are enabled for common terminals
-- extended keyboard reporting is enabled for `xterm-256color` and `tmux-256color` so modified keys such as `Shift-Enter` can reach apps inside tmux
+- extended keyboard reporting is enabled for `xterm-256color` and `tmux-256color`, using CSI-u format so modified keys such as `Shift-Enter` can reach apps inside tmux
 - history limit is `100000`
 - mouse mode starts enabled
 - command prompt and copy mode use vi keys
