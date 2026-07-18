@@ -5,7 +5,7 @@ This sheet documents the most useful keys and commands for the current config.
 The status bar uses (with a Nerd Font configured in the outer terminal):
 
 - blue session block with a terminal icon on the left
-- yellow active window highlight, muted inactive windows, and a zoom marker
+- window tabs with angled caps on both sides, a yellow active highlight, muted inactive windows, and a zoom marker
 - dark background so it stays visually separate from pane content
 - top position
 - right-side state flags for prefix, copy mode, mouse, and synchronized panes
@@ -17,6 +17,12 @@ Terminal input behavior:
 
 - modified keys are forwarded with tmux extended key reporting enabled in CSI-u format
 - this is intended to let apps inside tmux distinguish keys such as `Shift-Enter` from plain `Enter` when the outer terminal supports extended keys
+
+Pane borders:
+
+- every pane has a top border label showing its pane number and active command
+- the active pane border is cyan; inactive pane borders are muted
+- borders use single-line characters
 
 Assume the tmux prefix is the default:
 
