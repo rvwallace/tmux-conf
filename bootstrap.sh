@@ -14,6 +14,18 @@ TPM_REPO="https://github.com/tmux-plugins/tpm"
 
 echo "Repo dir: ${REPO_DIR}"
 
+if ! "${REPO_DIR}/scripts/install-deps.sh" --check; then
+  if [ -t 0 ]; then
+    read -r -p "Install available tmux-conf dependencies now? [y/N] " install_deps || true
+    case "${install_deps:-}" in
+      y | Y | yes | YES) "${REPO_DIR}/scripts/install-deps.sh" --install || true ;;
+      *) echo "Skipped dependency installation." ;;
+    esac
+  else
+    echo "Run ./scripts/install-deps.sh --install to install available dependencies."
+  fi
+fi
+
 mkdir -p "${PLUGIN_DIR}"
 mkdir -p "${SCRIPT_DIR}"
 

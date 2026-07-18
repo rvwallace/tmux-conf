@@ -53,6 +53,9 @@ expect_symlink_target "$TARGET_SCRIPT" "$REPO_DIR/scripts/edit-scrollback.sh"
 expect_symlink_target "$TARGET_COPY_PATH_SCRIPT" "$REPO_DIR/scripts/copy-pane-path.sh"
 expect_symlink_target "$TARGET_PALETTE_DIR" "$REPO_DIR/tmux-palette"
 
+"$REPO_DIR/scripts/install-deps.sh" --check || fail "runtime dependencies missing"
+pass "runtime dependencies present"
+
 [ -f "$TARGET_PALETTE_DIR/commands.json" ] || fail "tmux-palette commands.json missing"
 pass "tmux-palette commands.json present"
 

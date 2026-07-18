@@ -8,11 +8,13 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 
 - [`./.tmux.conf`](./.tmux.conf): source of truth for tmux configuration.
 - [`./bootstrap.sh`](./bootstrap.sh): sets up the `~/.tmux.conf` symlink and TPM path on a machine.
+- [`./Brewfile`](./Brewfile): macOS runtime dependencies used by the configuration and palette utilities.
 - [`./validate.sh`](./validate.sh): checks symlinks, TPM, tmux reloadability, and expected live settings.
 - [`./CHEATSHEET.md`](./CHEATSHEET.md): commonly used key bindings and commands.
 - [`./AGENTS.md`](./AGENTS.md): maintenance rules for future edits.
 - [`./scripts/edit-scrollback.sh`](./scripts/edit-scrollback.sh): captures pane output and opens it in `$VISUAL` or `$EDITOR`.
 - [`./scripts/copy-pane-path.sh`](./scripts/copy-pane-path.sh): safely copies the active pane directory to the system clipboard or tmux buffer.
+- [`./scripts/install-deps.sh`](./scripts/install-deps.sh): checks or installs runtime dependencies on macOS and Linux.
 - [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
 
 ## Current Behavior
@@ -162,12 +164,24 @@ Run:
 
 This script:
 
+- checks required commands and offers to install available dependencies
+- uses `brew bundle` with [`./Brewfile`](./Brewfile) on macOS
+- uses `pacman`, `apt`, or `dnf` for packages available on Linux and prints official guidance for unresolved tools
 - recreates the `~/.tmux.conf` symlink to this repo
 - recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/copy-pane-path.sh` symlink to this repo
 - recreates the `~/.config/tmux-palette` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
+
+Dependency checks can also be run directly:
+
+```sh
+./scripts/install-deps.sh --check
+./scripts/install-deps.sh --install
+```
+
+The managed command set is `tmux`, Git, Bash, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
 
 ## Validation
 
@@ -186,6 +200,7 @@ It checks:
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`
 - expected live tmux options, terminal features, plugin declarations, and key bindings
+- runtime command availability through `scripts/install-deps.sh`
 
 ## Portability
 
