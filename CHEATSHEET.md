@@ -61,11 +61,21 @@ Inside the `prefix + T` sesh picker:
 - `Ctrl-p`: open `tmux-palette`
 - `prefix + *`: kill the foreground process in the current pane with `SIGKILL` via `tmux-cowboy`
 - `prefix + F`: open `tmux-fzf`
+- `prefix + Tab`: open Extrakto to fuzzy-find text from pane history
 - `prefix + I`: install plugins with TPM
 - `prefix + U`: update plugins with TPM
 - `prefix + Alt-u`: remove plugins no longer declared in `.tmux.conf`
 - `prefix + S`: save sessions, windows, panes, working directories, and captured pane output with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore saved tmux state with `tmux-resurrect`
+
+Inside Extrakto:
+
+- type to fuzzy-find text, paths, URLs, or complete lines
+- `Tab`: insert the selected item into the current pane
+- `Enter`: copy the selected item to the macOS clipboard
+- `Ctrl-f`: change the extraction filter
+- `Ctrl-g`: change which pane history is searched
+- `Ctrl-l`: show Extrakto help
 
 ## Reboot Recovery
 
@@ -84,10 +94,11 @@ Repo-managed additions:
 
 - `Panes`: capture pane to file, synchronize panes, clear scrollback
 - `System`: show messages, scratch popup
-- `TMUX Plugins`: individual palettes for `tmux-fzf`, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`
+- `TMUX Plugins`: individual palettes for `tmux-fzf`, Extrakto, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`
 
 Useful plugin palette actions:
 
+- `Extrakto`: default extraction, focused word/line/path/URL extraction, plugin help
 - `tmux-resurrect`: save state, restore state, list saved states from the active save directory, show latest save, show options
 - `tmux-continuum`: run continuum save, run continuum restore, show status, show options, list autosave files
 

@@ -1,0 +1,60 @@
+{
+  "title": "Extrakto",
+  "grouped": true,
+  "items": [
+    {
+      "icon": "󰱼",
+      "title": "Extract Text",
+      "category": "Extract",
+      "description": "fuzzy-find using the default filter",
+      "action": {
+        "tmux": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\"'"
+      }
+    },
+    {
+      "icon": "󰬴",
+      "title": "Extract Words",
+      "category": "Extract",
+      "description": "fuzzy-find individual words",
+      "action": {
+        "tmux": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\" word'"
+      }
+    },
+    {
+      "icon": "󰈔",
+      "title": "Extract Lines",
+      "category": "Extract",
+      "description": "fuzzy-find complete lines",
+      "action": {
+        "tmux": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\" line'"
+      }
+    },
+    {
+      "icon": "󰉋",
+      "title": "Extract Paths",
+      "category": "Extract",
+      "description": "fuzzy-find filesystem paths",
+      "action": {
+        "tmux": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\" path'"
+      }
+    },
+    {
+      "icon": "󰖟",
+      "title": "Extract URLs",
+      "category": "Extract",
+      "description": "fuzzy-find web addresses",
+      "action": {
+        "tmux": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\" url'"
+      }
+    },
+    {
+      "icon": "󰋖",
+      "title": "Extrakto Help",
+      "category": "Help",
+      "description": "open the plugin key and feature reference",
+      "action": {
+        "popup": "sh -lc 'less ~/.config/tmux/plugins/extrakto/HELP.md'"
+      }
+    }
+  ]
+}

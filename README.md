@@ -65,9 +65,8 @@ Inside the `prefix + T` picker:
 - `Ctrl-f`: run a directory search (`fd`) and show matches
 - `Ctrl-d`: kill the selected tmux session, then refresh
 
-This config also explicitly removes stale bindings from previously used plugins:
+This config explicitly clears several bindings before plugins initialize, preventing stale definitions in long-lived servers:
 
-- `prefix + Tab`
 - `prefix + Space`
 - `prefix + ?`
 - `prefix + F`
@@ -83,6 +82,7 @@ Current plugins:
 - `tmux-plugins/tmux-sensible`
 - `tmux-plugins/tmux-cowboy`
 - `sainnhe/tmux-fzf`
+- `laktak/extrakto`
 - `eduwass/tmux-palette`
 - `tmux-plugins/tmux-resurrect`
 - `tmux-plugins/tmux-continuum`
@@ -92,6 +92,7 @@ Notes:
 - `tmux-sensible` provides sane defaults and a few standard bindings.
 - `tmux-cowboy` provides `prefix + *` to send `SIGKILL` to the foreground process in the current pane.
 - `tmux-fzf` provides a fuzzy menu for tmux sessions, windows, panes, buffers, and more.
+- `extrakto` provides `prefix + Tab` to fuzzy-find text, paths, URLs, and lines from pane history, then insert or copy a selection. Native copy mode can perform manual selection and search, but extracting structured items from large pane histories is materially more tedious.
 - `tmux-palette` provides the `Ctrl-p` command palette and reads repo-managed JSON from `~/.config/tmux-palette`.
 - `tmux-resurrect` saves and restores tmux sessions, layouts, working directories, and captured pane output.
 - `tmux-continuum` autosaves every 15 minutes and restores the most recent saved state when a new tmux server starts.
@@ -120,9 +121,9 @@ Bootstrap links it to:
 ~/.config/tmux-palette
 ```
 
-The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, synchronize panes, clear scrollback, show messages, and the scratch popup.
+The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, synchronize panes, clear scrollback, show messages, and the scratch popup.
 
-The `tmux-resurrect` palette can save and restore tmux state, list saved snapshots from the active save directory, show the latest save target, and inspect resurrect options. The `tmux-continuum` palette can trigger save/restore scripts, show continuum status, inspect autosave settings, and list autosave files. It intentionally does not include boot-start commands.
+The Extrakto palette can start default, word, line, path, or URL extraction and open the plugin help. The `tmux-resurrect` palette can save and restore tmux state, list saved snapshots from the active save directory, show the latest save target, and inspect resurrect options. The `tmux-continuum` palette can trigger save/restore scripts, show continuum status, inspect autosave settings, and list autosave files. It intentionally does not include boot-start commands.
 
 ## Reloading
 

@@ -48,6 +48,13 @@
     "action": { "palette": "plugin-tmux-fzf" }
   },
   {
+    "icon": "󰱼",
+    "title": "Extrakto",
+    "category": "TMUX Plugins",
+    "description": "extract text, paths, and URLs from pane history",
+    "action": { "palette": "plugin-extrakto" }
+  },
+  {
     "icon": "󰏖",
     "title": "TPM",
     "category": "TMUX Plugins",
