@@ -25,11 +25,47 @@
     "action": { "tmux": "send-keys C-l \\; clear-history" }
   },
   {
+    "icon": "󰉋",
+    "title": "Copy Pane Directory",
+    "category": "Panes",
+    "description": "copy the current pane path to the clipboard",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/copy-pane-path.sh \"#{pane_id}\"'"
+    }
+  },
+  {
+    "icon": "󰊢",
+    "title": "Lazygit Popup",
+    "category": "Git",
+    "description": "open lazygit in the current pane directory",
+    "action": {
+      "tmux": "display-popup -E -d '#{pane_current_path}' -w '90%' -h '90%' lazygit"
+    }
+  },
+  {
+    "icon": "󰘬",
+    "title": "Repository Overview",
+    "category": "Git",
+    "description": "show Onefetch statistics for the current repository",
+    "action": {
+      "tmux": "display-popup -E -d '#{pane_current_path}' -w '90%' -h '90%' \"sh -lc 'onefetch; printf \\\"\\nPress Enter to close\\\"; read -r _'\""
+    }
+  },
+  {
     "icon": "󰍡",
     "title": "Show Messages",
     "category": "System",
     "description": "show recent tmux messages",
     "action": { "tmux": "show-messages" }
+  },
+  {
+    "icon": "󰍛",
+    "title": "System Monitor",
+    "category": "System",
+    "description": "open btop in a large popup",
+    "action": {
+      "tmux": "display-popup -E -w '90%' -h '85%' btop"
+    }
   },
   {
     "icon": "󰒉",

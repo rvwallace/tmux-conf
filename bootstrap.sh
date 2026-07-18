@@ -5,7 +5,8 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_CONF="${HOME}/.tmux.conf"
 SCRIPT_DIR="${HOME}/.config/tmux/scripts"
-TARGET_SCRIPT="${SCRIPT_DIR}/edit-scrollback.sh"
+TARGET_SCROLLBACK_SCRIPT="${SCRIPT_DIR}/edit-scrollback.sh"
+TARGET_COPY_PATH_SCRIPT="${SCRIPT_DIR}/copy-pane-path.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
 TPM_DIR="${PLUGIN_DIR}/tpm"
@@ -22,11 +23,17 @@ fi
 ln -s "${REPO_DIR}/.tmux.conf" "${TARGET_CONF}"
 echo "Linked ${TARGET_CONF} -> ${REPO_DIR}/.tmux.conf"
 
-if [ -L "${TARGET_SCRIPT}" ] || [ -e "${TARGET_SCRIPT}" ]; then
-  rm -f "${TARGET_SCRIPT}"
+if [ -L "${TARGET_SCROLLBACK_SCRIPT}" ] || [ -e "${TARGET_SCROLLBACK_SCRIPT}" ]; then
+  rm -f "${TARGET_SCROLLBACK_SCRIPT}"
 fi
-ln -s "${REPO_DIR}/scripts/edit-scrollback.sh" "${TARGET_SCRIPT}"
-echo "Linked ${TARGET_SCRIPT} -> ${REPO_DIR}/scripts/edit-scrollback.sh"
+ln -s "${REPO_DIR}/scripts/edit-scrollback.sh" "${TARGET_SCROLLBACK_SCRIPT}"
+echo "Linked ${TARGET_SCROLLBACK_SCRIPT} -> ${REPO_DIR}/scripts/edit-scrollback.sh"
+
+if [ -L "${TARGET_COPY_PATH_SCRIPT}" ] || [ -e "${TARGET_COPY_PATH_SCRIPT}" ]; then
+  rm -f "${TARGET_COPY_PATH_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/copy-pane-path.sh" "${TARGET_COPY_PATH_SCRIPT}"
+echo "Linked ${TARGET_COPY_PATH_SCRIPT} -> ${REPO_DIR}/scripts/copy-pane-path.sh"
 
 if [ -L "${TARGET_PALETTE_DIR}" ]; then
   rm -f "${TARGET_PALETTE_DIR}"

@@ -5,6 +5,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_CONF="${HOME}/.tmux.conf"
 TARGET_SCRIPT="${HOME}/.config/tmux/scripts/edit-scrollback.sh"
+TARGET_COPY_PATH_SCRIPT="${HOME}/.config/tmux/scripts/copy-pane-path.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
 TPM_DIR="${HOME}/.config/tmux/plugins/tpm"
 
@@ -49,6 +50,7 @@ expect_contains() {
 
 expect_symlink_target "$TARGET_CONF" "$REPO_DIR/.tmux.conf"
 expect_symlink_target "$TARGET_SCRIPT" "$REPO_DIR/scripts/edit-scrollback.sh"
+expect_symlink_target "$TARGET_COPY_PATH_SCRIPT" "$REPO_DIR/scripts/copy-pane-path.sh"
 expect_symlink_target "$TARGET_PALETTE_DIR" "$REPO_DIR/tmux-palette"
 
 [ -f "$TARGET_PALETTE_DIR/commands.json" ] || fail "tmux-palette commands.json missing"
@@ -119,6 +121,10 @@ expect_contains "grep -F '\"palette\": \"plugin-tmux-resurrect\"' \"$REPO_DIR/tm
 expect_contains "grep -F '\"palette\": \"plugin-tmux-continuum\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-tmux-continuum" "tmux-continuum palette root entry"
 expect_contains "grep -F '\"palette\": \"plugin-extrakto\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-extrakto" "Extrakto palette root entry"
 expect_contains "grep -F 'extrakto/scripts/open.sh' \"$REPO_DIR/tmux-palette/palettes/plugin-extrakto.json\"" "extrakto/scripts/open.sh" "Extrakto palette extraction command"
+expect_contains "grep -F 'copy-pane-path.sh' \"$REPO_DIR/tmux-palette/commands.json\"" "copy-pane-path.sh" "copy pane directory palette command"
+expect_contains "grep -F \"display-popup -E -d '#{pane_current_path}'\" \"$REPO_DIR/tmux-palette/commands.json\"" "lazygit" "lazygit popup palette command"
+expect_contains "grep -F 'onefetch' \"$REPO_DIR/tmux-palette/commands.json\"" "onefetch" "Onefetch popup palette command"
+expect_contains "grep -F \"display-popup -E -w '90%' -h '85%' btop\" \"$REPO_DIR/tmux-palette/commands.json\"" "btop" "system monitor palette command"
 expect_contains "grep -F 'tmux-resurrect/scripts/save.sh' \"$REPO_DIR/tmux-palette/palettes/plugin-tmux-resurrect.json\"" "tmux-resurrect/scripts/save.sh" "tmux-resurrect palette save command"
 expect_contains "grep -F 'tmux-continuum/scripts/continuum_save.sh' \"$REPO_DIR/tmux-palette/palettes/plugin-tmux-continuum.json\"" "tmux-continuum/scripts/continuum_save.sh" "tmux-continuum palette save command"
 

@@ -92,8 +92,9 @@ Open with `Ctrl-p`.
 
 Repo-managed additions:
 
-- `Panes`: capture pane to file, synchronize panes, clear scrollback
-- `System`: show messages, scratch popup
+- `Panes`: capture pane to file, copy pane directory, synchronize panes, clear scrollback
+- `Git`: open Lazygit or show a Onefetch repository overview in the current pane directory
+- `System`: open `btop`, show messages, scratch popup
 - `TMUX Plugins`: individual palettes for `tmux-fzf`, Extrakto, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`
 
 Useful plugin palette actions:

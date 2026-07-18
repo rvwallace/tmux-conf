@@ -12,6 +12,7 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./CHEATSHEET.md`](./CHEATSHEET.md): commonly used key bindings and commands.
 - [`./AGENTS.md`](./AGENTS.md): maintenance rules for future edits.
 - [`./scripts/edit-scrollback.sh`](./scripts/edit-scrollback.sh): captures pane output and opens it in `$VISUAL` or `$EDITOR`.
+- [`./scripts/copy-pane-path.sh`](./scripts/copy-pane-path.sh): safely copies the active pane directory to the system clipboard or tmux buffer.
 - [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
 
 ## Current Behavior
@@ -121,7 +122,9 @@ Bootstrap links it to:
 ~/.config/tmux-palette
 ```
 
-The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, synchronize panes, clear scrollback, show messages, and the scratch popup.
+The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, copy pane directory, synchronize panes, clear scrollback, Lazygit, Onefetch, and `btop` popups, show messages, and the scratch popup.
+
+The Git and system-monitor palette actions require `lazygit`, `onefetch`, and `btop` to be installed and available on `PATH`. Lazygit and Onefetch run in the current pane directory. The copy-directory action uses `pbcopy`, `wl-copy`, or `xclip` when available, falling back to the tmux buffer.
 
 The Extrakto palette can start default, word, line, path, or URL extraction and open the plugin help. The `tmux-resurrect` palette can save and restore tmux state, list saved snapshots from the active save directory, show the latest save target, and inspect resurrect options. The `tmux-continuum` palette can trigger save/restore scripts, show continuum status, inspect autosave settings, and list autosave files. It intentionally does not include boot-start commands.
 
@@ -161,6 +164,7 @@ This script:
 
 - recreates the `~/.tmux.conf` symlink to this repo
 - recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/copy-pane-path.sh` symlink to this repo
 - recreates the `~/.config/tmux-palette` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
@@ -177,6 +181,7 @@ It checks:
 
 - `~/.tmux.conf` symlink target
 - `~/.config/tmux/scripts/edit-scrollback.sh` symlink target
+- `~/.config/tmux/scripts/copy-pane-path.sh` symlink target
 - `~/.config/tmux-palette` symlink target
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`
