@@ -20,7 +20,7 @@ Terminal input behavior:
 
 Pane borders:
 
-- every pane has a top border label showing its pane number and active command
+- every pane has a top border label showing its pane number, pane title, and active command
 - the active pane border is cyan; inactive pane borders are muted
 - borders use single-line characters
 

@@ -86,6 +86,8 @@ expect_tmux_option "tmux show -g extended-keys" "extended-keys on"
 expect_tmux_option "tmux show -g extended-keys-format" "extended-keys-format csi-u"
 expect_tmux_option "tmux show-window -g pane-border-status" "pane-border-status top"
 expect_tmux_option "tmux show-window -g pane-border-lines" "pane-border-lines single"
+expect_contains "tmux show-window -g pane-border-format" "#{?pane_active,#[fg=#88c0d0]#[bold],#[fg=#7b8794]}" "pane border active style"
+expect_contains "tmux show-window -g pane-border-format" "#T" "pane border title"
 expect_contains "tmux show-window -g pane-border-format" "#{pane_current_command}" "pane border active command"
 
 expect_contains "tmux show -g window-status-format" "#[fg=#252a31,bg=#1f2329]" "inactive window left-pointing cap"

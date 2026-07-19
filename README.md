@@ -31,7 +31,7 @@ This config intentionally stays small:
 - windows and panes are numbered from `1`
 - windows are renumbered after closes
 - new windows and splits inherit the current pane path
-- each pane has a labeled top border showing its pane number and active command, with the active pane highlighted in cyan
+- each pane has a labeled top border showing its pane number, pane title, and active command, with the active pane highlighted in cyan
 - the status bar sits at the top with a distinct dark background and Nerd Font icons
 - window tabs have angled caps on both sides; the active window is highlighted in yellow, inactive windows are muted, and zoomed windows are marked
 - the right side can show `PREFIX`, copy mode, mouse, and synchronized-pane state indicators
