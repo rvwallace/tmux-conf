@@ -103,36 +103,36 @@
   },
   {
     "icon": "󰚩",
-    "title": "Ask AI",
+    "title": "AI: Ask",
     "category": "AI",
-    "description": "ask about the current pane with recent context",
+    "description": "ask aichat about the current pane with recent context",
     "action": {
       "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh ask \"#{pane_id}\"'"
     }
   },
   {
     "icon": "󰒡",
-    "title": "Diagnose Error",
+    "title": "AI: Diagnose Error",
     "category": "AI",
-    "description": "troubleshoot recent pane output",
+    "description": "use aichat to troubleshoot recent pane output",
     "action": {
       "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh error \"#{pane_id}\"'"
     }
   },
   {
     "icon": "󰘳",
-    "title": "Generate Command",
+    "title": "AI: Generate Command",
     "category": "AI",
-    "description": "suggest a shell command without executing it",
+    "description": "have aichat suggest a shell command without executing it",
     "action": {
       "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh command \"#{pane_id}\"'"
     }
   },
   {
     "icon": "󰙎",
-    "title": "Explain",
+    "title": "AI: Explain",
     "category": "AI",
-    "description": "explain a command or snippet with pane context",
+    "description": "have aichat explain a command or snippet with pane context",
     "action": {
       "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain \"#{pane_id}\"'"
     }

@@ -66,12 +66,12 @@ Inside the `prefix + T` sesh picker:
 
 ## AI Assistant
 
-These palette actions require `aichat` in `PATH`. Open `Ctrl-p`, then choose the `AI` category. They send the current pane path, foreground command, and recent scrollback to `aichat`. Ask opens a right-side follow-up loop where blank Enter closes the pane, and diagnose/explain open right-side tmux panes so copy-mode works; generated commands are pasted into the original pane for review and are not executed automatically.
+These palette actions require `aichat` in `PATH`. Open `Ctrl-p` and search for `ai` or `aichat`. They send the current pane path, foreground command, and recent scrollback to `aichat`. Ask opens a right-side follow-up loop where blank Enter closes the pane, and diagnose/explain open right-side tmux panes so copy-mode works; generated commands are pasted into the original pane for review and are not executed automatically.
 
-- `Ask AI`: ask a question about the current pane
-- `Diagnose Error`: diagnose recent pane output
-- `Generate Command`: suggest one shell command into the prompt
-- `Explain`: explain a command or snippet
+- `AI: Ask`: ask a question about the current pane
+- `AI: Diagnose Error`: diagnose recent pane output
+- `AI: Generate Command`: suggest one shell command into the prompt
+- `AI: Explain`: explain a command or snippet
 
 ## Plugin Bindings
 

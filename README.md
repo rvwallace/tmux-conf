@@ -163,7 +163,7 @@ prefix + I
 
 Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
 
-The AI palette actions require the `aichat` CLI in `PATH`. Open the palette with `Ctrl-p`, then choose an action from the `AI` category. They capture the current pane path, foreground command, and recent scrollback. Ask opens a right-side follow-up loop where blank Enter closes the pane, and diagnose/explain open right-side tmux panes so copy-mode works; generated command suggestions are pasted into the original pane for review and are never executed automatically.
+The AI palette actions require the `aichat` CLI in `PATH`. Open the palette with `Ctrl-p` and search for `ai` or `aichat`; every AI title starts with `AI:` and every description includes `aichat`. They capture the current pane path, foreground command, and recent scrollback. Ask opens a right-side follow-up loop where blank Enter closes the pane, and diagnose/explain open right-side tmux panes so copy-mode works; generated command suggestions are pasted into the original pane for review and are never executed automatically.
 
 The status icons require a [Nerd Font](https://www.nerdfonts.com/) in the outer terminal. The status line remains usable if those glyphs are unavailable, but the icons will render as missing-character boxes.
 
