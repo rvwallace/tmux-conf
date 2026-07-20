@@ -8,6 +8,8 @@ SCRIPT_DIR="${HOME}/.config/tmux/scripts"
 TARGET_SCROLLBACK_SCRIPT="${SCRIPT_DIR}/edit-scrollback.sh"
 TARGET_COPY_PATH_SCRIPT="${SCRIPT_DIR}/copy-pane-path.sh"
 TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
+TARGET_AI_SCRIPT="${SCRIPT_DIR}/ai-assist.sh"
+TARGET_AI_PROMPT_SCRIPT="${SCRIPT_DIR}/ai-prompt.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
 TPM_DIR="${PLUGIN_DIR}/tpm"
@@ -53,6 +55,18 @@ if [ -L "${TARGET_SHOW_CLIENTS_SCRIPT}" ] || [ -e "${TARGET_SHOW_CLIENTS_SCRIPT}
 fi
 ln -s "${REPO_DIR}/scripts/show-clients.sh" "${TARGET_SHOW_CLIENTS_SCRIPT}"
 echo "Linked ${TARGET_SHOW_CLIENTS_SCRIPT} -> ${REPO_DIR}/scripts/show-clients.sh"
+
+if [ -L "${TARGET_AI_SCRIPT}" ] || [ -e "${TARGET_AI_SCRIPT}" ]; then
+  rm -f "${TARGET_AI_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/ai-assist.sh" "${TARGET_AI_SCRIPT}"
+echo "Linked ${TARGET_AI_SCRIPT} -> ${REPO_DIR}/scripts/ai-assist.sh"
+
+if [ -L "${TARGET_AI_PROMPT_SCRIPT}" ] || [ -e "${TARGET_AI_PROMPT_SCRIPT}" ]; then
+  rm -f "${TARGET_AI_PROMPT_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/ai-prompt.sh" "${TARGET_AI_PROMPT_SCRIPT}"
+echo "Linked ${TARGET_AI_PROMPT_SCRIPT} -> ${REPO_DIR}/scripts/ai-prompt.sh"
 
 if [ -L "${TARGET_PALETTE_DIR}" ]; then
   rm -f "${TARGET_PALETTE_DIR}"

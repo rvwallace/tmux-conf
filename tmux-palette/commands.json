@@ -22,7 +22,9 @@
     "title": "Clear Scrollback",
     "category": "Panes",
     "description": "clear visible screen and pane history",
-    "action": { "tmux": "send-keys C-l \\; clear-history" }
+    "action": {
+      "tmux": "send-keys C-l \\; clear-history"
+    }
   },
   {
     "icon": "󰉋",
@@ -70,7 +72,9 @@
     "title": "Show Messages",
     "category": "System",
     "description": "show recent tmux messages",
-    "action": { "tmux": "show-messages" }
+    "action": {
+      "tmux": "show-messages"
+    }
   },
   {
     "icon": "󰍛",
@@ -98,11 +102,49 @@
     }
   },
   {
+    "icon": "󰚩",
+    "title": "Ask AI",
+    "category": "AI",
+    "description": "ask about the current pane with recent context",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh ask \"#{pane_id}\"'"
+    }
+  },
+  {
+    "icon": "󰒡",
+    "title": "Diagnose Error",
+    "category": "AI",
+    "description": "troubleshoot recent pane output",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh error \"#{pane_id}\"'"
+    }
+  },
+  {
+    "icon": "󰘳",
+    "title": "Generate Command",
+    "category": "AI",
+    "description": "suggest a shell command without executing it",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh command \"#{pane_id}\"'"
+    }
+  },
+  {
+    "icon": "󰙎",
+    "title": "Explain",
+    "category": "AI",
+    "description": "explain a command or snippet with pane context",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain \"#{pane_id}\"'"
+    }
+  },
+  {
     "icon": "󰈺",
     "title": "tmux-fzf",
     "category": "TMUX Plugins",
     "description": "fzf-powered tmux pickers",
-    "action": { "palette": "plugin-tmux-fzf" }
+    "action": {
+      "palette": "plugin-tmux-fzf"
+    }
   },
   {
     "icon": "󰱼",
@@ -116,34 +158,44 @@
     "title": "TPM",
     "category": "TMUX Plugins",
     "description": "install, update, and clean plugins",
-    "action": { "palette": "plugin-tpm" }
+    "action": {
+      "palette": "plugin-tpm"
+    }
   },
   {
     "icon": "󰒃",
     "title": "tmux-cowboy",
     "category": "TMUX Plugins",
     "description": "signal the current pane process",
-    "action": { "palette": "plugin-tmux-cowboy" }
+    "action": {
+      "palette": "plugin-tmux-cowboy"
+    }
   },
   {
     "icon": "󰘚",
     "title": "tmux-sensible",
     "category": "TMUX Plugins",
     "description": "inspect effective sensible defaults",
-    "action": { "palette": "plugin-tmux-sensible" }
+    "action": {
+      "palette": "plugin-tmux-sensible"
+    }
   },
   {
     "icon": "󰦛",
     "title": "tmux-resurrect",
     "category": "TMUX Plugins",
     "description": "save, restore, and inspect saved sessions",
-    "action": { "palette": "plugin-tmux-resurrect" }
+    "action": {
+      "palette": "plugin-tmux-resurrect"
+    }
   },
   {
     "icon": "󰑓",
     "title": "tmux-continuum",
     "category": "TMUX Plugins",
     "description": "inspect and trigger autosave behavior",
-    "action": { "palette": "plugin-tmux-continuum" }
+    "action": {
+      "palette": "plugin-tmux-continuum"
+    }
   }
 ]
