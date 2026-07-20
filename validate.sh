@@ -171,6 +171,8 @@ expect_contains "grep -F \"display-popup -E -d '#{pane_current_path}'\" \"$REPO_
 expect_contains "grep -F 'onefetch' \"$REPO_DIR/tmux-palette/commands.json\"" "onefetch" "Onefetch popup palette command"
 expect_contains "grep -F \"display-popup -E -w '90%' -h '85%' btop\" \"$REPO_DIR/tmux-palette/commands.json\"" "btop" "system monitor palette command"
 expect_contains "grep -F '\"category\": \"AI\"' \"$REPO_DIR/tmux-palette/commands.json\"" "AI" "AI palette entries"
+expect_contains "grep -F '\"title\": \"AI:' \"$REPO_DIR/tmux-palette/commands.json\"" "AI:" "AI searchable title prefix"
+expect_contains "grep -F 'aichat' \"$REPO_DIR/tmux-palette/commands.json\"" "aichat" "AI searchable descriptions"
 expect_contains "grep -F 'tmux-resurrect/scripts/save.sh' \"$REPO_DIR/tmux-palette/palettes/plugin-tmux-resurrect.json\"" "tmux-resurrect/scripts/save.sh" "tmux-resurrect palette save command"
 expect_contains "grep -F 'tmux-continuum/scripts/continuum_save.sh' \"$REPO_DIR/tmux-palette/palettes/plugin-tmux-continuum.json\"" "tmux-continuum/scripts/continuum_save.sh" "tmux-continuum palette save command"
 
