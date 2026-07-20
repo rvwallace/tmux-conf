@@ -7,9 +7,9 @@ The status bar uses (with a Nerd Font configured in the outer terminal):
 - blue session block with a terminal icon on the left
 - window tabs with angled caps on both sides, a yellow active highlight, muted inactive windows, and a zoom marker
 - dark background so it stays visually separate from pane content
+- transient messages use a compact yellow segment with a pointed right edge
 - top position
-- right-side state flags for prefix, copy mode, mouse, and synchronized panes
-- active command and working-directory basename
+- right-side state flags for prefix, copy mode, marked panes, mouse, and synchronized panes
 - local date/time, UTC time, and hostname
 - the status line must remain enabled because `tmux-continuum` uses it for autosave
 
@@ -20,7 +20,7 @@ Terminal input behavior:
 
 Pane borders:
 
-- every pane has a top border label showing its pane number, pane title, and active command
+- every pane has a top border label showing its pane number, pane title, active command, and working-directory basename
 - the active pane border is cyan; inactive pane borders are muted
 - borders use single-line characters
 
@@ -34,11 +34,13 @@ Ctrl-a
 
 - `prefix + r`: reload `~/.tmux.conf`
 - `prefix + m`: toggle mouse mode
+- `prefix + M`: mark or unmark the current pane; `MARK` refreshes immediately
 - `prefix + Ctrl-e`: open current pane output plus scrollback in `$VISUAL` or `$EDITOR`
 - `prefix + Ctrl-s`: open the reusable `Scratch-Terminal` popup session
 - `prefix + S`: save tmux state now with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open the `sesh` session picker popup
+- `prefix + ?`: open live help for the prefix key table
 - `prefix + prefix`: send literal `Ctrl-a` to the current pane
 - `prefix + c`: create a new window in the current pane path
 - `prefix + n`: next window
@@ -46,6 +48,12 @@ Ctrl-a
 - `prefix + %`: split horizontally in the current pane path
 - `prefix + -`: split vertically in the current pane path
 - `prefix + |`: split horizontally in the current pane path
+
+Mouse context menus:
+
+- right-click a pane, window tab, or session block and release to open its menu
+- choose an item by clicking it or pressing its displayed shortcut
+- click away or press Escape to dismiss the menu
 
 Inside the `prefix + T` sesh picker:
 
@@ -92,9 +100,9 @@ Open with `Ctrl-p`.
 
 Repo-managed additions:
 
-- `Panes`: capture pane to file, copy pane directory, synchronize panes, clear scrollback
+- `Panes`: capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` refresh, marked-pane operations, layouts and rotation, clear scrollback
 - `Git`: open Lazygit or show a Onefetch repository overview in the current pane directory
-- `System`: open `btop`, show messages, scratch popup
+- `System`: inspect each attached client's session, size, terminal, and read-only state; detach other clients; open `btop`; show messages; scratch popup
 - `TMUX Plugins`: individual palettes for `tmux-fzf`, Extrakto, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`
 
 Useful plugin palette actions:

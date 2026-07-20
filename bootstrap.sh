@@ -7,6 +7,7 @@ TARGET_CONF="${HOME}/.tmux.conf"
 SCRIPT_DIR="${HOME}/.config/tmux/scripts"
 TARGET_SCROLLBACK_SCRIPT="${SCRIPT_DIR}/edit-scrollback.sh"
 TARGET_COPY_PATH_SCRIPT="${SCRIPT_DIR}/copy-pane-path.sh"
+TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
 TPM_DIR="${PLUGIN_DIR}/tpm"
@@ -46,6 +47,12 @@ if [ -L "${TARGET_COPY_PATH_SCRIPT}" ] || [ -e "${TARGET_COPY_PATH_SCRIPT}" ]; t
 fi
 ln -s "${REPO_DIR}/scripts/copy-pane-path.sh" "${TARGET_COPY_PATH_SCRIPT}"
 echo "Linked ${TARGET_COPY_PATH_SCRIPT} -> ${REPO_DIR}/scripts/copy-pane-path.sh"
+
+if [ -L "${TARGET_SHOW_CLIENTS_SCRIPT}" ] || [ -e "${TARGET_SHOW_CLIENTS_SCRIPT}" ]; then
+  rm -f "${TARGET_SHOW_CLIENTS_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/show-clients.sh" "${TARGET_SHOW_CLIENTS_SCRIPT}"
+echo "Linked ${TARGET_SHOW_CLIENTS_SCRIPT} -> ${REPO_DIR}/scripts/show-clients.sh"
 
 if [ -L "${TARGET_PALETTE_DIR}" ]; then
   rm -f "${TARGET_PALETTE_DIR}"

@@ -1,0 +1,40 @@
+{
+  "title": "Marked Panes",
+  "grouped": true,
+  "items": [
+    {
+      "icon": "󰓾",
+      "title": "Toggle Mark on Current Pane",
+      "category": "Mark",
+      "description": "mark this pane or clear its mark",
+      "action": {
+        "tmux": "if-shell -F '#{pane_marked}' 'select-pane -M' 'select-pane -m' \\; refresh-client -S"
+      }
+    },
+    {
+      "icon": "󰓡",
+      "title": "Swap With Marked Pane",
+      "category": "Move",
+      "description": "exchange the current and marked pane positions",
+      "action": {
+        "tmux": "if-shell -F '#{pane_marked_set}' \"if-shell -F '#{pane_marked}' 'display-message \\\"Current pane is already marked\\\"' 'swap-pane -s {marked} -t #{pane_id}'\" 'display-message \\\"No marked pane\\\"' \\; refresh-client -S"
+      }
+    },
+    {
+      "icon": "󰐕",
+      "title": "Join Marked Pane Here",
+      "category": "Move",
+      "description": "move the marked pane into this window",
+      "action": {
+        "tmux": "if-shell -F '#{pane_marked_set}' \"if-shell -F '#{pane_marked}' 'display-message \\\"Current pane is already marked\\\"' 'join-pane -s {marked} -t #{pane_id}'\" 'display-message \\\"No marked pane\\\"' \\; refresh-client -S"
+      }
+    },
+    {
+      "icon": "󰅖",
+      "title": "Clear Mark",
+      "category": "Mark",
+      "description": "clear the marked pane without moving it",
+      "action": { "tmux": "select-pane -M \\; refresh-client -S" }
+    }
+  ]
+}

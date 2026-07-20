@@ -14,6 +14,7 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./AGENTS.md`](./AGENTS.md): maintenance rules for future edits.
 - [`./scripts/edit-scrollback.sh`](./scripts/edit-scrollback.sh): captures pane output and opens it in `$VISUAL` or `$EDITOR`.
 - [`./scripts/copy-pane-path.sh`](./scripts/copy-pane-path.sh): safely copies the active pane directory to the system clipboard or tmux buffer.
+- [`./scripts/show-clients.sh`](./scripts/show-clients.sh): lists each attached tmux client and waits so the palette popup remains visible.
 - [`./scripts/install-deps.sh`](./scripts/install-deps.sh): checks or installs runtime dependencies on macOS and Linux.
 - [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
 
@@ -31,11 +32,13 @@ This config intentionally stays small:
 - windows and panes are numbered from `1`
 - windows are renumbered after closes
 - new windows and splits inherit the current pane path
-- each pane has a labeled top border showing its pane number, pane title, and active command, with the active pane highlighted in cyan
+- each pane has a labeled top border showing its pane number, pane title, active command, and working-directory basename, with the active pane highlighted in cyan
 - the status bar sits at the top with a distinct dark background and Nerd Font icons
+- transient tmux messages appear as compact yellow segments with a pointed right edge instead of full-width blocks
+- pressing the prefix shows a yellow `PREFIX` indicator in the right-side state group
 - window tabs have angled caps on both sides; the active window is highlighted in yellow, inactive windows are muted, and zoomed windows are marked
-- the right side can show `PREFIX`, copy mode, mouse, and synchronized-pane state indicators
-- the right side shows the active command, working-directory basename, local date/time, UTC time, and hostname
+- the right side can show prefix, copy mode, marked-pane, mouse, and synchronized-pane state indicators
+- the right side shows local date/time, UTC time, and hostname
 - sessions, windows, panes, working directories, and captured pane output can be saved and restored with `tmux-resurrect`
 - sessions are autosaved every 15 minutes while tmux is running and the status line is enabled
 - saved sessions are restored automatically when a new tmux server starts
@@ -46,11 +49,13 @@ These are the bindings this repo adds or overrides directly:
 
 - `prefix + r`: reload `~/.tmux.conf`
 - `prefix + m`: toggle mouse mode
+- `prefix + M`: mark or unmark the current pane for later swap/join operations; the `MARK` indicator updates immediately
 - `prefix + Ctrl-e`: capture the current pane plus scrollback into `$VISUAL` or `$EDITOR` in a new tmux window
 - `prefix + Ctrl-s`: open a popup attached to the reusable `Scratch-Terminal` session
 - `prefix + S`: save the current tmux state with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open a `sesh` session picker in an `fzf-tmux` popup and connect to the selected entry
+- `prefix + ?`: open live, human-readable help generated from the active prefix key table
 - `prefix + prefix`: send literal `Ctrl-a` to the pane
 - `prefix + c`: new window in current pane path
 - `prefix + n`: next window, explicitly restored for long-lived tmux servers
@@ -73,6 +78,8 @@ This config explicitly clears several bindings before plugins initialize, preven
 - `prefix + Space`
 - `prefix + ?`
 - `prefix + F`
+
+Right-click context menus for panes, window tabs, and the session block open on button release, so they remain available until an item is chosen by mouse or shortcut, or the menu is dismissed by clicking away.
 
 ## Plugins
 
@@ -124,7 +131,9 @@ Bootstrap links it to:
 ~/.config/tmux-palette
 ```
 
-The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, copy pane directory, synchronize panes, clear scrollback, Lazygit, Onefetch, and `btop` popups, show messages, and the scratch popup.
+The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` status refresh, marked-pane operations, window layouts and rotation, attached-client management, clear scrollback, Lazygit, Onefetch, and `btop` popups, show messages, and the scratch popup.
+
+The marked-pane palette can toggle or clear a mark, swap the current pane with the marked pane, or join the marked pane into the current window. The layouts palette exposes tiled, even, and main-pane layouts plus clockwise/counterclockwise rotation. The clients palette uses the repo-managed `show-clients.sh` helper to inspect each attached client, or can detach every client except the one invoking the action after confirmation.
 
 The Git and system-monitor palette actions require `lazygit`, `onefetch`, and `btop` to be installed and available on `PATH`. Lazygit and Onefetch run in the current pane directory. The copy-directory action uses `pbcopy`, `wl-copy`, or `xclip` when available, falling back to the tmux buffer.
 
@@ -170,6 +179,7 @@ This script:
 - recreates the `~/.tmux.conf` symlink to this repo
 - recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/copy-pane-path.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/show-clients.sh` symlink to this repo
 - recreates the `~/.config/tmux-palette` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
@@ -196,6 +206,7 @@ It checks:
 - `~/.tmux.conf` symlink target
 - `~/.config/tmux/scripts/edit-scrollback.sh` symlink target
 - `~/.config/tmux/scripts/copy-pane-path.sh` symlink target
+- `~/.config/tmux/scripts/show-clients.sh` symlink target
 - `~/.config/tmux-palette` symlink target
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`

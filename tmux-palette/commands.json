@@ -14,7 +14,7 @@
     "category": "Panes",
     "description": "toggle input to all panes in this window",
     "action": {
-      "tmux": "set-window-option synchronize-panes \\; display-message 'synchronize-panes #{?pane_synchronized,on,off}'"
+      "tmux": "set-window-option synchronize-panes \\; refresh-client -S"
     }
   },
   {
@@ -32,6 +32,20 @@
     "action": {
       "tmux": "run-shell '~/.config/tmux/scripts/copy-pane-path.sh \"#{pane_id}\"'"
     }
+  },
+  {
+    "icon": "󰓾",
+    "title": "Marked Panes",
+    "category": "Panes",
+    "description": "mark, swap, join, or clear the marked pane",
+    "action": { "palette": "marked-panes" }
+  },
+  {
+    "icon": "󰕰",
+    "title": "Layouts",
+    "category": "Panes",
+    "description": "apply or rotate the current window layout",
+    "action": { "palette": "layouts" }
   },
   {
     "icon": "󰊢",
@@ -66,6 +80,13 @@
     "action": {
       "tmux": "display-popup -E -w '90%' -h '85%' btop"
     }
+  },
+  {
+    "icon": "󰒍",
+    "title": "Clients",
+    "category": "System",
+    "description": "inspect or detach attached tmux clients",
+    "action": { "palette": "clients" }
   },
   {
     "icon": "󰒉",
