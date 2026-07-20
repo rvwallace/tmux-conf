@@ -64,6 +64,15 @@ Inside the `prefix + T` sesh picker:
 - `Ctrl-f`: find directories with `fd`
 - `Ctrl-d`: kill selected tmux session and refresh
 
+## AI Assistant
+
+These palette actions require `aichat` in `PATH`. Open `Ctrl-p`, then choose the `AI` category. They send the current pane path, foreground command, and recent scrollback to `aichat`. Ask opens a right-side follow-up loop where blank Enter closes the pane, and diagnose/explain open right-side tmux panes so copy-mode works; generated commands are pasted into the original pane for review and are not executed automatically.
+
+- `Ask AI`: ask a question about the current pane
+- `Diagnose Error`: diagnose recent pane output
+- `Generate Command`: suggest one shell command into the prompt
+- `Explain`: explain a command or snippet
+
 ## Plugin Bindings
 
 - `Ctrl-p`: open `tmux-palette`
@@ -100,6 +109,7 @@ Open with `Ctrl-p`.
 
 Repo-managed additions:
 
+- `AI`: ask about the current pane, diagnose recent errors, generate commands, and explain shell snippets via `aichat`
 - `Panes`: capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` refresh, marked-pane operations, layouts and rotation, clear scrollback
 - `Git`: open Lazygit or show a Onefetch repository overview in the current pane directory
 - `System`: inspect each attached client's session, size, terminal, and read-only state; detach other clients; open `btop`; show messages; scratch popup

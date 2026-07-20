@@ -16,6 +16,8 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./scripts/copy-pane-path.sh`](./scripts/copy-pane-path.sh): safely copies the active pane directory to the system clipboard or tmux buffer.
 - [`./scripts/show-clients.sh`](./scripts/show-clients.sh): lists each attached tmux client and waits so the palette popup remains visible.
 - [`./scripts/install-deps.sh`](./scripts/install-deps.sh): checks or installs runtime dependencies on macOS and Linux.
+- [`./scripts/ai-assist.sh`](./scripts/ai-assist.sh): pane-aware `aichat` assistant for shell Q&A, recent-error diagnosis, command suggestions, and explanations.
+- [`./scripts/ai-prompt.sh`](./scripts/ai-prompt.sh): tmux prompt launcher used by AI key bindings and palette actions.
 - [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
 
 ## Current Behavior
@@ -131,7 +133,7 @@ Bootstrap links it to:
 ~/.config/tmux-palette
 ```
 
-The main palette includes a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` status refresh, marked-pane operations, window layouts and rotation, attached-client management, clear scrollback, Lazygit, Onefetch, and `btop` popups, show messages, and the scratch popup.
+The main palette includes an `AI` category for pane-aware `aichat` helpers and a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` status refresh, marked-pane operations, window layouts and rotation, attached-client management, clear scrollback, Lazygit, Onefetch, and `btop` popups, show messages, and the scratch popup.
 
 The marked-pane palette can toggle or clear a mark, swap the current pane with the marked pane, or join the marked pane into the current window. The layouts palette exposes tiled, even, and main-pane layouts plus clockwise/counterclockwise rotation. The clients palette uses the repo-managed `show-clients.sh` helper to inspect each attached client, or can detach every client except the one invoking the action after confirmation.
 
@@ -161,6 +163,8 @@ prefix + I
 
 Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
 
+The AI palette actions require the `aichat` CLI in `PATH`. Open the palette with `Ctrl-p`, then choose an action from the `AI` category. They capture the current pane path, foreground command, and recent scrollback. Ask opens a right-side follow-up loop where blank Enter closes the pane, and diagnose/explain open right-side tmux panes so copy-mode works; generated command suggestions are pasted into the original pane for review and are never executed automatically.
+
 The status icons require a [Nerd Font](https://www.nerdfonts.com/) in the outer terminal. The status line remains usable if those glyphs are unavailable, but the icons will render as missing-character boxes.
 
 ## Bootstrap On A New Machine
@@ -180,6 +184,8 @@ This script:
 - recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/copy-pane-path.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/show-clients.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/ai-assist.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/ai-prompt.sh` symlink to this repo
 - recreates the `~/.config/tmux-palette` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
