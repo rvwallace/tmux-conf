@@ -66,12 +66,15 @@ Inside the `prefix + T` sesh picker:
 
 ## AI Assistant
 
-These palette actions require `aichat` in `PATH`. Open `Ctrl-p` and search for `ai` or `aichat`. They send the current pane path, foreground command, and recent scrollback to `aichat`. Ask opens a right-side follow-up loop where blank Enter closes the pane, and diagnose/explain open right-side tmux panes so copy-mode works; generated commands are pasted into the original pane for review and are not executed automatically.
+These palette actions require `aichat` in `PATH`. Open `Ctrl-p` and search for `ai` or `aichat`. Pane-aware actions send the current path, foreground command, and the most recent 200 lines of scrollback to `aichat`. Ask opens a right-side follow-up loop where blank Enter closes the pane; only its first turn sends pane context, and `/refresh` sends the latest context. Answer actions open right-side panes so copy-mode works. Generate Command and Suggest Fix use compact popups and bracketed paste; empty, multiline, or fenced output is rejected, and generated commands are never executed automatically. Explain Last Copy reads but does not delete the latest tmux paste buffer and rejects empty buffers or buffers larger than 32 KiB.
 
 - `AI: Ask`: ask a question about the current pane
 - `AI: Diagnose Error`: diagnose recent pane output
+- `AI: Suggest Fix`: suggest one corrective command for the latest visible failure
+- `AI: Summarize Pane`: summarize recent pane output and its current state
 - `AI: Generate Command`: suggest one shell command into the prompt
 - `AI: Explain`: explain a command or snippet
+- `AI: Explain Last Copy`: explain the newest tmux copy buffer
 
 ## Plugin Bindings
 
