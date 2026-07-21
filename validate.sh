@@ -94,6 +94,7 @@ pass "tmux source-file succeeded"
 
 expect_tmux_option "tmux show -g prefix" "prefix C-a"
 expect_tmux_option "tmux show -g base-index" "base-index 1"
+expect_tmux_option "tmux show -g detach-on-destroy" "detach-on-destroy off"
 expect_tmux_option "tmux show-window -g pane-base-index" "pane-base-index 1"
 expect_tmux_option "tmux show -g status-position" "status-position top"
 expect_tmux_option "tmux show -g status-interval" "status-interval 5"
