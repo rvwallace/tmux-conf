@@ -120,6 +120,24 @@
     }
   },
   {
+    "icon": "󰁨",
+    "title": "AI: Suggest Fix",
+    "category": "AI",
+    "description": "have aichat suggest one corrective command for the latest error",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh fix \"#{pane_id}\"'"
+    }
+  },
+  {
+    "icon": "󰧮",
+    "title": "AI: Summarize Pane",
+    "category": "AI",
+    "description": "have aichat summarize recent pane output",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh summarize \"#{pane_id}\"'"
+    }
+  },
+  {
     "icon": "󰘳",
     "title": "AI: Generate Command",
     "category": "AI",
@@ -135,6 +153,15 @@
     "description": "have aichat explain a command or snippet with pane context",
     "action": {
       "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain \"#{pane_id}\"'"
+    }
+  },
+  {
+    "icon": "󰆏",
+    "title": "AI: Explain Last Copy",
+    "category": "AI",
+    "description": "have aichat explain the latest tmux copy buffer",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain-copy \"#{pane_id}\"'"
     }
   },
   {
