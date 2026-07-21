@@ -12,6 +12,7 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./validate.sh`](./validate.sh): checks symlinks, TPM, tmux reloadability, and expected live settings.
 - [`./CHEATSHEET.md`](./CHEATSHEET.md): commonly used key bindings and commands.
 - [`./AGENTS.md`](./AGENTS.md): maintenance rules for future edits.
+- [`./LICENSE`](./LICENSE): MIT license for using, modifying, and distributing this configuration.
 - [`./scripts/edit-scrollback.sh`](./scripts/edit-scrollback.sh): captures pane output and opens it in `$VISUAL` or `$EDITOR`.
 - [`./scripts/copy-pane-path.sh`](./scripts/copy-pane-path.sh): safely copies the active pane directory to the system clipboard or tmux buffer.
 - [`./scripts/show-clients.sh`](./scripts/show-clients.sh): lists each attached tmux client and waits so the palette popup remains visible.
