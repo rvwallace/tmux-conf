@@ -30,6 +30,7 @@ This config intentionally stays small:
 - extended keyboard reporting is enabled for `xterm-256color` and `tmux-256color`, using CSI-u format so modified keys such as `Shift-Enter` can reach apps inside tmux
 - history limit is `100000`
 - mouse mode starts enabled
+- destroying the attached session switches the client to another session instead of detaching it
 - command prompt and copy mode use vi keys
 - windows and panes are numbered from `1`
 - windows are renumbered after closes
