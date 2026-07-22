@@ -36,6 +36,7 @@ Ctrl-a
 - `prefix + m`: toggle mouse mode
 - `prefix + M`: mark or unmark the current pane; `MARK` refreshes immediately
 - `prefix + Ctrl-e`: open current pane output plus scrollback in `$VISUAL` or `$EDITOR`
+- `prefix + Ctrl-y`: open the Snaglord command/output browser
 - `prefix + Ctrl-s`: open the reusable `Scratch-Terminal` popup session
 - `prefix + S`: save tmux state now with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
@@ -75,6 +76,21 @@ These palette actions require `aichat` in `PATH`. Open `Ctrl-p` and search for `
 - `AI: Generate Command`: suggest one shell command into the prompt
 - `AI: Explain`: explain a command or snippet
 - `AI: Explain Last Copy`: explain the newest tmux copy buffer
+
+## Snaglord Command Blocks
+
+Open the current pane's searchable command/output history with `prefix + Ctrl-y`.
+
+- `j` / `k`: move between commands
+- `/`: search command history
+- `c`: copy only the command text, without prompt artifacts
+- `y` or `Enter`: copy only command output
+- `Y`: copy the final prompt line and command output
+- `Space`: add or remove a command from the multi-selection scratchpad
+- `Tab`: switch between commands, paths, and JSON views
+- `q`: close Snaglord
+
+The stock Snaglord CLI intentionally does not include preceding multiline Starship decoration in a command block.
 
 ## Plugin Bindings
 

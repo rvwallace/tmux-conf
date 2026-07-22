@@ -12,7 +12,7 @@ case "${mode}" in
 esac
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-commands=(bash btop bun fd fzf fzf-tmux git lazygit nvim onefetch python3 sesh tmux zoxide)
+commands=(bash btop bun fd fzf fzf-tmux git lazygit nvim onefetch python3 sesh tmux tmux-snaglord zoxide)
 missing=()
 
 find_missing() {
@@ -69,6 +69,7 @@ print_linux_guidance() {
       sesh) printf '  sesh:     https://github.com/joshmedeski/sesh#installation\n' ;;
       lazygit) printf '  lazygit:  https://github.com/jesseduffield/lazygit#installation\n' ;;
       onefetch) printf '  onefetch: https://github.com/o2sh/onefetch#installation\n' ;;
+      tmux-snaglord) printf '  tmux-snaglord: cargo install --locked tmux-snaglord\n' ;;
       fd) printf '  fd:       distro package may install the binary as fd-find; add an fd symlink if needed\n' ;;
       *) printf '  %s\n' "${command_name}" ;;
     esac

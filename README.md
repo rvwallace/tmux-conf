@@ -20,6 +20,7 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./scripts/ai-assist.sh`](./scripts/ai-assist.sh): pane-aware `aichat` assistant for shell Q&A, recent-error diagnosis, command suggestions, and explanations.
 - [`./scripts/ai-prompt.sh`](./scripts/ai-prompt.sh): tmux prompt launcher used by AI key bindings and palette actions.
 - [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
+- [`./tmux-snaglord/config.toml`](./tmux-snaglord/config.toml): prompt parser config for stock `tmux-snaglord`, symlinked through `~/.config/tmux-snaglord`.
 
 ## Current Behavior
 
@@ -46,6 +47,7 @@ This config intentionally stays small:
 - sessions, windows, panes, working directories, and captured pane output can be saved and restored with `tmux-resurrect`
 - sessions are autosaved every 15 minutes while tmux is running and the status line is enabled
 - saved sessions are restored automatically when a new tmux server starts
+- command history can be browsed as searchable command/output blocks in a Snaglord popup
 
 ## Key Bindings Added Here
 
@@ -55,6 +57,7 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + m`: toggle mouse mode
 - `prefix + M`: mark or unmark the current pane for later swap/join operations; the `MARK` indicator updates immediately
 - `prefix + Ctrl-e`: capture the current pane plus scrollback into `$VISUAL` or `$EDITOR` in a new tmux window
+- `prefix + Ctrl-y`: open the Snaglord command/output browser for the current pane
 - `prefix + Ctrl-s`: open a popup attached to the reusable `Scratch-Terminal` session
 - `prefix + S`: save the current tmux state with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
@@ -100,6 +103,8 @@ Current plugins:
 - `eduwass/tmux-palette`
 - `tmux-plugins/tmux-resurrect`
 - `tmux-plugins/tmux-continuum`
+
+Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps its prompt parser configuration under `./tmux-snaglord/`; it recognizes this Starship prompt's final `➜` or `✖` line and treats the prompt as three terminal lines so preceding decoration does not leak into adjacent command output. Snaglord's stock command view supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
 
 Notes:
 
@@ -189,6 +194,7 @@ This script:
 - recreates the `~/.config/tmux/scripts/ai-assist.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-prompt.sh` symlink to this repo
 - recreates the `~/.config/tmux-palette` symlink to this repo
+- recreates the `~/.config/tmux-snaglord` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
 
@@ -199,7 +205,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, Git, Bash, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
+The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints the official Cargo install command when it is unavailable. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
 
 ## Validation
 

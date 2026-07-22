@@ -10,6 +10,7 @@ TARGET_SHOW_CLIENTS_SCRIPT="${HOME}/.config/tmux/scripts/show-clients.sh"
 TARGET_AI_SCRIPT="${HOME}/.config/tmux/scripts/ai-assist.sh"
 TARGET_AI_PROMPT_SCRIPT="${HOME}/.config/tmux/scripts/ai-prompt.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
+TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
 TPM_DIR="${HOME}/.config/tmux/plugins/tpm"
 
 fail() {
@@ -58,6 +59,9 @@ expect_symlink_target "$TARGET_SHOW_CLIENTS_SCRIPT" "$REPO_DIR/scripts/show-clie
 expect_symlink_target "$TARGET_AI_SCRIPT" "$REPO_DIR/scripts/ai-assist.sh"
 expect_symlink_target "$TARGET_AI_PROMPT_SCRIPT" "$REPO_DIR/scripts/ai-prompt.sh"
 expect_symlink_target "$TARGET_PALETTE_DIR" "$REPO_DIR/tmux-palette"
+expect_symlink_target "$TARGET_SNAGLORD_DIR" "$REPO_DIR/tmux-snaglord"
+expect_contains "grep -F 'prompt_lines = 3' \"$TARGET_SNAGLORD_DIR/config.toml\"" "prompt_lines = 3" "Snaglord multiline prompt height"
+expect_contains "grep -F 'nerd_fonts = true' \"$TARGET_SNAGLORD_DIR/config.toml\"" "nerd_fonts = true" "Snaglord Nerd Font mode"
 
 "$REPO_DIR/scripts/install-deps.sh" --check || fail "runtime dependencies missing"
 pass "runtime dependencies present"
@@ -162,6 +166,8 @@ expect_contains "tmux list-keys" "bind-key    -T prefix       |                 
 expect_contains "tmux list-keys -T prefix" "tmux-resurrect/scripts/save.sh" "tmux-resurrect save binding"
 expect_contains "tmux list-keys -T prefix" "tmux-resurrect/scripts/restore.sh" "tmux-resurrect restore binding"
 expect_contains "tmux list-keys" "bind-key    -T prefix       C-e" "scrollback editor binding"
+expect_contains "tmux list-keys -T prefix -N" "Open Snaglord command-output browser" "Snaglord popup binding"
+expect_contains "tmux list-keys -T prefix" "display-popup -E -h \"75%\" -w \"70%\" tmux-snaglord" "Snaglord popup command"
 expect_contains "tmux list-keys -T root" "tmux-palette/bin/tmux-palette.sh" "tmux-palette root binding"
 expect_contains "grep -F '\"palette\": \"plugin-tmux-resurrect\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-tmux-resurrect" "tmux-resurrect palette root entry"
 expect_contains "grep -F '\"palette\": \"plugin-tmux-continuum\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-tmux-continuum" "tmux-continuum palette root entry"
