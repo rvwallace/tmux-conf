@@ -90,7 +90,7 @@ This config explicitly clears several bindings before plugins initialize, preven
 - `prefix + ?`
 - `prefix + F`
 
-Right-click context menus for panes, window tabs, and the session block open on button release, so they remain available until an item is chosen by mouse or shortcut, or the menu is dismissed by clicking away.
+Right-click context menus for panes, window tabs, and the session block open on button release with tmux's persistent-menu mode, so mouse movement does not dismiss them. They remain available until an item is chosen by mouse or shortcut, or the menu is explicitly dismissed.
 
 ## Plugins
 

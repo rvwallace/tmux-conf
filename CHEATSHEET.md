@@ -54,6 +54,7 @@ Ctrl-a
 Mouse context menus:
 
 - right-click a pane, window tab, or session block and release to open its menu
+- moving the mouse does not dismiss an open context menu
 - choose an item by clicking it or pressing its displayed shortcut
 - click away or press Escape to dismiss the menu
 
