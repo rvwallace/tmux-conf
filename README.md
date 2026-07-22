@@ -19,6 +19,8 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./scripts/install-deps.sh`](./scripts/install-deps.sh): checks or installs runtime dependencies on macOS and Linux.
 - [`./scripts/ai-assist.sh`](./scripts/ai-assist.sh): pane-aware `aichat` assistant for shell Q&A, recent-error diagnosis, command suggestions, and explanations.
 - [`./scripts/ai-prompt.sh`](./scripts/ai-prompt.sh): tmux prompt launcher used by AI key bindings and palette actions.
+- [`./scripts/tmux-file-picker`](./scripts/tmux-file-picker): vendored upstream fuzzy file and directory picker that inserts selected paths into the active pane.
+- [`./scripts/tmux-file-picker.UPSTREAM.md`](./scripts/tmux-file-picker.UPSTREAM.md): source commit and license attribution for the vendored picker.
 - [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
 - [`./tmux-snaglord/config.toml`](./tmux-snaglord/config.toml): prompt parser config for stock `tmux-snaglord`, symlinked through `~/.config/tmux-snaglord`.
 
@@ -48,6 +50,7 @@ This config intentionally stays small:
 - sessions are autosaved every 15 minutes while tmux is running and the status line is enabled
 - saved sessions are restored automatically when a new tmux server starts
 - command history can be browsed as searchable command/output blocks in a Snaglord popup
+- files and directories can be fuzzy-selected in a popup and inserted at the active pane's cursor
 
 ## Key Bindings Added Here
 
@@ -57,6 +60,7 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + m`: toggle mouse mode
 - `prefix + M`: mark or unmark the current pane for later swap/join operations; the `MARK` indicator updates immediately
 - `prefix + Ctrl-e`: capture the current pane plus scrollback into `$VISUAL` or `$EDITOR` in a new tmux window
+- `prefix + Ctrl-f`: fuzzy-find files under the current pane directory and insert one or more selected paths
 - `prefix + Ctrl-y`: open the Snaglord command/output browser for the current pane
 - `prefix + Ctrl-s`: open a popup attached to the reusable `Scratch-Terminal` session
 - `prefix + S`: save the current tmux state with `tmux-resurrect`
@@ -106,6 +110,8 @@ Current plugins:
 
 Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps its prompt parser configuration under `./tmux-snaglord/`; it recognizes this Starship prompt's final `➜` or `✖` line and treats the prompt as three terminal lines so preceding decoration does not leak into adjacent command output. Snaglord's stock command view supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
 
+`tmux-file-picker` is also a standalone CLI rather than a TPM plugin. Its upstream script is vendored unchanged under `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`. It uses `fd` and `fzf` to select files or directories and inserts the paths without executing them. The direct binding searches the current pane directory; its palette also provides current-directory and Zoxide-ranked recent-directory workflows. When the foreground process looks like Claude, Gemini, or Codex, upstream prefixes inserted paths with `@`; otherwise it shell-escapes them.
+
 Notes:
 
 - `tmux-sensible` provides sane defaults and a few standard bindings.
@@ -140,11 +146,13 @@ Bootstrap links it to:
 ~/.config/tmux-palette
 ```
 
-The main palette includes an `AI` category for pane-aware `aichat` helpers and a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` status refresh, marked-pane operations, window layouts and rotation, attached-client management, clear scrollback, Lazygit, Onefetch, and `btop` popups, show messages, and the scratch popup.
+The main palette includes an `AI` category for pane-aware `aichat` helpers, a `TMUX Tools` category for Snaglord and the file picker, and a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` status refresh, marked-pane operations, window layouts and rotation, attached-client management, clear scrollback, Lazygit, Onefetch, and `btop` popups, show messages, and the scratch popup.
 
 The marked-pane palette can toggle or clear a mark, swap the current pane with the marked pane, or join the marked pane into the current window. The layouts palette exposes tiled, even, and main-pane layouts plus clockwise/counterclockwise rotation. The clients palette uses the repo-managed `show-clients.sh` helper to inspect each attached client, or can detach every client except the one invoking the action after confirmation.
 
 The Git and system-monitor palette actions require `lazygit`, `onefetch`, and `btop` to be installed and available on `PATH`. Lazygit and Onefetch run in the current pane directory. The copy-directory action uses `pbcopy`, `wl-copy`, or `xclip` when available, falling back to the tmux buffer.
+
+The File Picker palette can insert files or directories from the current pane directory, or first select one or more recent directories ranked by Zoxide using visit frequency and recency. `Tab` marks multiple entries and `Enter` inserts them into the pane without running the resulting input. File previews use `bat` when available and fall back to `cat`; directory previews use the managed `tree` dependency.
 
 The Extrakto palette can start default, word, line, path, or URL extraction and open the plugin help. The `tmux-resurrect` palette can save and restore tmux state, list saved snapshots from the active save directory, show the latest save target, and inspect resurrect options. The `tmux-continuum` palette can trigger save/restore scripts, show continuum status, inspect autosave settings, and list autosave files. It intentionally does not include boot-start commands.
 
@@ -193,6 +201,7 @@ This script:
 - recreates the `~/.config/tmux/scripts/show-clients.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-assist.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-prompt.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/tmux-file-picker` symlink to this repo
 - recreates the `~/.config/tmux-palette` symlink to this repo
 - recreates the `~/.config/tmux-snaglord` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
@@ -205,7 +214,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints the official Cargo install command when it is unavailable. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
+The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints the official Cargo install command when it is unavailable. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
 
 ## Validation
 
@@ -221,6 +230,7 @@ It checks:
 - `~/.config/tmux/scripts/edit-scrollback.sh` symlink target
 - `~/.config/tmux/scripts/copy-pane-path.sh` symlink target
 - `~/.config/tmux/scripts/show-clients.sh` symlink target
+- `~/.config/tmux/scripts/tmux-file-picker` symlink target
 - `~/.config/tmux-palette` symlink target
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`

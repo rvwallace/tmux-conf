@@ -1,0 +1,41 @@
+{
+  "title": "File Picker",
+  "items": [
+    {
+      "icon": "󰈙",
+      "title": "Files in Current Directory",
+      "category": "File Picker",
+      "description": "fuzzy-find one or more files and insert their paths",
+      "action": {
+        "tmux": "display-popup -E -d '#{pane_current_path}' -w '80%' -h '80%' '~/.config/tmux/scripts/tmux-file-picker'"
+      }
+    },
+    {
+      "icon": "󰉋",
+      "title": "Directories in Current Directory",
+      "category": "File Picker",
+      "description": "fuzzy-find one or more directories and insert their paths",
+      "action": {
+        "tmux": "display-popup -E -d '#{pane_current_path}' -w '80%' -h '80%' '~/.config/tmux/scripts/tmux-file-picker --directories'"
+      }
+    },
+    {
+      "icon": "󰋚",
+      "title": "Files from Recent Directory",
+      "category": "File Picker",
+      "description": "choose zoxide directories, then insert selected file paths",
+      "action": {
+        "tmux": "display-popup -E -d '#{pane_current_path}' -w '80%' -h '80%' '~/.config/tmux/scripts/tmux-file-picker --zoxide'"
+      }
+    },
+    {
+      "icon": "󰉖",
+      "title": "Recent Directories",
+      "category": "File Picker",
+      "description": "choose and insert one or more zoxide directory paths",
+      "action": {
+        "tmux": "display-popup -E -d '#{pane_current_path}' -w '80%' -h '80%' '~/.config/tmux/scripts/tmux-file-picker --zoxide --dir-only'"
+      }
+    }
+  ]
+}
