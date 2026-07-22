@@ -11,6 +11,7 @@ TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
 TARGET_AI_SCRIPT="${SCRIPT_DIR}/ai-assist.sh"
 TARGET_AI_PROMPT_SCRIPT="${SCRIPT_DIR}/ai-prompt.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
+TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
 TPM_DIR="${PLUGIN_DIR}/tpm"
 TPM_REPO="https://github.com/tmux-plugins/tpm"
@@ -77,6 +78,16 @@ elif [ -e "${TARGET_PALETTE_DIR}" ]; then
 fi
 ln -s "${REPO_DIR}/tmux-palette" "${TARGET_PALETTE_DIR}"
 echo "Linked ${TARGET_PALETTE_DIR} -> ${REPO_DIR}/tmux-palette"
+
+if [ -L "${TARGET_SNAGLORD_DIR}" ]; then
+  rm -f "${TARGET_SNAGLORD_DIR}"
+elif [ -e "${TARGET_SNAGLORD_DIR}" ]; then
+  backup="${TARGET_SNAGLORD_DIR}.backup.$(date +%Y%m%d-%H%M%S)"
+  mv "${TARGET_SNAGLORD_DIR}" "${backup}"
+  echo "Moved existing ${TARGET_SNAGLORD_DIR} to ${backup}"
+fi
+ln -s "${REPO_DIR}/tmux-snaglord" "${TARGET_SNAGLORD_DIR}"
+echo "Linked ${TARGET_SNAGLORD_DIR} -> ${REPO_DIR}/tmux-snaglord"
 
 if [ ! -d "${TPM_DIR}/.git" ]; then
   git clone "${TPM_REPO}" "${TPM_DIR}"
