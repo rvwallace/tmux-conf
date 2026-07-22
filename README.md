@@ -32,6 +32,7 @@ This config intentionally stays small:
 - `default-terminal` is set to `tmux-256color`
 - RGB terminal features are enabled for common terminals
 - extended keyboard reporting is enabled for `xterm-256color` and `tmux-256color`, using CSI-u format so modified keys such as `Shift-Enter` can reach apps inside tmux
+- terminal escape-sequence passthrough is enabled, and `TERM` plus `TERM_PROGRAM` are refreshed when clients attach, so graphics-aware applications such as Yazi can show image and PDF previews through tmux in terminals with compatible graphics support, including Ghostty and Kitty
 - history limit is `100000`
 - mouse mode starts enabled
 - destroying the attached session switches the client to another session instead of detaching it
@@ -169,6 +170,21 @@ Or use:
 ```text
 prefix + r
 ```
+
+Most changes apply after a reload. Changes involving terminal detection or the
+client environment, including Yazi image-preview support, require starting a
+new tmux server. Save any sessions first, then run:
+
+```sh
+tmux kill-server
+tmux
+```
+
+For Yazi image and PDF previews through tmux, use a terminal with compatible
+graphics passthrough. Ghostty and Kitty are verified with their Kitty graphics
+adapters. Tested stable and nightly WezTerm builds briefly rendered and then
+cleared IIP previews during tmux redraws, so WezTerm is not recommended for
+this workflow.
 
 After adding or updating plugins, install them with:
 
