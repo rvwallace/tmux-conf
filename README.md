@@ -33,6 +33,7 @@ This config intentionally stays small:
 - RGB terminal features are enabled for common terminals
 - extended keyboard reporting is enabled for `xterm-256color` and `tmux-256color`, using CSI-u format so modified keys such as `Shift-Enter` can reach apps inside tmux
 - terminal escape-sequence passthrough is enabled, and `TERM` plus `TERM_PROGRAM` are refreshed when clients attach, so graphics-aware applications such as Yazi can show image and PDF previews through tmux in terminals with compatible graphics support, including Ghostty and Kitty
+- the client environment refresh list is set explicitly so repeated config reloads do not accumulate duplicate `TERM` and `TERM_PROGRAM` entries
 - history limit is `100000`
 - mouse mode starts enabled
 - destroying the attached session switches the client to another session instead of detaching it
