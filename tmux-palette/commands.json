@@ -165,6 +165,24 @@
     }
   },
   {
+    "icon": "󰗼",
+    "title": "Snaglord",
+    "category": "TMUX Tools",
+    "description": "browse and copy command-output blocks from pane history",
+    "action": {
+      "tmux": "display-popup -E -w '70%' -h '75%' tmux-snaglord"
+    }
+  },
+  {
+    "icon": "󰱼",
+    "title": "File Picker",
+    "category": "TMUX Tools",
+    "description": "insert files or directories into the active pane",
+    "action": {
+      "palette": "tmux-file-picker"
+    }
+  },
+  {
     "icon": "󰈺",
     "title": "tmux-fzf",
     "category": "TMUX Plugins",

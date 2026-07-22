@@ -10,6 +10,7 @@ TARGET_COPY_PATH_SCRIPT="${SCRIPT_DIR}/copy-pane-path.sh"
 TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
 TARGET_AI_SCRIPT="${SCRIPT_DIR}/ai-assist.sh"
 TARGET_AI_PROMPT_SCRIPT="${SCRIPT_DIR}/ai-prompt.sh"
+TARGET_FILE_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-file-picker"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
 TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
@@ -68,6 +69,12 @@ if [ -L "${TARGET_AI_PROMPT_SCRIPT}" ] || [ -e "${TARGET_AI_PROMPT_SCRIPT}" ]; t
 fi
 ln -s "${REPO_DIR}/scripts/ai-prompt.sh" "${TARGET_AI_PROMPT_SCRIPT}"
 echo "Linked ${TARGET_AI_PROMPT_SCRIPT} -> ${REPO_DIR}/scripts/ai-prompt.sh"
+
+if [ -L "${TARGET_FILE_PICKER_SCRIPT}" ] || [ -e "${TARGET_FILE_PICKER_SCRIPT}" ]; then
+  rm -f "${TARGET_FILE_PICKER_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/tmux-file-picker" "${TARGET_FILE_PICKER_SCRIPT}"
+echo "Linked ${TARGET_FILE_PICKER_SCRIPT} -> ${REPO_DIR}/scripts/tmux-file-picker"
 
 if [ -L "${TARGET_PALETTE_DIR}" ]; then
   rm -f "${TARGET_PALETTE_DIR}"

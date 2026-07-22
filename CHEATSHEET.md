@@ -36,6 +36,7 @@ Ctrl-a
 - `prefix + m`: toggle mouse mode
 - `prefix + M`: mark or unmark the current pane; `MARK` refreshes immediately
 - `prefix + Ctrl-e`: open current pane output plus scrollback in `$VISUAL` or `$EDITOR`
+- `prefix + Ctrl-f`: fuzzy-find files under the current pane directory and insert selected paths
 - `prefix + Ctrl-y`: open the Snaglord command/output browser
 - `prefix + Ctrl-s`: open the reusable `Scratch-Terminal` popup session
 - `prefix + S`: save tmux state now with `tmux-resurrect`
@@ -92,6 +93,17 @@ Open the current pane's searchable command/output history with `prefix + Ctrl-y`
 
 The stock Snaglord CLI intentionally does not include preceding multiline Starship decoration in a command block.
 
+## File Picker
+
+Open files under the current pane directory with `prefix + Ctrl-f`, or open `Ctrl-p` and choose `File Picker` for file, directory, and Zoxide-ranked recent-directory workflows.
+
+- type to fuzzy-filter entries
+- `Tab`: select or deselect multiple entries
+- `Enter`: insert selected paths at the active pane's cursor without executing them
+- `Esc`: cancel without inserting anything
+- inside Claude, Gemini, or Codex, selected paths are prefixed with `@`
+- in other foreground programs, selected paths are shell-escaped
+
 ## Plugin Bindings
 
 - `Ctrl-p`: open `tmux-palette`
@@ -132,6 +144,7 @@ Repo-managed additions:
 - `Panes`: capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` refresh, marked-pane operations, layouts and rotation, clear scrollback
 - `Git`: open Lazygit or show a Onefetch repository overview in the current pane directory
 - `System`: inspect each attached client's session, size, terminal, and read-only state; detach other clients; open `btop`; show messages; scratch popup
+- `TMUX Tools`: open Snaglord or choose a file/directory insertion workflow
 - `TMUX Plugins`: individual palettes for `tmux-fzf`, Extrakto, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`
 
 Useful plugin palette actions:
