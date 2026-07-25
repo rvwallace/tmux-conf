@@ -12,7 +12,7 @@ case "${mode}" in
 esac
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-commands=(bash btop bun fd fzf fzf-tmux git lazygit nvim onefetch python3 sesh tmux tmux-snaglord tree zoxide)
+commands=(bash btop bun fd fzf fzf-tmux git jq lazygit nvim onefetch python3 sesh tmux tmux-snaglord tree zoxide)
 missing=()
 
 find_missing() {
@@ -53,9 +53,9 @@ linux_package_for() {
     apt:python3 | dnf:python3) printf 'python3' ;;
     pacman:python3) printf 'python' ;;
     apt:fzf-tmux | dnf:fzf-tmux | pacman:fzf-tmux) printf 'fzf' ;;
-    apt:bash | apt:btop | apt:fzf | apt:git | apt:tmux | apt:tree | apt:zoxide) printf '%s' "${command_name}" ;;
-    dnf:bash | dnf:btop | dnf:fzf | dnf:git | dnf:tmux | dnf:tree | dnf:zoxide) printf '%s' "${command_name}" ;;
-    pacman:bash | pacman:btop | pacman:bun | pacman:fd | pacman:fzf | pacman:git | pacman:lazygit | pacman:onefetch | pacman:tmux | pacman:tree | pacman:zoxide) printf '%s' "${command_name}" ;;
+    apt:bash | apt:btop | apt:fzf | apt:git | apt:jq | apt:tmux | apt:tree | apt:zoxide) printf '%s' "${command_name}" ;;
+    dnf:bash | dnf:btop | dnf:fzf | dnf:git | dnf:jq | dnf:tmux | dnf:tree | dnf:zoxide) printf '%s' "${command_name}" ;;
+    pacman:bash | pacman:btop | pacman:bun | pacman:fd | pacman:fzf | pacman:git | pacman:jq | pacman:lazygit | pacman:onefetch | pacman:tmux | pacman:tree | pacman:zoxide) printf '%s' "${command_name}" ;;
     *) return 1 ;;
   esac
 }

@@ -10,7 +10,10 @@ TARGET_SHOW_CLIENTS_SCRIPT="${HOME}/.config/tmux/scripts/show-clients.sh"
 TARGET_AI_SCRIPT="${HOME}/.config/tmux/scripts/ai-assist.sh"
 TARGET_AI_PROMPT_SCRIPT="${HOME}/.config/tmux/scripts/ai-prompt.sh"
 TARGET_FILE_PICKER_SCRIPT="${HOME}/.config/tmux/scripts/tmux-file-picker"
+TARGET_DEFER_TMUX_SCRIPT="${HOME}/.config/tmux/scripts/defer-tmux-command.sh"
+TARGET_WHICH_KEY_POPUP_SCRIPT="${HOME}/.config/tmux/scripts/tmux-which-key-popup.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
+TARGET_WHICH_KEY_DIR="${HOME}/.config/tmux-which-key"
 TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
 TPM_DIR="${HOME}/.config/tmux/plugins/tpm"
 
@@ -60,7 +63,10 @@ expect_symlink_target "$TARGET_SHOW_CLIENTS_SCRIPT" "$REPO_DIR/scripts/show-clie
 expect_symlink_target "$TARGET_AI_SCRIPT" "$REPO_DIR/scripts/ai-assist.sh"
 expect_symlink_target "$TARGET_AI_PROMPT_SCRIPT" "$REPO_DIR/scripts/ai-prompt.sh"
 expect_symlink_target "$TARGET_FILE_PICKER_SCRIPT" "$REPO_DIR/scripts/tmux-file-picker"
+expect_symlink_target "$TARGET_DEFER_TMUX_SCRIPT" "$REPO_DIR/scripts/defer-tmux-command.sh"
+expect_symlink_target "$TARGET_WHICH_KEY_POPUP_SCRIPT" "$REPO_DIR/scripts/tmux-which-key-popup.sh"
 expect_symlink_target "$TARGET_PALETTE_DIR" "$REPO_DIR/tmux-palette"
+expect_symlink_target "$TARGET_WHICH_KEY_DIR" "$REPO_DIR/tmux-which-key"
 expect_symlink_target "$TARGET_SNAGLORD_DIR" "$REPO_DIR/tmux-snaglord"
 expect_contains "grep -F 'prompt_lines = 3' \"$TARGET_SNAGLORD_DIR/config.toml\"" "prompt_lines = 3" "Snaglord multiline prompt height"
 expect_contains "grep -F 'nerd_fonts = true' \"$TARGET_SNAGLORD_DIR/config.toml\"" "nerd_fonts = true" "Snaglord Nerd Font mode"
@@ -94,6 +100,47 @@ pass "tmux-resurrect palette present"
 
 [ -f "$TARGET_PALETTE_DIR/palettes/plugin-tmux-continuum.json" ] || fail "tmux-continuum palette missing"
 pass "tmux-continuum palette present"
+
+[ -f "$TARGET_WHICH_KEY_DIR/config.json" ] || fail "tmux which-key config missing"
+jq empty "$TARGET_WHICH_KEY_DIR/config.json" || fail "tmux which-key config is invalid JSON"
+pass "tmux which-key config is valid JSON"
+
+jq -e '
+  def valid:
+    (type == "object")
+    and (.key | type == "string" and length > 0)
+    and (.description | type == "string" and length > 0)
+    and (.type | IN("group", "action", "tmux", "script", "popup"))
+    and if .type == "group" then
+      (.items | type == "array" and length > 0)
+      and (([.items[].key] | length) == ([.items[].key] | unique | length))
+      and all(.items[]; valid)
+    else
+      (.command | type == "string" and length > 0)
+    end;
+  (.items | type == "array" and length > 0)
+  and (([.items[].key] | length) == ([.items[].key] | unique | length))
+  and all(.items[]; valid)
+' "$TARGET_WHICH_KEY_DIR/config.json" >/dev/null || fail "tmux which-key config schema or per-menu key uniqueness failed"
+pass "tmux which-key config structure and keys"
+
+if jq -r '.. | objects | select(.type == "popup") | .command' "$TARGET_WHICH_KEY_DIR/config.json" | grep -F "'" >/dev/null; then
+  fail "tmux which-key popup commands must not contain single quotes"
+fi
+pass "tmux which-key popup commands avoid upstream single-quote bug"
+
+palette_titles="$(
+  jq -r '.[] | select(.action.palette == null) | .title' "$TARGET_PALETTE_DIR/commands.json"
+  for palette_file in "$TARGET_PALETTE_DIR"/palettes/*.json; do
+    jq -r '.items[].title' "$palette_file"
+  done
+)"
+which_key_descriptions="$(jq -r '.. | objects | select(.type != "group") | .description' "$TARGET_WHICH_KEY_DIR/config.json")"
+while IFS= read -r palette_title; do
+  grep -Fx "$palette_title" <<<"$which_key_descriptions" >/dev/null ||
+    fail "tmux which-key mirror missing palette action: $palette_title"
+done <<<"$palette_titles"
+pass "tmux which-key mirrors every custom palette action"
 
 [ -d "$TPM_DIR/.git" ] || fail "TPM is not installed at $TPM_DIR"
 pass "TPM installed at $TPM_DIR"
@@ -140,6 +187,9 @@ expect_contains "tmux show -g terminal-features" "tmux-256color:RGB:extkeys" "ne
 expect_contains "grep -F \"set -g @plugin 'tmux-plugins/tmux-resurrect'\" \"$REPO_DIR/.tmux.conf\"" "tmux-plugins/tmux-resurrect" "tmux-resurrect plugin declaration"
 expect_contains "grep -F \"set -g @plugin 'tmux-plugins/tmux-continuum'\" \"$REPO_DIR/.tmux.conf\"" "tmux-plugins/tmux-continuum" "tmux-continuum plugin declaration"
 expect_contains "grep -F \"set -g @plugin 'laktak/extrakto'\" \"$REPO_DIR/.tmux.conf\"" "laktak/extrakto" "extrakto plugin declaration"
+expect_contains "grep -F \"set -g @plugin 'Nucc/tmux-which-key'\" \"$REPO_DIR/.tmux.conf\"" "Nucc/tmux-which-key" "tmux which-key plugin declaration"
+expect_tmux_option "tmux show -g @which-key-config" "@which-key-config $HOME/.config/tmux-which-key/config.json"
+expect_tmux_option "tmux show -g @which-key-trigger" "@which-key-trigger Space"
 expect_tmux_option "tmux show -g @resurrect-capture-pane-contents" "@resurrect-capture-pane-contents on"
 expect_tmux_option "tmux show -g @continuum-restore" "@continuum-restore on"
 expect_tmux_option "tmux show -g @continuum-save-interval" "@continuum-save-interval 15"
@@ -182,6 +232,7 @@ expect_contains "tmux list-keys -T prefix" "scripts/tmux-file-picker" "tmux-file
 expect_contains "tmux list-keys -T prefix -N" "Open Snaglord command-output browser" "Snaglord popup binding"
 expect_contains "tmux list-keys -T prefix" "display-popup -E -h \"75%\" -w \"70%\" tmux-snaglord" "Snaglord popup command"
 expect_contains "tmux list-keys -T root" "tmux-palette/bin/tmux-palette.sh" "tmux-palette root binding"
+expect_contains "tmux list-keys -T prefix | grep 'bind-key.*Space'" "tmux-which-key/scripts/which-key.sh" "tmux which-key prefix Space binding"
 expect_contains "grep -F '\"palette\": \"plugin-tmux-resurrect\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-tmux-resurrect" "tmux-resurrect palette root entry"
 expect_contains "grep -F '\"palette\": \"plugin-tmux-continuum\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-tmux-continuum" "tmux-continuum palette root entry"
 expect_contains "grep -F '\"palette\": \"plugin-extrakto\"' \"$REPO_DIR/tmux-palette/commands.json\"" "plugin-extrakto" "Extrakto palette root entry"

@@ -42,6 +42,7 @@ Ctrl-a
 - `prefix + S`: save tmux state now with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open the `sesh` session picker popup
+- `prefix + Space`: open the mnemonic which-key menu
 - `prefix + ?`: open live help for the prefix key table
 - `prefix + prefix`: send literal `Ctrl-a` to the current pane
 - `prefix + c`: create a new window in the current pane path
@@ -153,6 +154,29 @@ Useful plugin palette actions:
 - `Extrakto`: default extraction, focused word/line/path/URL extraction, plugin help
 - `tmux-resurrect`: save state, restore state, list saved states from the active save directory, show latest save, show options
 - `tmux-continuum`: run continuum save, run continuum restore, show status, show options, list autosave files
+
+## tmux which-key
+
+Open with `prefix + Space`. Unlike the fuzzy `Ctrl-p` palette, which-key is
+organized around mnemonic single-key paths:
+
+- `p`: panes; `m` continues to marked panes and `L` to layouts
+- `w`: windows
+- `s`: sessions
+- `b`: buffers and copy mode
+- `c`: clients
+- `g`: Git tools
+- `a`: AI helpers
+- `t`: Snaglord, file picker, system monitor, messages, and scratch terminal
+- `P`: tmux-fzf, Extrakto, TPM, Cowboy, Sensible, Resurrect, and Continuum
+- `o`: options and environment inspection
+- `r`: reload config
+- `:`: tmux command prompt
+- `?`: live prefix-key help
+
+Press Escape or Backspace to return one level. Escape at the root closes the
+popup. The command descriptions intentionally match the `tmux-palette` titles,
+so the same repo-managed workflows are available from both interfaces.
 
 ## Useful tmux-sensible Bindings
 

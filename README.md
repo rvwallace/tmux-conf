@@ -21,7 +21,10 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./scripts/ai-prompt.sh`](./scripts/ai-prompt.sh): tmux prompt launcher used by AI key bindings and palette actions.
 - [`./scripts/tmux-file-picker`](./scripts/tmux-file-picker): vendored upstream fuzzy file and directory picker that inserts selected paths into the active pane.
 - [`./scripts/tmux-file-picker.UPSTREAM.md`](./scripts/tmux-file-picker.UPSTREAM.md): source commit and license attribution for the vendored picker.
+- [`./scripts/defer-tmux-command.sh`](./scripts/defer-tmux-command.sh): closes the which-key popup before starting another tmux popup, picker, prompt, or pane.
+- [`./scripts/tmux-which-key-popup.sh`](./scripts/tmux-which-key-popup.sh): runs inspection-oriented which-key popups without fragile nested shell quoting.
 - [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
+- [`./tmux-which-key/config.json`](./tmux-which-key/config.json): mnemonic which-key hierarchy, symlinked through `~/.config/tmux-which-key`.
 - [`./tmux-snaglord/config.toml`](./tmux-snaglord/config.toml): prompt parser config for stock `tmux-snaglord`, symlinked through `~/.config/tmux-snaglord`.
 
 ## Current Behavior
@@ -68,6 +71,7 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + S`: save the current tmux state with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open a `sesh` session picker in an `fzf-tmux` popup and connect to the selected entry
+- `prefix + Space`: open the mnemonic which-key menu
 - `prefix + ?`: open live, human-readable help generated from the active prefix key table
 - `prefix + prefix`: send literal `Ctrl-a` to the pane
 - `prefix + c`: new window in current pane path
@@ -107,6 +111,7 @@ Current plugins:
 - `sainnhe/tmux-fzf`
 - `laktak/extrakto`
 - `eduwass/tmux-palette`
+- `Nucc/tmux-which-key`
 - `tmux-plugins/tmux-resurrect`
 - `tmux-plugins/tmux-continuum`
 
@@ -121,6 +126,7 @@ Notes:
 - `tmux-fzf` provides a fuzzy menu for tmux sessions, windows, panes, buffers, and more.
 - `extrakto` provides `prefix + Tab` to fuzzy-find text, paths, URLs, and lines from pane history, then insert or copy a selection. Native copy mode can perform manual selection and search, but extracting structured items from large pane histories is materially more tedious.
 - `tmux-palette` provides the `Ctrl-p` command palette and reads repo-managed JSON from `~/.config/tmux-palette`.
+- `tmux-which-key` provides the `prefix + Space` mnemonic menu and reads repo-managed JSON from `~/.config/tmux-which-key`.
 - `tmux-resurrect` saves and restores tmux sessions, layouts, working directories, and captured pane output.
 - `tmux-continuum` autosaves every 15 minutes and restores the most recent saved state when a new tmux server starts.
 - `tmux-continuum` must stay last in `.tmux.conf` because it hooks through `status-right`.
@@ -157,6 +163,33 @@ The Git and system-monitor palette actions require `lazygit`, `onefetch`, and `b
 The File Picker palette can insert files or directories from the current pane directory, or first select one or more recent directories ranked by Zoxide using visit frequency and recency. `Tab` marks multiple entries and `Enter` inserts them into the pane without running the resulting input. File previews use `bat` when available and fall back to `cat`; directory previews use the managed `tree` dependency.
 
 The Extrakto palette can start default, word, line, path, or URL extraction and open the plugin help. The `tmux-resurrect` palette can save and restore tmux state, list saved snapshots from the active save directory, show the latest save target, and inspect resurrect options. The `tmux-continuum` palette can trigger save/restore scripts, show continuum status, inspect autosave settings, and list autosave files. It intentionally does not include boot-start commands.
+
+## tmux which-key
+
+Open which-key with `prefix + Space`. It is a mnemonic companion to the fuzzy
+`Ctrl-p` palette: use which-key to learn and traverse short key paths, and use
+the palette when searching by command name.
+
+The tracked config at `./tmux-which-key/config.json` is symlinked to:
+
+```text
+~/.config/tmux-which-key
+```
+
+Root groups are `p` panes, `w` windows, `s` sessions, `b` buffers, `c` clients,
+`g` Git, `a` AI, `t` tools, `P` plugins, and `o` options. `r` reloads the
+configuration, `:` opens the tmux command prompt, and `?` shows live prefix-key
+help. Press a displayed key to enter a group or run an action. Escape or
+Backspace returns one level; Escape at the root closes the popup.
+
+The custom hierarchy mirrors every repo-managed `tmux-palette` action, including
+marked panes, layouts, file-picker modes, AI helpers, and plugin maintenance and
+inspection commands. The palette remains installed at `Ctrl-p` so the two
+workflows can be evaluated side by side. Direct which-key tool popups use the
+plugin's standard popup size rather than the per-action palette sizes.
+
+Which-key requires `jq`; it is managed alongside the other dependencies in the
+`Brewfile` and `scripts/install-deps.sh`.
 
 ## Reloading
 
@@ -219,7 +252,10 @@ This script:
 - recreates the `~/.config/tmux/scripts/ai-assist.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-prompt.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-file-picker` symlink to this repo
+- recreates the `~/.config/tmux/scripts/defer-tmux-command.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/tmux-which-key-popup.sh` symlink to this repo
 - recreates the `~/.config/tmux-palette` symlink to this repo
+- recreates the `~/.config/tmux-which-key` symlink to this repo
 - recreates the `~/.config/tmux-snaglord` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
@@ -231,7 +267,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints the official Cargo install command when it is unavailable. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
+The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints the official Cargo install command when it is unavailable. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
 
 ## Validation
 

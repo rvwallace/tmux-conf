@@ -11,7 +11,10 @@ TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
 TARGET_AI_SCRIPT="${SCRIPT_DIR}/ai-assist.sh"
 TARGET_AI_PROMPT_SCRIPT="${SCRIPT_DIR}/ai-prompt.sh"
 TARGET_FILE_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-file-picker"
+TARGET_DEFER_TMUX_SCRIPT="${SCRIPT_DIR}/defer-tmux-command.sh"
+TARGET_WHICH_KEY_POPUP_SCRIPT="${SCRIPT_DIR}/tmux-which-key-popup.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
+TARGET_WHICH_KEY_DIR="${HOME}/.config/tmux-which-key"
 TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
 TPM_DIR="${PLUGIN_DIR}/tpm"
@@ -76,6 +79,18 @@ fi
 ln -s "${REPO_DIR}/scripts/tmux-file-picker" "${TARGET_FILE_PICKER_SCRIPT}"
 echo "Linked ${TARGET_FILE_PICKER_SCRIPT} -> ${REPO_DIR}/scripts/tmux-file-picker"
 
+if [ -L "${TARGET_DEFER_TMUX_SCRIPT}" ] || [ -e "${TARGET_DEFER_TMUX_SCRIPT}" ]; then
+  rm -f "${TARGET_DEFER_TMUX_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/defer-tmux-command.sh" "${TARGET_DEFER_TMUX_SCRIPT}"
+echo "Linked ${TARGET_DEFER_TMUX_SCRIPT} -> ${REPO_DIR}/scripts/defer-tmux-command.sh"
+
+if [ -L "${TARGET_WHICH_KEY_POPUP_SCRIPT}" ] || [ -e "${TARGET_WHICH_KEY_POPUP_SCRIPT}" ]; then
+  rm -f "${TARGET_WHICH_KEY_POPUP_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/tmux-which-key-popup.sh" "${TARGET_WHICH_KEY_POPUP_SCRIPT}"
+echo "Linked ${TARGET_WHICH_KEY_POPUP_SCRIPT} -> ${REPO_DIR}/scripts/tmux-which-key-popup.sh"
+
 if [ -L "${TARGET_PALETTE_DIR}" ]; then
   rm -f "${TARGET_PALETTE_DIR}"
 elif [ -e "${TARGET_PALETTE_DIR}" ]; then
@@ -85,6 +100,16 @@ elif [ -e "${TARGET_PALETTE_DIR}" ]; then
 fi
 ln -s "${REPO_DIR}/tmux-palette" "${TARGET_PALETTE_DIR}"
 echo "Linked ${TARGET_PALETTE_DIR} -> ${REPO_DIR}/tmux-palette"
+
+if [ -L "${TARGET_WHICH_KEY_DIR}" ]; then
+  rm -f "${TARGET_WHICH_KEY_DIR}"
+elif [ -e "${TARGET_WHICH_KEY_DIR}" ]; then
+  backup="${TARGET_WHICH_KEY_DIR}.backup.$(date +%Y%m%d-%H%M%S)"
+  mv "${TARGET_WHICH_KEY_DIR}" "${backup}"
+  echo "Moved existing ${TARGET_WHICH_KEY_DIR} to ${backup}"
+fi
+ln -s "${REPO_DIR}/tmux-which-key" "${TARGET_WHICH_KEY_DIR}"
+echo "Linked ${TARGET_WHICH_KEY_DIR} -> ${REPO_DIR}/tmux-which-key"
 
 if [ -L "${TARGET_SNAGLORD_DIR}" ]; then
   rm -f "${TARGET_SNAGLORD_DIR}"
