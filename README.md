@@ -114,6 +114,7 @@ Current plugins:
 - `laktak/extrakto`
 - `eduwass/tmux-palette`
 - `Nucc/tmux-which-key`
+- `alberti42/tmux-fzf-links`
 - `tmux-plugins/tmux-resurrect`
 - `tmux-plugins/tmux-continuum`
 
@@ -129,6 +130,7 @@ Notes:
 - `extrakto` provides `prefix + Tab` to fuzzy-find text, paths, URLs, and lines from pane history, then insert or copy a selection. Native copy mode can perform manual selection and search, but extracting structured items from large pane histories is materially more tedious.
 - `tmux-palette` provides the `Ctrl-p` command palette and reads repo-managed JSON from `~/.config/tmux-palette`.
 - `tmux-which-key` provides the `prefix + Space` mnemonic menu and reads repo-managed JSON from `~/.config/tmux-which-key`.
+- `tmux-fzf-links` provides `prefix + Ctrl-h` to fuzzy-find links, paths, and other supported addresses in pane history. Opening a selected file starts Neovim in a new tmux window at the detected line.
 - `tmux-resurrect` saves and restores tmux sessions, layouts, working directories, and captured pane output.
 - `tmux-continuum` autosaves every 15 minutes and restores the most recent saved state when a new tmux server starts.
 - `tmux-continuum` must stay last in `.tmux.conf` because it hooks through `status-right`.

@@ -115,6 +115,7 @@ for the fzf file, directory, and Zoxide-ranked recent-directory workflows.
 - `Ctrl-p`: open `tmux-palette`
 - `prefix + *`: kill the foreground process in the current pane with `SIGKILL` via `tmux-cowboy`
 - `prefix + F`: open `tmux-fzf`
+- `prefix + Ctrl-h`: fuzzy-find links, paths, and supported addresses in pane history with `tmux-fzf-links`
 - `prefix + Tab`: open Extrakto to fuzzy-find text from pane history
 - `prefix + I`: install plugins with TPM
 - `prefix + U`: update plugins with TPM
