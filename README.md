@@ -21,6 +21,8 @@ The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`
 - [`./scripts/ai-prompt.sh`](./scripts/ai-prompt.sh): tmux prompt launcher used by AI key bindings and palette actions.
 - [`./scripts/tmux-file-picker`](./scripts/tmux-file-picker): vendored upstream fuzzy file and directory picker that inserts selected paths into the active pane.
 - [`./scripts/tmux-file-picker.UPSTREAM.md`](./scripts/tmux-file-picker.UPSTREAM.md): source commit and license attribution for the vendored picker.
+- [`./scripts/tmux-yazi-picker.sh`](./scripts/tmux-yazi-picker.sh): launches Yazi as a multi-file chooser for the active pane.
+- [`./scripts/tmux-insert-paths.sh`](./scripts/tmux-insert-paths.sh): shared agent-aware formatter and tmux-buffer inserter for both file pickers.
 - [`./scripts/defer-tmux-command.sh`](./scripts/defer-tmux-command.sh): closes the which-key popup before starting another tmux popup, picker, prompt, or pane.
 - [`./scripts/tmux-which-key-popup.sh`](./scripts/tmux-which-key-popup.sh): runs inspection-oriented which-key popups without fragile nested shell quoting.
 - [`./tmux-palette/`](./tmux-palette): user config for `tmux-palette`, symlinked to `~/.config/tmux-palette`.
@@ -117,7 +119,7 @@ Current plugins:
 
 Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps its prompt parser configuration under `./tmux-snaglord/`; it recognizes this Starship prompt's final `➜` or `✖` line and treats the prompt as three terminal lines so preceding decoration does not leak into adjacent command output. Snaglord's stock command view supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
 
-`tmux-file-picker` is also a standalone CLI rather than a TPM plugin. Its upstream script is vendored unchanged under `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`. It uses `fd` and `fzf` to select files or directories and inserts the paths without executing them. The direct binding searches the current pane directory; its palette also provides current-directory and Zoxide-ranked recent-directory workflows. When the foreground process looks like Claude, Gemini, or Codex, upstream prefixes inserted paths with `@`; otherwise it shell-escapes them.
+`tmux-file-picker` is also a standalone CLI rather than a TPM plugin. Its upstream script is vendored under `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`, with a small local integration patch. It uses `fd` and `fzf` to select files or directories. Yazi is available alongside it from both TMUX Tools menus as a navigable, multi-file chooser; its fd (`s`) and ripgrep (`S`) virtual search results are normalized back to filesystem paths. Both pickers pass their selections through a temporary named tmux buffer and delete that buffer after pasting; selected paths are inserted without being executed. When a pane runs Claude, Gemini, Codex, Cursor `agent`, or `cursor-agent`, paths are prefixed with `@`; otherwise they are shell-escaped.
 
 Notes:
 
@@ -252,6 +254,8 @@ This script:
 - recreates the `~/.config/tmux/scripts/ai-assist.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-prompt.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-file-picker` symlink to this repo
+- recreates the `~/.config/tmux/scripts/tmux-insert-paths.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/tmux-yazi-picker.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/defer-tmux-command.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-which-key-popup.sh` symlink to this repo
 - recreates the `~/.config/tmux-palette` symlink to this repo
@@ -267,7 +271,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints the official Cargo install command when it is unavailable. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
+The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints official installation guidance for unresolved tools. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
 
 ## Validation
 
@@ -284,6 +288,7 @@ It checks:
 - `~/.config/tmux/scripts/copy-pane-path.sh` symlink target
 - `~/.config/tmux/scripts/show-clients.sh` symlink target
 - `~/.config/tmux/scripts/tmux-file-picker` symlink target
+- `~/.config/tmux/scripts/tmux-insert-paths.sh` and `tmux-yazi-picker.sh` symlink targets
 - `~/.config/tmux-palette` symlink target
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`

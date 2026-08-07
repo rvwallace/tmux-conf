@@ -11,6 +11,15 @@
       }
     },
     {
+      "icon": "󰇥",
+      "title": "Yazi Picker",
+      "category": "File Picker",
+      "description": "browse with Yazi and insert selected paths",
+      "action": {
+        "tmux": "display-popup -E -d '#{pane_current_path}' -w '90%' -h '90%' '~/.config/tmux/scripts/tmux-yazi-picker.sh'"
+      }
+    },
+    {
       "icon": "󰉋",
       "title": "Directories in Current Directory",
       "category": "File Picker",

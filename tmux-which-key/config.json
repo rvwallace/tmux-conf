@@ -136,6 +136,7 @@
           "description": "file picker",
           "items": [
             { "key": "f", "type": "popup", "command": "~/.config/tmux/scripts/tmux-file-picker", "description": "Files in Current Directory" },
+            { "key": "y", "type": "popup", "command": "~/.config/tmux/scripts/tmux-yazi-picker.sh", "description": "Yazi Picker" },
             { "key": "d", "type": "popup", "command": "~/.config/tmux/scripts/tmux-file-picker --directories", "description": "Directories in Current Directory" },
             { "key": "r", "type": "popup", "command": "~/.config/tmux/scripts/tmux-file-picker --zoxide", "description": "Files from Recent Directory" },
             { "key": "R", "type": "popup", "command": "~/.config/tmux/scripts/tmux-file-picker --zoxide --dir-only", "description": "Recent Directories" }

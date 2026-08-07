@@ -128,12 +128,6 @@ main() {
 		fi
 	done
 
-	# --- Mode Detection ---
-	local at_prefix_mode=false
-	if pgrep -P "$pane_pid" -f ".*claude.*|node.*gemini|codex" >/dev/null; then
-		at_prefix_mode=true
-	fi
-
 	local git_root
 	git_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
 	if $use_git_root && [[ -z "$git_root" ]]; then
@@ -143,19 +137,8 @@ main() {
 
 	# If --dir-only is set, just output the directory paths and exit
 	if $dir_only; then
-		local output_str=""
-		if $at_prefix_mode; then
-			printf -v output_str "@%s " "${search_dirs[@]}"
-		else
-			local escaped_paths=()
-			for dir in "${search_dirs[@]}"; do
-				local escaped
-				printf -v escaped "%q" "$dir"
-				escaped_paths+=("$escaped")
-			done
-			output_str=$(printf "%s " "${escaped_paths[@]}")
-		fi
-		tmux send-keys -t "$pane_id" "$output_str"
+		"$(dirname "${BASH_SOURCE[0]}")/tmux-insert-paths.sh" \
+			"$pane_id" "$pane_pid" "${search_dirs[@]}"
 		exit 0
 	fi
 
@@ -276,23 +259,9 @@ main() {
 		fi
 	fi
 
-	# --- Output Formatting ---
-	local files_oneline
-	if $at_prefix_mode; then
-		# Prefix each file with '@' and join with spaces
-		printf -v files_oneline "@%s " "${relative_paths[@]}"
-	else
-		# Shell-escape each file path and join with spaces
-		local escaped_paths=()
-		for path in "${relative_paths[@]}"; do
-			printf -v escaped_path "%q" "$path"
-			escaped_paths+=("$escaped_path")
-		done
-		files_oneline=$(printf "%s " "${escaped_paths[@]}")
-	fi
-
-	# --- Send to Tmux ---
-	tmux send-keys -t "$pane_id" "$files_oneline"
+	# --- Insert into Tmux ---
+	"$(dirname "${BASH_SOURCE[0]}")/tmux-insert-paths.sh" \
+		"$pane_id" "$pane_pid" "${relative_paths[@]}"
 }
 
 main "$@"
