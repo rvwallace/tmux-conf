@@ -11,6 +11,8 @@ TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
 TARGET_AI_SCRIPT="${SCRIPT_DIR}/ai-assist.sh"
 TARGET_AI_PROMPT_SCRIPT="${SCRIPT_DIR}/ai-prompt.sh"
 TARGET_FILE_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-file-picker"
+TARGET_INSERT_PATHS_SCRIPT="${SCRIPT_DIR}/tmux-insert-paths.sh"
+TARGET_YAZI_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-yazi-picker.sh"
 TARGET_DEFER_TMUX_SCRIPT="${SCRIPT_DIR}/defer-tmux-command.sh"
 TARGET_WHICH_KEY_POPUP_SCRIPT="${SCRIPT_DIR}/tmux-which-key-popup.sh"
 TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
@@ -78,6 +80,18 @@ if [ -L "${TARGET_FILE_PICKER_SCRIPT}" ] || [ -e "${TARGET_FILE_PICKER_SCRIPT}" 
 fi
 ln -s "${REPO_DIR}/scripts/tmux-file-picker" "${TARGET_FILE_PICKER_SCRIPT}"
 echo "Linked ${TARGET_FILE_PICKER_SCRIPT} -> ${REPO_DIR}/scripts/tmux-file-picker"
+
+if [ -L "${TARGET_INSERT_PATHS_SCRIPT}" ] || [ -e "${TARGET_INSERT_PATHS_SCRIPT}" ]; then
+  rm -f "${TARGET_INSERT_PATHS_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/tmux-insert-paths.sh" "${TARGET_INSERT_PATHS_SCRIPT}"
+echo "Linked ${TARGET_INSERT_PATHS_SCRIPT} -> ${REPO_DIR}/scripts/tmux-insert-paths.sh"
+
+if [ -L "${TARGET_YAZI_PICKER_SCRIPT}" ] || [ -e "${TARGET_YAZI_PICKER_SCRIPT}" ]; then
+  rm -f "${TARGET_YAZI_PICKER_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/tmux-yazi-picker.sh" "${TARGET_YAZI_PICKER_SCRIPT}"
+echo "Linked ${TARGET_YAZI_PICKER_SCRIPT} -> ${REPO_DIR}/scripts/tmux-yazi-picker.sh"
 
 if [ -L "${TARGET_DEFER_TMUX_SCRIPT}" ] || [ -e "${TARGET_DEFER_TMUX_SCRIPT}" ]; then
   rm -f "${TARGET_DEFER_TMUX_SCRIPT}"

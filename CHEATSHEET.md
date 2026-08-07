@@ -97,13 +97,17 @@ The stock Snaglord CLI intentionally does not include preceding multiline Starsh
 
 ## File Picker
 
-Open files under the current pane directory with `prefix + Ctrl-f`, or open `Ctrl-p` and choose `File Picker` for file, directory, and Zoxide-ranked recent-directory workflows.
+Open files under the current pane directory with `prefix + Ctrl-f`. For the
+picker menus, use `Ctrl-p` → `File Picker` or `prefix + Space` → `t`;
+choose `y` in which-key for navigable Yazi browsing or `f`, `d`, `r`, and `R`
+for the fzf file, directory, and Zoxide-ranked recent-directory workflows.
 
-- type to fuzzy-filter entries
-- `Tab`: select or deselect multiple entries
-- `Enter`: insert selected paths at the active pane's cursor without executing them
+- fzf: type to filter; `Tab` toggles selections; `Enter` accepts
+- Yazi: navigate normally; `Space` toggles selections; `Enter` accepts
+- Yazi `s` (fd) and `S` (ripgrep) search results are converted back to filesystem paths
+- accepted paths are pasted through a temporary tmux buffer at the active pane's cursor without executing them
 - `Esc`: cancel without inserting anything
-- inside Claude, Gemini, or Codex, selected paths are prefixed with `@`
+- inside Claude, Gemini, Codex, Cursor `agent`, or `cursor-agent`, selected paths are prefixed with `@`
 - in other foreground programs, selected paths are shell-escaped
 
 ## Plugin Bindings
