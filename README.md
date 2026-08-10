@@ -160,11 +160,33 @@ Bootstrap links it to:
 ~/.config/tmux-palette
 ```
 
-The main palette includes an `AI` category for pane-aware `aichat` helpers, a `TMUX Tools` category for Snaglord and the file picker, and a `TMUX Plugins` category with individual palettes for `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`. It also adds tmux utility commands such as capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` status refresh, marked-pane operations, window layouts and rotation, attached-client management, clear scrollback, Lazygit, Onefetch, and `btop` popups, show messages, and the scratch popup.
+The main palette includes an `AI` category for pane-aware `aichat` helpers. The `TMUX Tools` category contains Snaglord and the file picker. The `TMUX Plugins` category contains separate palettes for each plugin.
+
+The main palette also supplies these tmux commands:
+
+- capture a pane to a file
+- copy the pane directory
+- synchronize panes and immediately refresh the `SYNC` status
+- manage marked panes
+- select and rotate window layouts
+- manage attached clients
+- clear scrollback
+- open Lazygit or `btop` in a popup, side pane, or new window
+- show a Onefetch repository overview
+- show tmux messages
+- open the scratch popup
+
+The plugin palettes support `tmux-fzf`, Extrakto, TPM, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`.
 
 The marked-pane palette can toggle or clear a mark, swap the current pane with the marked pane, or join the marked pane into the current window. The layouts palette exposes tiled, even, and main-pane layouts plus clockwise/counterclockwise rotation. The clients palette uses the repo-managed `show-clients.sh` helper to inspect each attached client, or can detach every client except the one invoking the action after confirmation.
 
-The Git and system-monitor palette actions require `lazygit`, `onefetch`, and `btop` to be installed and available on `PATH`. Lazygit and Onefetch run in the current pane directory. The copy-directory action uses `pbcopy`, `wl-copy`, or `xclip` when available, falling back to the tmux buffer.
+The Git and system-monitor actions require `lazygit`, `onefetch`, and `btop` in `PATH`. The Lazygit and system-monitor submenus open each tool in these locations:
+
+- the existing large popup
+- a 50%-width right-side pane
+- a named new window
+
+Lazygit and Onefetch use the current pane directory. The copy-directory action uses `pbcopy`, `wl-copy`, or `xclip` when one is available. Otherwise, it uses the tmux buffer.
 
 The File Picker palette can insert files or directories from the current pane directory, or first select one or more recent directories ranked by Zoxide using visit frequency and recency. `Tab` marks multiple entries and `Enter` inserts them into the pane without running the resulting input. File previews use `bat` when available and fall back to `cat`; directory previews use the managed `tree` dependency.
 
@@ -191,11 +213,9 @@ configuration, `:` opens the tmux command prompt, and `?` shows live prefix-key
 help. Press a displayed key to enter a group or run an action. Escape or
 Backspace returns one level; Escape at the root closes the popup.
 
-The custom hierarchy mirrors every repo-managed `tmux-palette` action, including
-marked panes, layouts, file-picker modes, AI helpers, and plugin maintenance and
-inspection commands. The palette remains installed at `Ctrl-p` so the two
-workflows can be evaluated side by side. Direct which-key tool popups use the
-plugin's standard popup size rather than the per-action palette sizes.
+The custom hierarchy mirrors every action that this repository adds to `tmux-palette`. This includes marked panes, layouts, and file-picker modes. It also includes Lazygit locations, system-monitor locations, AI helpers, and plugin commands.
+
+The palette remains at `Ctrl-p` so that you can compare the two workflows. Direct which-key tool popups use the plugin's standard size. They do not use the sizes from the palette actions.
 
 Which-key requires `jq`; it is managed alongside the other dependencies in the
 `Brewfile` and `scripts/install-deps.sh`.

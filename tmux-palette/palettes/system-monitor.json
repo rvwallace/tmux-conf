@@ -1,0 +1,29 @@
+{
+  "title": "System Monitor",
+  "items": [
+    {
+      "icon": "󰹑",
+      "title": "System Monitor: Popup",
+      "description": "open btop in a large popup",
+      "action": {
+        "tmux": "display-popup -E -w '90%' -h '85%' btop"
+      }
+    },
+    {
+      "icon": "󰯌",
+      "title": "System Monitor: Side Pane",
+      "description": "open btop in a right-side pane",
+      "action": {
+        "tmux": "split-window -h -p 50 -c '#{pane_current_path}' btop"
+      }
+    },
+    {
+      "icon": "󰖯",
+      "title": "System Monitor: New Window",
+      "description": "open btop in a new window",
+      "action": {
+        "tmux": "new-window -n btop -c '#{pane_current_path}' btop"
+      }
+    }
+  ]
+}

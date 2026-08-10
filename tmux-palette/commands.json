@@ -51,12 +51,10 @@
   },
   {
     "icon": "󰊢",
-    "title": "Lazygit Popup",
+    "title": "Lazygit",
     "category": "Git",
-    "description": "open lazygit in the current pane directory",
-    "action": {
-      "tmux": "display-popup -E -d '#{pane_current_path}' -w '90%' -h '90%' lazygit"
-    }
+    "description": "choose where to open lazygit",
+    "action": { "palette": "lazygit" }
   },
   {
     "icon": "󰘬",
@@ -80,10 +78,8 @@
     "icon": "󰍛",
     "title": "System Monitor",
     "category": "System",
-    "description": "open btop in a large popup",
-    "action": {
-      "tmux": "display-popup -E -w '90%' -h '85%' btop"
-    }
+    "description": "choose where to open btop",
+    "action": { "palette": "system-monitor" }
   },
   {
     "icon": "󰒍",
