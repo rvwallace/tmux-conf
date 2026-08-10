@@ -7,8 +7,8 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 ## Files
 
 - [`./.tmux.conf`](./.tmux.conf): authoritative entry point, organized into core behavior, terminal capabilities, window and pane defaults, bindings, context menus, theme loading, plugins, and post-plugin overrides.
-- [`./themes/tokyo-night.conf`](./themes/tokyo-night.conf): Tokyo Night status bar, pane borders, messages, copy mode, and which-key popup surface.
-- [`./bootstrap.sh`](./bootstrap.sh): sets up the `~/.tmux.conf` symlink and TPM path on a machine.
+- [`./themes/tokyo-night.conf`](./themes/tokyo-night.conf): Tokyo Night status bar, pane borders, messages, copy mode, and which-key popup surface; exposed to tmux through the `~/.config/tmux/themes` symlink.
+- [`./bootstrap.sh`](./bootstrap.sh): refreshes repo-managed symlinks and sets up the TPM path on a machine.
 - [`./Brewfile`](./Brewfile): macOS runtime dependencies used by the configuration and palette utilities.
 - [`./validate.sh`](./validate.sh): checks symlinks, TPM, tmux reloadability, and expected live settings.
 - [`./CHEATSHEET.md`](./CHEATSHEET.md): commonly used key bindings and commands.
@@ -222,7 +222,19 @@ Which-key requires `jq`; it is managed alongside the other dependencies in the
 
 ## Reloading
 
-From inside tmux:
+After pulling repository updates, rerun bootstrap before reloading tmux:
+
+```sh
+./bootstrap.sh
+tmux source-file ~/.tmux.conf
+```
+
+Bootstrap refreshes the repo-managed symlinks used by the configuration. This
+step is required for existing installations when an update adds a managed path,
+including the `~/.config/tmux/themes` path.
+
+For local configuration edits that do not change setup or external paths, reload
+from inside tmux:
 
 ```sh
 tmux source-file ~/.tmux.conf
@@ -261,7 +273,7 @@ The AI palette actions require the `aichat` CLI in `PATH`. Open the palette with
 
 The status icons require a [Nerd Font](https://www.nerdfonts.com/) in the outer terminal. The status line remains usable if those glyphs are unavailable, but the icons will render as missing-character boxes.
 
-## Bootstrap On A New Machine
+## Bootstrap On A New Machine Or After Updating
 
 Run:
 
@@ -275,6 +287,7 @@ This script:
 - uses `brew bundle` with [`./Brewfile`](./Brewfile) on macOS
 - uses `pacman`, `apt`, or `dnf` for packages available on Linux and prints official guidance for unresolved tools
 - recreates the `~/.tmux.conf` symlink to this repo
+- recreates the `~/.config/tmux/themes` symlink to this repo's `themes/` directory
 - recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/copy-pane-path.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/show-clients.sh` symlink to this repo
@@ -311,6 +324,7 @@ Run:
 It checks:
 
 - `~/.tmux.conf` symlink target
+- `~/.config/tmux/themes` symlink target and Tokyo Night theme source
 - `~/.config/tmux/scripts/edit-scrollback.sh` symlink target
 - `~/.config/tmux/scripts/copy-pane-path.sh` symlink target
 - `~/.config/tmux/scripts/show-clients.sh` symlink target

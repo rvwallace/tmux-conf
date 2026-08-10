@@ -236,6 +236,8 @@ This config uses vi keys in copy mode.
 Run these in a shell:
 
 ```sh
+# After pulling repository updates, refresh managed paths before reloading.
+./bootstrap.sh
 tmux source-file ~/.tmux.conf
 tmux list-keys
 tmux list-sessions

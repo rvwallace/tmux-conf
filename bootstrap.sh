@@ -5,6 +5,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_CONF="${HOME}/.tmux.conf"
 SCRIPT_DIR="${HOME}/.config/tmux/scripts"
+TARGET_THEME_DIR="${HOME}/.config/tmux/themes"
 TARGET_SCROLLBACK_SCRIPT="${SCRIPT_DIR}/edit-scrollback.sh"
 TARGET_COPY_PATH_SCRIPT="${SCRIPT_DIR}/copy-pane-path.sh"
 TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
@@ -44,6 +45,16 @@ if [ -L "${TARGET_CONF}" ] || [ -e "${TARGET_CONF}" ]; then
 fi
 ln -s "${REPO_DIR}/.tmux.conf" "${TARGET_CONF}"
 echo "Linked ${TARGET_CONF} -> ${REPO_DIR}/.tmux.conf"
+
+if [ -L "${TARGET_THEME_DIR}" ]; then
+  rm -f "${TARGET_THEME_DIR}"
+elif [ -e "${TARGET_THEME_DIR}" ]; then
+  backup="${TARGET_THEME_DIR}.backup.$(date +%Y%m%d-%H%M%S)"
+  mv "${TARGET_THEME_DIR}" "${backup}"
+  echo "Moved existing ${TARGET_THEME_DIR} to ${backup}"
+fi
+ln -s "${REPO_DIR}/themes" "${TARGET_THEME_DIR}"
+echo "Linked ${TARGET_THEME_DIR} -> ${REPO_DIR}/themes"
 
 if [ -L "${TARGET_SCROLLBACK_SCRIPT}" ] || [ -e "${TARGET_SCROLLBACK_SCRIPT}" ]; then
   rm -f "${TARGET_SCROLLBACK_SCRIPT}"
