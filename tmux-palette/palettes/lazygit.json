@@ -1,0 +1,29 @@
+{
+  "title": "Lazygit",
+  "items": [
+    {
+      "icon": "󰹑",
+      "title": "Lazygit Popup",
+      "description": "open lazygit in a large popup",
+      "action": {
+        "tmux": "display-popup -E -d '#{pane_current_path}' -w '90%' -h '90%' lazygit"
+      }
+    },
+    {
+      "icon": "󰯌",
+      "title": "Lazygit Side Pane",
+      "description": "open lazygit in a right-side pane",
+      "action": {
+        "tmux": "split-window -h -p 50 -c '#{pane_current_path}' lazygit"
+      }
+    },
+    {
+      "icon": "󰖯",
+      "title": "Lazygit New Window",
+      "description": "open lazygit in a new window",
+      "action": {
+        "tmux": "new-window -n lazygit -c '#{pane_current_path}' lazygit"
+      }
+    }
+  ]
+}

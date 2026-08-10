@@ -152,8 +152,13 @@ Repo-managed additions:
 
 - `AI`: ask about the current pane, diagnose recent errors, generate commands, and explain shell snippets via `aichat`
 - `Panes`: capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` refresh, marked-pane operations, layouts and rotation, clear scrollback
-- `Git`: open Lazygit or show a Onefetch repository overview in the current pane directory
-- `System`: inspect each attached client's session, size, terminal, and read-only state; detach other clients; open `btop`; show messages; scratch popup
+- `Git`: open Lazygit in a popup, side pane, or new window. Show a Onefetch overview for the current pane directory.
+- `System`:
+  - inspect each client's session, size, terminal, and read-only state
+  - detach the other clients
+  - open `btop` in a popup, side pane, or new window
+  - show tmux messages
+  - open the scratch popup
 - `TMUX Tools`: open Snaglord or choose a file/directory insertion workflow
 - `TMUX Plugins`: individual palettes for `tmux-fzf`, Extrakto, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`
 
@@ -176,9 +181,9 @@ retaining the plugin's built-in readable menu accents.
 - `s`: sessions
 - `b`: buffers and copy mode
 - `c`: clients
-- `g`: Git tools
+- `g`: Git tools. Press `g` again to select a Lazygit location (`p` popup, `s` side pane, or `w` new window).
 - `a`: AI helpers
-- `t`: Snaglord, file picker, system monitor, messages, and scratch terminal
+- `t`: Snaglord, file picker, system monitor (`m`, then `p` popup, `s` side pane, or `w` new window), messages, and scratch terminal
 - `P`: tmux-fzf, Extrakto, TPM, Cowboy, Sensible, Resurrect, and Continuum
 - `o`: options and environment inspection
 - `r`: reload config

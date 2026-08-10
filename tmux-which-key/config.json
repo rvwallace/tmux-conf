@@ -106,7 +106,16 @@
       "type": "group",
       "description": "git",
       "items": [
-        { "key": "g", "type": "popup", "command": "lazygit", "description": "Lazygit Popup" },
+        {
+          "key": "g",
+          "type": "group",
+          "description": "lazygit",
+          "items": [
+            { "key": "p", "type": "popup", "command": "lazygit", "description": "Lazygit Popup" },
+            { "key": "s", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh split-window -h -p 50 -c #{pane_current_path} lazygit", "description": "Lazygit Side Pane" },
+            { "key": "w", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh new-window -n lazygit -c #{pane_current_path} lazygit", "description": "Lazygit New Window" }
+          ]
+        },
         { "key": "o", "type": "popup", "command": "~/.config/tmux/scripts/tmux-which-key-popup.sh repository-overview", "description": "Repository Overview" }
       ]
     },
@@ -142,7 +151,16 @@
             { "key": "R", "type": "popup", "command": "~/.config/tmux/scripts/tmux-file-picker --zoxide --dir-only", "description": "Recent Directories" }
           ]
         },
-        { "key": "m", "type": "popup", "command": "btop", "description": "System Monitor" },
+        {
+          "key": "m",
+          "type": "group",
+          "description": "system monitor",
+          "items": [
+            { "key": "p", "type": "popup", "command": "btop", "description": "System Monitor: Popup" },
+            { "key": "s", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh split-window -h -p 50 -c #{pane_current_path} btop", "description": "System Monitor: Side Pane" },
+            { "key": "w", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh new-window -n btop -c #{pane_current_path} btop", "description": "System Monitor: New Window" }
+          ]
+        },
         { "key": "M", "type": "tmux", "command": "show-messages", "description": "Show Messages" },
         { "key": "t", "type": "popup", "command": "tmux new-session -A -s Scratch-Terminal", "description": "Scratch Popup" }
       ]
