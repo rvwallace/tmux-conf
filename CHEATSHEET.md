@@ -4,13 +4,16 @@ This sheet documents the most useful keys and commands for the current config.
 
 The status bar uses (with a Nerd Font configured in the outer terminal):
 
-- blue session block with a terminal icon on the left
-- window tabs with angled caps on both sides, a yellow active highlight, muted inactive windows, and a zoom marker
-- dark background so it stays visually separate from pane content
-- transient messages use a compact yellow segment with a pointed right edge
+The visual settings are maintained in `themes/tokyo-night.conf` and loaded by
+the main `.tmux.conf` entry point.
+
+- left-anchored purple session segment with a terminal icon and pointed transition
+- rounded window tabs with a blue active highlight, muted raised inactive tabs, and a zoom marker
+- Tokyo Night Storm background and surfaces so the bar stays visually separate from pane content
+- transient messages use a compact yellow segment with a rounded right edge
 - top position
 - right-side state flags for prefix, copy mode, marked panes, mouse, and synchronized panes
-- local date/time, UTC time, and hostname
+- icon-labeled local date/time, UTC time, and hostname
 - the status line must remain enabled because `tmux-continuum` uses it for autosave
 
 Terminal input behavior:
@@ -21,7 +24,7 @@ Terminal input behavior:
 Pane borders:
 
 - every pane has a top border label showing its pane number, pane title, active command, and working-directory basename
-- the active pane border is cyan; inactive pane borders are muted
+- the active pane border is Tokyo Night cyan; inactive pane borders are muted
 - borders use single-line characters
 
 Assume the tmux prefix is the default:
@@ -164,6 +167,9 @@ Useful plugin palette actions:
 
 Open with `prefix + Space`. Unlike the fuzzy `Ctrl-p` palette, which-key is
 organized around mnemonic single-key paths:
+
+The popup uses the Tokyo Night status-bar background and muted border while
+retaining the plugin's built-in readable menu accents.
 
 - `p`: panes; `m` continues to marked panes and `L` to layouts
 - `w`: windows

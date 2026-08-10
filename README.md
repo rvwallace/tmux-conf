@@ -2,11 +2,12 @@
 
 Minimal tmux configuration managed from this repo.
 
-The file in this repo is symlinked to `~/.tmux.conf`, so editing [`./.tmux.conf`](./.tmux.conf) changes the live config source.
+The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned supporting configuration, including the active theme.
 
 ## Files
 
-- [`./.tmux.conf`](./.tmux.conf): source of truth for tmux configuration.
+- [`./.tmux.conf`](./.tmux.conf): authoritative entry point, organized into core behavior, terminal capabilities, window and pane defaults, bindings, context menus, theme loading, plugins, and post-plugin overrides.
+- [`./themes/tokyo-night.conf`](./themes/tokyo-night.conf): Tokyo Night status bar, pane borders, messages, copy mode, and which-key popup surface.
 - [`./bootstrap.sh`](./bootstrap.sh): sets up the `~/.tmux.conf` symlink and TPM path on a machine.
 - [`./Brewfile`](./Brewfile): macOS runtime dependencies used by the configuration and palette utilities.
 - [`./validate.sh`](./validate.sh): checks symlinks, TPM, tmux reloadability, and expected live settings.
@@ -46,13 +47,14 @@ This config intentionally stays small:
 - windows and panes are numbered from `1`
 - windows are renumbered after closes
 - new windows and splits inherit the current pane path
-- each pane has a labeled top border showing its pane number, pane title, active command, and working-directory basename, with the active pane highlighted in cyan
-- the status bar sits at the top with a distinct dark background and Nerd Font icons
-- transient tmux messages appear as compact yellow segments with a pointed right edge instead of full-width blocks
-- pressing the prefix shows a yellow `PREFIX` indicator in the right-side state group
-- window tabs have angled caps on both sides; the active window is highlighted in yellow, inactive windows are muted, and zoomed windows are marked
+- each pane has a labeled top border showing its pane number, pane title, active command, and working-directory basename, with the active pane highlighted in Tokyo Night cyan
+- the top status bar uses a Tokyo Night Storm palette with a dark base, layered surfaces, and Nerd Font icons
+- the session is a left-anchored purple segment with a pointed transition, so it is distinct from the window tabs
+- transient tmux messages appear as compact yellow segments with a rounded right edge instead of full-width blocks
+- pressing the prefix shows a rounded yellow `PREFIX` indicator in the right-side state group
+- window tabs have rounded caps on both sides; the active window is highlighted in blue, inactive windows use a muted raised surface, and zoomed windows are marked
 - the right side can show prefix, copy mode, marked-pane, mouse, and synchronized-pane state indicators
-- the right side shows local date/time, UTC time, and hostname
+- the right side shows icon-labeled local date/time, UTC time, and hostname
 - sessions, windows, panes, working directories, and captured pane output can be saved and restored with `tmux-resurrect`
 - sessions are autosaved every 15 minutes while tmux is running and the status line is enabled
 - saved sessions are restored automatically when a new tmux server starts
@@ -173,6 +175,9 @@ The Extrakto palette can start default, word, line, path, or URL extraction and 
 Open which-key with `prefix + Space`. It is a mnemonic companion to the fuzzy
 `Ctrl-p` palette: use which-key to learn and traverse short key paths, and use
 the palette when searching by command name.
+
+The which-key popup uses the Tokyo Night status-bar background and muted border.
+The plugin supplies its internal yellow, cyan, and text accents.
 
 The tracked config at `./tmux-which-key/config.json` is symlinked to:
 

@@ -4,7 +4,8 @@ This repository owns the tmux config symlinked to `~/.tmux.conf`.
 
 ## Scope
 
-- The source of truth is [`./.tmux.conf`](./.tmux.conf).
+- The authoritative entry point is [`./.tmux.conf`](./.tmux.conf).
+- Repo-owned theme settings live in [`./themes/`](./themes/) and are sourced by the entry point.
 - User-facing documentation lives in [`./README.md`](./README.md).
 - TPM plugins are installed outside the repo in `~/.config/tmux/plugins/`.
 - Repo-managed helper scripts are installed outside the repo in `~/.config/tmux/scripts/`.
@@ -19,7 +20,7 @@ This repository owns the tmux config symlinked to `~/.tmux.conf`.
 
 ## Required Documentation Updates
 
-- If you change [`./.tmux.conf`](./.tmux.conf), review and update [`./README.md`](./README.md) in the same change.
+- If you change [`./.tmux.conf`](./.tmux.conf) or a file in [`./themes/`](./themes/), review and update [`./README.md`](./README.md) in the same change.
 - If you change key bindings or common workflows, review and update [`./CHEATSHEET.md`](./CHEATSHEET.md) in the same change.
 - If you change setup flow or external paths, review and update [`./bootstrap.sh`](./bootstrap.sh) and [`./README.md`](./README.md) in the same change.
 - If you change expected runtime behavior, review and update [`./validate.sh`](./validate.sh) in the same change.
@@ -40,6 +41,7 @@ This repository owns the tmux config symlinked to `~/.tmux.conf`.
 ## Current Baseline
 
 - Minimal standalone tmux config.
+- Tokyo Night theme path: `themes/tokyo-night.conf`
 - TPM path: `~/.config/tmux/plugins/`
 - `tmux-palette` config path: `~/.config/tmux-palette`
 - Active plugins:
