@@ -1,0 +1,320 @@
+{
+  "title": "Tmux Menu",
+  "items": [
+    {
+      "key": "p",
+      "title": "Panes",
+      "icon": "󰓦",
+      "description": "splits, layout, zoom, marked panes",
+      "items": [
+        { "key": "h", "title": "Select Left Pane", "icon": "󰁍", "description": "focus pane to the left", "action": "select-pane -L", "target": "tmux" },
+        { "key": "j", "title": "Select Lower Pane", "icon": "󰁅", "description": "focus pane below", "action": "select-pane -D", "target": "tmux" },
+        { "key": "k", "title": "Select Upper Pane", "icon": "󰁝", "description": "focus pane above", "action": "select-pane -U", "target": "tmux" },
+        { "key": "l", "title": "Select Right Pane", "icon": "󰁔", "description": "focus pane to the right", "action": "select-pane -R", "target": "tmux" },
+        { "key": "v", "title": "Split Horizontal", "icon": "󰘬", "description": "split pane side by side", "action": "split-window -h -c '#{pane_current_path}' -t #{pane_id}", "target": "tmux" },
+        { "key": "s", "title": "Split Vertical", "icon": "󰘬", "description": "split pane top and bottom", "action": "split-window -v -c '#{pane_current_path}' -t #{pane_id}", "target": "tmux" },
+        { "key": "z", "title": "Toggle Zoom", "icon": "󰊓", "description": "zoom or unzoom current pane", "action": "resize-pane -Z -t #{pane_id}", "target": "tmux" },
+        { "key": "x", "title": "Kill Pane", "icon": "󰅖", "description": "prompt and kill current pane", "action": "confirm-before -p 'Kill pane? (y/n)' 'kill-pane -t #{pane_id}'", "target": "tmux" },
+        { "key": "c", "title": "Capture Pane to File", "icon": "󰆏", "description": "save pane scrollback to ~/tmux-captures", "action": "run-shell 'mkdir -p \"$HOME/tmux-captures\"; file=\"$HOME/tmux-captures/tmux-capture-$(date +%Y%m%d-%H%M%S).txt\"; tmux capture-pane -pS - -t \"#{pane_id}\" > \"$file\"; tmux display-message \"Captured pane to $file\"'", "target": "tmux" },
+        { "key": "y", "title": "Synchronize Panes", "icon": "󰓦", "description": "toggle synchronized keyboard input across panes", "action": "set-window-option synchronize-panes ; refresh-client -S", "target": "tmux" },
+        { "key": "C", "title": "Clear Scrollback", "icon": "󰃢", "description": "clear screen buffer and scrollback history", "action": "send-keys -t #{pane_id} C-l ; clear-history -t #{pane_id}", "target": "tmux" },
+        { "key": "d", "title": "Copy Pane Directory", "icon": "󰉋", "description": "copy current pane path to clipboard", "action": "run-shell '~/.config/tmux/scripts/copy-pane-path.sh \"#{pane_id}\"'", "target": "tmux" },
+        {
+          "key": "m",
+          "title": "Marked Panes",
+          "icon": "󰓾",
+          "description": "mark, swap, join, or clear marked pane",
+          "items": [
+            { "key": "m", "title": "Toggle Mark on Current Pane", "icon": "󰓾", "description": "set or unset marked pane flag", "action": "if-shell -F '#{pane_marked}' 'select-pane -M -t #{pane_id}' 'select-pane -m -t #{pane_id}' ; refresh-client -S", "target": "tmux" },
+            { "key": "s", "title": "Swap With Marked Pane", "icon": "󰒍", "description": "swap current pane with marked pane", "action": "if-shell -F '#{pane_marked_set}' \"if-shell -F '#{pane_marked}' 'display-message \\\"Current pane is already marked\\\"' 'swap-pane -s {marked} -t #{pane_id}'\" 'display-message \"No marked pane\"' ; refresh-client -S", "target": "tmux" },
+            { "key": "j", "title": "Join Marked Pane Here", "icon": "󰤀", "description": "join marked pane into current window", "action": "if-shell -F '#{pane_marked_set}' \"if-shell -F '#{pane_marked}' 'display-message \\\"Current pane is already marked\\\"' 'join-pane -s {marked} -t #{pane_id}'\" 'display-message \"No marked pane\"' ; refresh-client -S", "target": "tmux" },
+            { "key": "c", "title": "Clear Mark", "icon": "󰅖", "description": "unmark marked pane", "action": "select-pane -M -t #{pane_id} ; refresh-client -S", "target": "tmux" }
+          ]
+        },
+        {
+          "key": "L",
+          "title": "Layouts",
+          "icon": "󰕰",
+          "description": "apply or rotate window layout",
+          "items": [
+            { "key": "t", "title": "Tiled Layout", "icon": "󰕰", "description": "arrange panes in a grid", "action": "select-layout -t #{pane_id} tiled", "target": "tmux" },
+            { "key": "h", "title": "Even Horizontal Layout", "icon": "󰕰", "description": "arrange panes side by side evenly", "action": "select-layout -t #{pane_id} even-horizontal", "target": "tmux" },
+            { "key": "v", "title": "Even Vertical Layout", "icon": "󰕰", "description": "arrange panes stacked vertically evenly", "action": "select-layout -t #{pane_id} even-vertical", "target": "tmux" },
+            { "key": "H", "title": "Main Horizontal Layout", "icon": "󰕰", "description": "one main top pane, smaller bottom panes", "action": "select-layout -t #{pane_id} main-horizontal", "target": "tmux" },
+            { "key": "V", "title": "Main Vertical Layout", "icon": "󰕰", "description": "one main left pane, smaller right panes", "action": "select-layout -t #{pane_id} main-vertical", "target": "tmux" },
+            { "key": "l", "title": "Rotate Clockwise", "icon": "󰑮", "description": "rotate panes clockwise", "action": "rotate-window -t #{pane_id} -D", "target": "tmux" },
+            { "key": "r", "title": "Rotate Counterclockwise", "icon": "󰑯", "description": "rotate panes counterclockwise", "action": "rotate-window -t #{pane_id} -U", "target": "tmux" }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "w",
+      "title": "Windows",
+      "icon": "󰖲",
+      "description": "new, kill, rename, swap, select windows",
+      "items": [
+        { "key": "n", "title": "New Window", "icon": "󰐕", "description": "create a new window in current directory", "action": "new-window -c '#{pane_current_path}'", "target": "tmux" },
+        { "key": "x", "title": "Kill Window", "icon": "󰅖", "description": "prompt and kill current window", "action": "confirm-before -p 'Kill window? (y/n)' 'kill-window -t #{pane_id}'", "target": "tmux" },
+        { "key": "r", "title": "Rename Window", "icon": "󰑕", "description": "prompt to rename current window", "action": "command-prompt -I '#W' 'rename-window -- \"%%\"'", "target": "tmux" },
+        { "key": "l", "title": "Last Window", "icon": "󰁍", "description": "switch to previously active window", "action": "last-window", "target": "tmux" },
+        { "key": ".", "title": "Next Window", "icon": "󰁔", "description": "switch to next window", "action": "next-window", "target": "tmux" },
+        { "key": "p", "title": "Previous Window", "icon": "󰁍", "description": "switch to previous window", "action": "previous-window", "target": "tmux" },
+        { "key": "w", "title": "Choose Window", "icon": "󰍉", "description": "interactive tree window selector", "action": "choose-tree -w", "target": "tmux" },
+        { "key": "m", "title": "Move Window", "icon": "󰒍", "description": "move window to index or session", "action": "command-prompt -p 'Move to:' 'move-window -t \"%%\"'", "target": "tmux" },
+        { "key": "s", "title": "Swap Window", "icon": "󰒍", "description": "swap window position", "action": "command-prompt -p 'Swap with:' 'swap-window -t \"%%\"'", "target": "tmux" },
+        { "key": "R", "title": "Rotate Window Panes", "icon": "󰑮", "description": "cycle pane positions", "action": "rotate-window -t #{pane_id}", "target": "tmux" }
+      ]
+    },
+    {
+      "key": "s",
+      "title": "Sessions",
+      "icon": "󰋜",
+      "description": "manage sessions, switch, detach, rename",
+      "items": [
+        { "key": "n", "title": "New Session", "icon": "󰐕", "description": "create a new tmux session", "action": "new-session", "target": "tmux" },
+        { "key": "d", "title": "Detach Client", "icon": "󰅖", "description": "detach from current session", "action": "detach-client", "target": "tmux" },
+        { "key": "s", "title": "Choose Session", "icon": "󰍉", "description": "interactive session list", "action": "choose-session", "target": "tmux" },
+        { "key": "w", "title": "Choose Session Tree", "icon": "󰙅", "description": "interactive session and window tree", "action": "choose-tree", "target": "tmux" },
+        { "key": "r", "title": "Rename Session", "icon": "󰑕", "description": "prompt to rename current session", "action": "command-prompt -I '#S' 'rename-session -- \"%%\"'", "target": "tmux" },
+        { "key": "k", "title": "Kill Session", "icon": "󰅖", "description": "prompt and kill current session", "action": "confirm-before -p 'Kill session? (y/n)' 'kill-session -t #{pane_id}'", "target": "tmux" },
+        { "key": "l", "title": "List Sessions", "icon": "󰅩", "description": "list all running sessions", "action": "list-sessions", "target": "tmux" },
+        { "key": "p", "title": "Previous Session", "icon": "󰁍", "description": "switch to previous session", "action": "switch-client -p", "target": "tmux" },
+        { "key": "N", "title": "Next Session", "icon": "󰁔", "description": "switch to next session", "action": "switch-client -n", "target": "tmux" }
+      ]
+    },
+    {
+      "key": "b",
+      "title": "Buffers",
+      "icon": "󰅍",
+      "description": "tmux paste buffers and history",
+      "items": [
+        { "key": "l", "title": "List Buffers", "icon": "󰅩", "description": "view list of all paste buffers", "action": "tmux list-buffers | less", "target": "popup" },
+        { "key": "p", "title": "Paste Buffer", "icon": "󰆒", "description": "paste most recent buffer into current pane", "action": "paste-buffer", "target": "tmux" },
+        { "key": "c", "title": "Choose Buffer", "icon": "󰍉", "description": "interactively choose paste buffer", "action": "choose-buffer", "target": "tmux" },
+        { "key": "d", "title": "Delete Buffer", "icon": "󰅖", "description": "delete top paste buffer", "action": "delete-buffer", "target": "tmux" },
+        { "key": "v", "title": "Show Buffer Content", "icon": "󰈞", "description": "display content of top buffer", "action": "tmux show-buffer | less", "target": "popup" },
+        { "key": "y", "title": "Enter Copy Mode", "icon": "󰆏", "description": "enter scrollback copy mode", "action": "copy-mode", "target": "tmux" }
+      ]
+    },
+    {
+      "key": "c",
+      "title": "Clients",
+      "icon": "󰒍",
+      "description": "inspect or detach connected clients",
+      "items": [
+        { "key": "s", "title": "Show Attached Clients", "icon": "󰒍", "description": "view client details, terminals, and sizes", "action": "~/.config/tmux/scripts/show-clients.sh", "target": "popup" },
+        { "key": "d", "title": "Detach Other Clients", "icon": "󰅖", "description": "detach all clients except the current one", "action": "confirm-before -p 'Detach all other clients? (y/n)' 'detach-client -a'", "target": "tmux" },
+        { "key": "c", "title": "Choose Client", "icon": "󰍉", "description": "interactive client selector", "action": "choose-client", "target": "tmux" },
+        { "key": "r", "title": "Refresh Client", "icon": "󰑕", "description": "force screen redraw and status refresh", "action": "refresh-client", "target": "tmux" }
+      ]
+    },
+    {
+      "key": "g",
+      "title": "Git",
+      "icon": "󰊢",
+      "description": "lazygit, onefetch, repository statistics",
+      "items": [
+        {
+          "key": "g",
+          "title": "Lazygit",
+          "icon": "󰊢",
+          "description": "terminal Git UI (lazygit)",
+          "action": "lazygit",
+          "target": "popup",
+          "popup_width": "90%",
+          "popup_height": "90%"
+        },
+        {
+          "key": "o",
+          "title": "Repository Overview",
+          "icon": "󰘬",
+          "description": "display Onefetch git repository statistics",
+          "action": "onefetch ; printf '\\nPress Enter to close' ; read -r _",
+          "target": "popup",
+          "popup_width": "90%",
+          "popup_height": "90%"
+        }
+      ]
+    },
+    {
+      "key": "a",
+      "title": "AI Assistants",
+      "icon": "󰧑",
+      "description": "aichat Q&A, diagnosis, summarize, agents",
+      "items": [
+        { "key": "a", "title": "AI: Ask", "icon": "󰧑", "description": "ask a question with pane context", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh ask \"#{pane_id}\"'", "target": "tmux" },
+        { "key": "d", "title": "AI: Diagnose Error", "icon": "󰅚", "description": "diagnose most recent error in pane", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh error \"#{pane_id}\"'", "target": "tmux" },
+        { "key": "f", "title": "AI: Suggest Fix", "icon": "󰁨", "description": "suggest shell command fix for error", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh fix \"#{pane_id}\"'", "target": "tmux" },
+        { "key": "s", "title": "AI: Summarize Pane", "icon": "󰦪", "description": "summarize recent pane activity and state", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh summarize \"#{pane_id}\"'", "target": "tmux" },
+        { "key": "c", "title": "AI: Generate Command", "icon": "󰘳", "description": "generate single shell command from description", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh command \"#{pane_id}\"'", "target": "tmux" },
+        { "key": "e", "title": "AI: Explain", "icon": "󰛨", "description": "explain command, snippet, or concept", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain \"#{pane_id}\"'", "target": "tmux" },
+        { "key": "y", "title": "AI: Explain Last Copy", "icon": "󰆏", "description": "explain text in most recent copy buffer", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain-copy \"#{pane_id}\"'", "target": "tmux" },
+        {
+          "key": "g",
+          "title": "AI Agents",
+          "icon": "󰚩",
+          "description": "launch Antigravity or Codex agent side pane",
+          "items": [
+            { "key": "a", "title": "AI: Open Antigravity Agent", "icon": "󰚩", "description": "split pane and run Antigravity (agy)", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh antigravity \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "c", "title": "AI: Open Codex Agent", "icon": "󰚩", "description": "split pane and run Codex", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "r", "title": "AI: Resume Codex Agent", "icon": "󰚩", "description": "split pane and resume last Codex session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex-resume \"#{pane_id}\"'", "target": "tmux" }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "t",
+      "title": "Tools",
+      "icon": "󰆍",
+      "description": "snaglord, file pickers, btop, scratch terminal",
+      "items": [
+        {
+          "key": "s",
+          "title": "Snaglord",
+          "icon": "󰘬",
+          "description": "browse and copy previous command outputs",
+          "action": "tmux-snaglord",
+          "target": "popup",
+          "popup_width": "70%",
+          "popup_height": "75%"
+        },
+        {
+          "key": "f",
+          "title": "File Picker",
+          "icon": "󰉋",
+          "description": "fuzzy search files and insert paths into pane",
+          "items": [
+            { "key": "f", "title": "Files in Current Directory", "icon": "󰈞", "description": "pick files in pane directory", "action": "~/.config/tmux/scripts/tmux-file-picker", "target": "popup", "popup_width": "80%", "popup_height": "80%" },
+            { "key": "y", "title": "Yazi File Picker", "icon": "󰇥", "description": "file chooser via Yazi file manager", "action": "~/.config/tmux/scripts/tmux-yazi-picker.sh", "target": "popup", "popup_width": "80%", "popup_height": "80%" },
+            { "key": "d", "title": "Directories in Current Directory", "icon": "󰉋", "description": "pick directories in pane directory", "action": "~/.config/tmux/scripts/tmux-file-picker --directories", "target": "popup", "popup_width": "80%", "popup_height": "80%" },
+            { "key": "r", "title": "Files from Recent Directory", "icon": "󰁯", "description": "choose zoxide directory then pick files", "action": "~/.config/tmux/scripts/tmux-file-picker --zoxide", "target": "popup", "popup_width": "80%", "popup_height": "80%" },
+            { "key": "R", "title": "Recent Directories", "icon": "󰁯", "description": "insert recent zoxide directory path", "action": "~/.config/tmux/scripts/tmux-file-picker --zoxide --dir-only", "target": "popup", "popup_width": "80%", "popup_height": "80%" }
+          ]
+        },
+        {
+          "key": "m",
+          "title": "System Monitor (btop)",
+          "icon": "󰍛",
+          "description": "system activity and resource monitor (btop)",
+          "action": "btop",
+          "target": "popup",
+          "popup_width": "80%",
+          "popup_height": "80%"
+        },
+        { "key": "M", "title": "Show Messages", "icon": "󰍡", "description": "view recent tmux log messages", "action": "show-messages", "target": "tmux" },
+        { "key": "t", "title": "Scratch Terminal Popup", "icon": "󰒉", "description": "open floating scratch terminal popup", "action": "tmux new-session -A -s 'Scratch-Terminal'", "target": "popup", "popup_width": "80%", "popup_height": "80%" }
+      ]
+    },
+    {
+      "key": "P",
+      "title": "Plugins",
+      "icon": "󰏖",
+      "description": "tmux-fzf, extrakto, tpm, cowboy, resurrect, continuum",
+      "items": [
+        {
+          "key": "f",
+          "title": "tmux-fzf",
+          "icon": "󰍉",
+          "description": "fuzzy search tmux objects and menus",
+          "items": [
+            { "key": "f", "title": "tmux-fzf: Full Menu", "icon": "󰍉", "description": "open main tmux-fzf menu", "action": "run-shell -b ~/.config/tmux/plugins/tmux-fzf/main.sh", "target": "tmux" },
+            { "key": "s", "title": "tmux-fzf: Sessions", "icon": "󰋜", "description": "fuzzy find and switch sessions", "action": "run-shell -b ~/.config/tmux/plugins/tmux-fzf/scripts/session.sh", "target": "tmux" },
+            { "key": "w", "title": "tmux-fzf: Windows", "icon": "󰖲", "description": "fuzzy find and switch windows", "action": "run-shell -b ~/.config/tmux/plugins/tmux-fzf/scripts/window.sh", "target": "tmux" },
+            { "key": "p", "title": "tmux-fzf: Panes", "icon": "󰓦", "description": "fuzzy find and switch panes", "action": "run-shell -b ~/.config/tmux/plugins/tmux-fzf/scripts/pane.sh", "target": "tmux" },
+            { "key": "k", "title": "tmux-fzf: Key Bindings", "icon": "󰌌", "description": "fuzzy find key bindings", "action": "run-shell -b ~/.config/tmux/plugins/tmux-fzf/scripts/keybinding.sh", "target": "tmux" },
+            { "key": "c", "title": "tmux-fzf: Commands", "icon": "󰘳", "description": "fuzzy find tmux commands", "action": "run-shell -b ~/.config/tmux/plugins/tmux-fzf/scripts/command.sh", "target": "tmux" },
+            { "key": "b", "title": "tmux-fzf: Clipboard", "icon": "󰆏", "description": "fuzzy find paste buffers", "action": "run-shell -b ~/.config/tmux/plugins/tmux-fzf/scripts/clipboard.sh", "target": "tmux" },
+            { "key": "x", "title": "tmux-fzf: Processes", "icon": "󰍛", "description": "fuzzy find and signal processes", "action": "run-shell -b ~/.config/tmux/plugins/tmux-fzf/scripts/process.sh", "target": "tmux" }
+          ]
+        },
+        {
+          "key": "e",
+          "title": "Extrakto",
+          "icon": "󰈞",
+          "description": "extract text, urls, words from pane history",
+          "items": [
+            { "key": "t", "title": "Extrakto: Extract Text", "icon": "󰈞", "description": "fuzzy extract text from pane", "action": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "w", "title": "Extrakto: Extract Words", "icon": "󰈞", "description": "fuzzy extract words from pane", "action": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\" word'", "target": "tmux" },
+            { "key": "l", "title": "Extrakto: Extract Lines", "icon": "󰈞", "description": "fuzzy extract lines from pane", "action": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\" line'", "target": "tmux" },
+            { "key": "p", "title": "Extrakto: Extract Paths", "icon": "󰈞", "description": "fuzzy extract file paths from pane", "action": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\" path'", "target": "tmux" },
+            { "key": "u", "title": "Extrakto: Extract URLs", "icon": "󰈞", "description": "fuzzy extract URLs from pane", "action": "run-shell '~/.config/tmux/plugins/extrakto/scripts/open.sh \"#{pane_id}\" url'", "target": "tmux" },
+            { "key": "h", "title": "Extrakto: Help", "icon": "󰋗", "description": "view Extrakto documentation", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh extrakto-help", "target": "popup" }
+          ]
+        },
+        {
+          "key": "t",
+          "title": "TPM (Tmux Plugin Manager)",
+          "icon": "󰏖",
+          "description": "install, update, and clean plugins",
+          "items": [
+            { "key": "i", "title": "Install Plugins", "icon": "󰐕", "description": "install configured TPM plugins", "action": "run-shell ~/.config/tmux/plugins/tpm/bindings/install_plugins", "target": "tmux" },
+            { "key": "u", "title": "Update Plugins", "icon": "󰑕", "description": "update installed TPM plugins", "action": "run-shell ~/.config/tmux/plugins/tpm/bindings/update_plugins", "target": "tmux" },
+            { "key": "c", "title": "Clean Plugins", "icon": "󰅖", "description": "remove unused TPM plugins", "action": "run-shell ~/.config/tmux/plugins/tpm/bindings/clean_plugins", "target": "tmux" }
+          ]
+        },
+        {
+          "key": "k",
+          "title": "Cowboy",
+          "icon": "󰅚",
+          "description": "terminate or kill foreground process in current pane",
+          "items": [
+            { "key": "t", "title": "Terminate Process (SIGTERM)", "icon": "󰅚", "description": "send SIGTERM to foreground pane process", "action": "confirm-before -p 'SIGTERM process in current pane? (y/n)' \"run-shell '~/.config/tmux/plugins/tmux-cowboy/scripts/kill.sh TERM'\"", "target": "tmux" },
+            { "key": "k", "title": "Kill Process (SIGKILL)", "icon": "󰅚", "description": "send SIGKILL to foreground pane process", "action": "confirm-before -p 'SIGKILL process in current pane? (y/n)' \"run-shell '~/.config/tmux/plugins/tmux-cowboy/scripts/kill.sh KILL'\"", "target": "tmux" }
+          ]
+        },
+        {
+          "key": "s",
+          "title": "Sensible",
+          "icon": "󰒍",
+          "description": "reload config and inspect effective options",
+          "items": [
+            { "key": "r", "title": "Reload Config", "icon": "󰑕", "description": "reload ~/.tmux.conf configuration", "action": "source-file ~/.tmux.conf ; display-message 'Config reloaded'", "target": "tmux" },
+            { "key": "o", "title": "Show Effective Options", "icon": "󰈞", "description": "inspect effective server and window options", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh effective-options", "target": "popup" }
+          ]
+        },
+        {
+          "key": "r",
+          "title": "Resurrect",
+          "icon": "󰁯",
+          "description": "save and restore tmux session state",
+          "items": [
+            { "key": "s", "title": "Save Tmux State", "icon": "󰆓", "description": "manually save current session state", "action": "run-shell ~/.config/tmux/plugins/tmux-resurrect/scripts/save.sh", "target": "tmux" },
+            { "key": "r", "title": "Restore Tmux State", "icon": "󰁯", "description": "restore previously saved session state", "action": "run-shell ~/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh", "target": "tmux" },
+            { "key": "l", "title": "List Saved States", "icon": "󰅩", "description": "view list of saved resurrect snapshot files", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh resurrect-files", "target": "popup" },
+            { "key": "L", "title": "Show Latest Save", "icon": "󰈞", "description": "view details of latest save symlink", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh resurrect-latest", "target": "popup" },
+            { "key": "o", "title": "Show Resurrect Options", "icon": "󰈞", "description": "inspect active @resurrect tmux options", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh resurrect-options", "target": "popup" }
+          ]
+        },
+        {
+          "key": "c",
+          "title": "Continuum",
+          "icon": "󰓦",
+          "description": "continuous autosave and automatic restore",
+          "items": [
+            { "key": "s", "title": "Run Continuum Save", "icon": "󰆓", "description": "trigger manual continuum autosave", "action": "run-shell ~/.config/tmux/plugins/tmux-continuum/scripts/continuum_save.sh", "target": "tmux" },
+            { "key": "r", "title": "Run Continuum Restore", "icon": "󰁯", "description": "trigger manual continuum restore", "action": "run-shell ~/.config/tmux/plugins/tmux-continuum/scripts/continuum_restore.sh", "target": "tmux" },
+            { "key": "S", "title": "Show Continuum Status", "icon": "󰈞", "description": "view status and time since last save", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh continuum-status", "target": "popup" },
+            { "key": "o", "title": "Show Continuum Options", "icon": "󰈞", "description": "inspect active @continuum tmux options", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh continuum-options", "target": "popup" },
+            { "key": "l", "title": "List Autosave Files", "icon": "󰅩", "description": "view list of saved continuum snapshot files", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh continuum-files", "target": "popup" }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "o",
+      "title": "Options",
+      "icon": "󰘳",
+      "description": "inspect tmux options, environment, customize mode",
+      "items": [
+        { "key": "g", "title": "Show Global Options", "icon": "󰈞", "description": "view global tmux options (tmux show-options -g)", "action": "tmux show-options -g | less", "target": "popup" },
+        { "key": "w", "title": "Show Window Options", "icon": "󰈞", "description": "view window options (tmux show-window-options -g)", "action": "tmux show-window-options -g | less", "target": "popup" },
+        { "key": "e", "title": "Show Environment", "icon": "󰈞", "description": "view global environment variables", "action": "tmux show-environment -g | less", "target": "popup" },
+        { "key": "c", "title": "Customize Mode", "icon": "󰘳", "description": "enter interactive tmux customize-mode", "action": "customize-mode -Z", "target": "tmux" }
+      ]
+    },
+    { "key": "r", "title": "Reload Config", "icon": "󰑕", "description": "reload ~/.tmux.conf configuration", "action": "source-file ~/.tmux.conf ; display-message 'Config reloaded'", "target": "tmux" },
+    { "key": ":", "title": "Command Prompt", "icon": "󰘳", "description": "open tmux command prompt", "action": "command-prompt", "target": "tmux" },
+    { "key": "?", "title": "Live Prefix Key Help", "icon": "󰋗", "description": "interactive active prefix keybindings browser", "action": "~/.config/tmux/scripts/tmux-prefix-help.py", "target": "popup" }
+  ]
+}
