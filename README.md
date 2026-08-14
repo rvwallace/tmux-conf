@@ -20,6 +20,7 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 - [`./scripts/install-deps.sh`](./scripts/install-deps.sh): checks or installs runtime dependencies on macOS and Linux.
 - [`./scripts/ai-assist.sh`](./scripts/ai-assist.sh): pane-aware `aichat` assistant for shell Q&A, recent-error diagnosis, command suggestions, and explanations.
 - [`./scripts/ai-prompt.sh`](./scripts/ai-prompt.sh): tmux prompt launcher used by AI key bindings and palette actions.
+- [`./scripts/aichat-tui.py`](./scripts/aichat-tui.py): Textual TUI interface for interactive and automated `aichat` actions.
 - [`./scripts/launch-agent-pane.sh`](./scripts/launch-agent-pane.sh): opens Antigravity or Codex in a right-side pane rooted at the active pane directory.
 - [`./scripts/tmux-file-picker`](./scripts/tmux-file-picker): vendored upstream fuzzy file and directory picker that inserts selected paths into the active pane.
 - [`./scripts/tmux-file-picker.UPSTREAM.md`](./scripts/tmux-file-picker.UPSTREAM.md): source commit and license attribution for the vendored picker.
@@ -270,7 +271,7 @@ prefix + I
 
 Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
 
-The `aichat` actions in the AI category require the `aichat` CLI in `PATH`. Open the palette with `Ctrl-p` and search for `ai` or `aichat`. Every AI title starts with `AI:`, and each `aichat` helper description names `aichat`. Pane-aware actions capture the current path, foreground command, and the most recent 200 lines of scrollback. Ask opens a right-side follow-up loop where blank Enter closes the pane. Only its first turn sends pane context. Enter `/refresh` to send the latest context. Diagnose, Summarize Pane, Explain, and Explain Last Copy open right-side tmux panes so copy-mode works. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. Generate Command and Suggest Fix use compact, titled popups and insert a single suggestion into the original pane with bracketed paste for review. Empty, multiline, or fenced command output is rejected and commands are never executed automatically.
+The `aichat` actions in the AI category require the `aichat` CLI in `PATH` and `uv` to run the Textual interface (`scripts/aichat-tui.py`). Open the palette with `Ctrl-p` and search for `ai` or `aichat`. Every AI title starts with `AI:`, and each `aichat` helper description names `aichat`. Pane-aware actions capture the current path, foreground command, and recent scrollback (200 lines by default). All analysis actions (Ask, Diagnose Error, Summarize Pane, Explain, Explain Last Copy) open right-side tmux panes with persistent conversation sessions, accepting multi-turn follow-up questions and `/refresh` to update context, with full keyboard navigation (`Tab`, `j`/`k`, `y`/`c`, `Ctrl+L`, `q`, `Esc`, `?`). Summarize Pane supports switching depth directly in the TUI (`1`–`5` for 100/200/500/1000/all lines, `d` to cycle, `r` to reload). Output can be copied via mouse drag selection or `y`/`c` keys to both system clipboard and tmux buffer. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. Generate Command and Suggest Fix use compact, titled popups to show the generated command in a preview card where you can send it to the pane (`Enter` on empty input or `s`), refine it with additional typed instructions, copy it (`y`/`c`), or cancel (`Esc`). Commands are inserted into the original pane via bracketed paste for review and are never executed automatically; empty, multiline, or fenced command output is rejected.
 
 The AI category also opens Antigravity and Codex as 45%-wide right-side panes in the active pane directory. Antigravity always starts a new session. Codex can start a new session or open its directory-filtered resume picker. These actions require `agy` or `codex` in `PATH`. They do not add dedicated tmux key bindings. Focus an agent pane and use `prefix + !` to move the running pane into its own window.
 
@@ -296,6 +297,7 @@ This script:
 - recreates the `~/.config/tmux/scripts/show-clients.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-assist.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-prompt.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/aichat-tui.py` symlink to this repo
 - recreates the `~/.config/tmux/scripts/launch-agent-pane.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-file-picker` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-insert-paths.sh` symlink to this repo
@@ -315,7 +317,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints official installation guidance for unresolved tools. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
+The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints official installation guidance for unresolved tools. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
 
 ## Validation
 
