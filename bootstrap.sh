@@ -11,6 +11,7 @@ TARGET_COPY_PATH_SCRIPT="${SCRIPT_DIR}/copy-pane-path.sh"
 TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
 TARGET_AI_SCRIPT="${SCRIPT_DIR}/ai-assist.sh"
 TARGET_AI_PROMPT_SCRIPT="${SCRIPT_DIR}/ai-prompt.sh"
+TARGET_AGENT_PANE_SCRIPT="${SCRIPT_DIR}/launch-agent-pane.sh"
 TARGET_FILE_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-file-picker"
 TARGET_INSERT_PATHS_SCRIPT="${SCRIPT_DIR}/tmux-insert-paths.sh"
 TARGET_YAZI_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-yazi-picker.sh"
@@ -85,6 +86,12 @@ if [ -L "${TARGET_AI_PROMPT_SCRIPT}" ] || [ -e "${TARGET_AI_PROMPT_SCRIPT}" ]; t
 fi
 ln -s "${REPO_DIR}/scripts/ai-prompt.sh" "${TARGET_AI_PROMPT_SCRIPT}"
 echo "Linked ${TARGET_AI_PROMPT_SCRIPT} -> ${REPO_DIR}/scripts/ai-prompt.sh"
+
+if [ -L "${TARGET_AGENT_PANE_SCRIPT}" ] || [ -e "${TARGET_AGENT_PANE_SCRIPT}" ]; then
+  rm -f "${TARGET_AGENT_PANE_SCRIPT}"
+fi
+ln -s "${REPO_DIR}/scripts/launch-agent-pane.sh" "${TARGET_AGENT_PANE_SCRIPT}"
+echo "Linked ${TARGET_AGENT_PANE_SCRIPT} -> ${REPO_DIR}/scripts/launch-agent-pane.sh"
 
 if [ -L "${TARGET_FILE_PICKER_SCRIPT}" ] || [ -e "${TARGET_FILE_PICKER_SCRIPT}" ]; then
   rm -f "${TARGET_FILE_PICKER_SCRIPT}"

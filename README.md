@@ -20,6 +20,7 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 - [`./scripts/install-deps.sh`](./scripts/install-deps.sh): checks or installs runtime dependencies on macOS and Linux.
 - [`./scripts/ai-assist.sh`](./scripts/ai-assist.sh): pane-aware `aichat` assistant for shell Q&A, recent-error diagnosis, command suggestions, and explanations.
 - [`./scripts/ai-prompt.sh`](./scripts/ai-prompt.sh): tmux prompt launcher used by AI key bindings and palette actions.
+- [`./scripts/launch-agent-pane.sh`](./scripts/launch-agent-pane.sh): opens Antigravity or Codex in a right-side pane rooted at the active pane directory.
 - [`./scripts/tmux-file-picker`](./scripts/tmux-file-picker): vendored upstream fuzzy file and directory picker that inserts selected paths into the active pane.
 - [`./scripts/tmux-file-picker.UPSTREAM.md`](./scripts/tmux-file-picker.UPSTREAM.md): source commit and license attribution for the vendored picker.
 - [`./scripts/tmux-yazi-picker.sh`](./scripts/tmux-yazi-picker.sh): launches Yazi as a multi-file chooser for the active pane.
@@ -160,7 +161,7 @@ Bootstrap links it to:
 ~/.config/tmux-palette
 ```
 
-The main palette includes an `AI` category for pane-aware `aichat` helpers. The `TMUX Tools` category contains Snaglord and the file picker. The `TMUX Plugins` category contains separate palettes for each plugin.
+The main palette includes an `AI` category for pane-aware `aichat` helpers and agent panes. The `TMUX Tools` category contains Snaglord and the file picker. The `TMUX Plugins` category contains separate palettes for each plugin.
 
 The main palette also supplies these tmux commands:
 
@@ -213,7 +214,7 @@ configuration, `:` opens the tmux command prompt, and `?` shows live prefix-key
 help. Press a displayed key to enter a group or run an action. Escape or
 Backspace returns one level; Escape at the root closes the popup.
 
-The custom hierarchy mirrors every action that this repository adds to `tmux-palette`. This includes marked panes, layouts, and file-picker modes. It also includes Lazygit locations, system-monitor locations, AI helpers, and plugin commands.
+The custom hierarchy mirrors every action that this repository adds to `tmux-palette`. This includes marked panes, layouts, and file-picker modes. It also includes Lazygit locations, system-monitor locations, AI helpers, agent panes, and plugin commands. Open `a`, then `g` for Antigravity and Codex.
 
 The palette remains at `Ctrl-p` so that you can compare the two workflows. Direct which-key tool popups use the plugin's standard size. They do not use the sizes from the palette actions.
 
@@ -269,7 +270,9 @@ prefix + I
 
 Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
 
-The AI palette actions require the `aichat` CLI in `PATH`. Open the palette with `Ctrl-p` and search for `ai` or `aichat`; every AI title starts with `AI:` and every description includes `aichat`. Pane-aware actions capture the current path, foreground command, and the most recent 200 lines of scrollback. Ask opens a right-side follow-up loop where blank Enter closes the pane; only its first turn sends pane context, and entering `/refresh` sends the latest context. Diagnose, Summarize Pane, Explain, and Explain Last Copy open right-side tmux panes so copy-mode works. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. Generate Command and Suggest Fix use compact, titled popups and insert a single suggestion into the original pane with bracketed paste for review. Empty, multiline, or fenced command output is rejected and commands are never executed automatically.
+The `aichat` actions in the AI category require the `aichat` CLI in `PATH`. Open the palette with `Ctrl-p` and search for `ai` or `aichat`. Every AI title starts with `AI:`, and each `aichat` helper description names `aichat`. Pane-aware actions capture the current path, foreground command, and the most recent 200 lines of scrollback. Ask opens a right-side follow-up loop where blank Enter closes the pane. Only its first turn sends pane context. Enter `/refresh` to send the latest context. Diagnose, Summarize Pane, Explain, and Explain Last Copy open right-side tmux panes so copy-mode works. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. Generate Command and Suggest Fix use compact, titled popups and insert a single suggestion into the original pane with bracketed paste for review. Empty, multiline, or fenced command output is rejected and commands are never executed automatically.
+
+The AI category also opens Antigravity and Codex as 45%-wide right-side panes in the active pane directory. Antigravity always starts a new session. Codex can start a new session or open its directory-filtered resume picker. These actions require `agy` or `codex` in `PATH`. They do not add dedicated tmux key bindings. Focus an agent pane and use `prefix + !` to move the running pane into its own window.
 
 The status icons require a [Nerd Font](https://www.nerdfonts.com/) in the outer terminal. The status line remains usable if those glyphs are unavailable, but the icons will render as missing-character boxes.
 
@@ -293,6 +296,7 @@ This script:
 - recreates the `~/.config/tmux/scripts/show-clients.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-assist.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/ai-prompt.sh` symlink to this repo
+- recreates the `~/.config/tmux/scripts/launch-agent-pane.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-file-picker` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-insert-paths.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-yazi-picker.sh` symlink to this repo

@@ -83,6 +83,13 @@ These palette actions require `aichat` in `PATH`. Open `Ctrl-p` and search for `
 - `AI: Explain`: explain a command or snippet
 - `AI: Explain Last Copy`: explain the newest tmux copy buffer
 
+Agent actions open a 45%-wide right-side pane in the current pane directory. They require the named CLI in `PATH` and do not have dedicated tmux key bindings.
+
+- `AI: Open Antigravity Agent`: start a new `agy` session
+- `AI: Open Codex Agent`: start a new `codex` session
+- `AI: Resume Codex Agent`: open the directory-filtered `codex resume` picker
+- `prefix + !`: move the focused agent pane into its own window without restarting it
+
 ## Snaglord Command Blocks
 
 Open the current pane's searchable command/output history with `prefix + Ctrl-y`.
@@ -150,7 +157,7 @@ Open with `Ctrl-p`.
 
 Repo-managed additions:
 
-- `AI`: ask about the current pane, diagnose recent errors, generate commands, and explain shell snippets via `aichat`
+- `AI`: use pane-aware `aichat` helpers or open Antigravity and Codex agent panes
 - `Panes`: capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` refresh, marked-pane operations, layouts and rotation, clear scrollback
 - `Git`: open Lazygit in a popup, side pane, or new window. Show a Onefetch overview for the current pane directory.
 - `System`:
@@ -182,7 +189,7 @@ retaining the plugin's built-in readable menu accents.
 - `b`: buffers and copy mode
 - `c`: clients
 - `g`: Git tools. Press `g` again to select a Lazygit location (`p` popup, `s` side pane, or `w` new window).
-- `a`: AI helpers
+- `a`: AI helpers. Then press `g` for agents (`a` Antigravity, `c` Codex, `r` resume Codex).
 - `t`: Snaglord, file picker, system monitor (`m`, then `p` popup, `s` side pane, or `w` new window), messages, and scratch terminal
 - `P`: tmux-fzf, Extrakto, TPM, Cowboy, Sensible, Resurrect, and Continuum
 - `o`: options and environment inspection
