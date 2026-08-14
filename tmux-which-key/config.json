@@ -130,7 +130,17 @@
         { "key": "s", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh run-shell '~/.config/tmux/scripts/ai-prompt.sh summarize \"#{pane_id}\"'", "description": "AI: Summarize Pane" },
         { "key": "c", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh run-shell '~/.config/tmux/scripts/ai-prompt.sh command \"#{pane_id}\"'", "description": "AI: Generate Command" },
         { "key": "e", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh run-shell '~/.config/tmux/scripts/ai-prompt.sh explain \"#{pane_id}\"'", "description": "AI: Explain" },
-        { "key": "y", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh run-shell '~/.config/tmux/scripts/ai-prompt.sh explain-copy \"#{pane_id}\"'", "description": "AI: Explain Last Copy" }
+        { "key": "y", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh run-shell '~/.config/tmux/scripts/ai-prompt.sh explain-copy \"#{pane_id}\"'", "description": "AI: Explain Last Copy" },
+        {
+          "key": "g",
+          "type": "group",
+          "description": "Agents",
+          "items": [
+            { "key": "a", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh run-shell '~/.config/tmux/scripts/launch-agent-pane.sh antigravity \"#{pane_id}\"'", "description": "AI: Open Antigravity Agent" },
+            { "key": "c", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex \"#{pane_id}\"'", "description": "AI: Open Codex Agent" },
+            { "key": "r", "type": "script", "command": "~/.config/tmux/scripts/defer-tmux-command.sh run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex-resume \"#{pane_id}\"'", "description": "AI: Resume Codex Agent" }
+          ]
+        }
       ]
     },
     {

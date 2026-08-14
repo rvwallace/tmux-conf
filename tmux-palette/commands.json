@@ -161,6 +161,33 @@
     }
   },
   {
+    "icon": "󰚩",
+    "title": "AI: Open Antigravity Agent",
+    "category": "AI",
+    "description": "open a new Antigravity agent in a right-side pane",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh antigravity \"#{pane_id}\"'"
+    }
+  },
+  {
+    "icon": "󰚩",
+    "title": "AI: Open Codex Agent",
+    "category": "AI",
+    "description": "open a new Codex agent in a right-side pane",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex \"#{pane_id}\"'"
+    }
+  },
+  {
+    "icon": "󰑓",
+    "title": "AI: Resume Codex Agent",
+    "category": "AI",
+    "description": "open the Codex resume picker in a right-side pane",
+    "action": {
+      "tmux": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex-resume \"#{pane_id}\"'"
+    }
+  },
+  {
     "icon": "󰗼",
     "title": "Snaglord",
     "category": "TMUX Tools",
