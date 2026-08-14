@@ -47,48 +47,11 @@ if [ "$phase" != "run" ]; then
   exit 0
 fi
 
-prompt_label() {
-  case "$mode" in
-    ask) printf 'Ask AI' ;;
-    command) printf 'Command' ;;
-    explain) printf 'Explain' ;;
-  esac
-}
-
-case "$mode" in
-  error|fix|summarize|explain-copy)
-    printf 'Generating...\n\n'
-    exec ~/.config/tmux/scripts/ai-assist.sh "$mode" "$pane_id"
-    ;;
-  ask)
-    session="tmux-ask-${pane_id#%}-$$"
-    prompt_prefix="$(prompt_label)"
-    follow_up=
-    while true; do
-      printf '%s: ' "$prompt_prefix"
-      IFS= read -r prompt_text || exit 0
-      [ -n "$prompt_text" ] || exit 0
-      printf '\nGenerating...\n\n'
-      if [ "$prompt_text" = "/refresh" ]; then
-        TMUX_AI_ASSIST_NO_PAUSE=1 TMUX_AI_ASSIST_SESSION="$session" \
-          TMUX_AI_ASSIST_REFRESH=1 \
-          ~/.config/tmux/scripts/ai-assist.sh ask "$pane_id" "$prompt_text"
-      else
-        TMUX_AI_ASSIST_NO_PAUSE=1 TMUX_AI_ASSIST_SESSION="$session" \
-          TMUX_AI_ASSIST_FOLLOW_UP="$follow_up" \
-          ~/.config/tmux/scripts/ai-assist.sh ask "$pane_id" "$prompt_text"
-      fi
-      printf '\n'
-      follow_up=1
-      prompt_prefix='Follow-up (blank closes)'
-    done
-    ;;
-  command|explain)
-    label="$(prompt_label)"
-    printf '%s: ' "$label"
-    IFS= read -r prompt_text || exit 0
-    [ -n "$prompt_text" ] || exit 0
-    printf '\nGenerating...\n\n'
-    exec ~/.config/tmux/scripts/ai-assist.sh "$mode" "$pane_id" "$prompt_text"
-    ;;
-esac
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -x "${script_dir}/aichat-tui.py" ]; then
+  exec "${script_dir}/aichat-tui.py" "$mode" "$pane_id"
+elif [ -x "${HOME}/.config/tmux/scripts/aichat-tui.py" ]; then
+  exec "${HOME}/.config/tmux/scripts/aichat-tui.py" "$mode" "$pane_id"
+else
+  exec aichat-tui.py "$mode" "$pane_id"
+fi

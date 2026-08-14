@@ -11,3 +11,7 @@ memory/
 .vscode/
 .cursor/
 .antigravity/
+
+# Python
+__pycache__/
+*.py[cod]
