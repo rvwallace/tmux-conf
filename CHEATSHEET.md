@@ -45,7 +45,8 @@ Ctrl-a
 - `prefix + S`: save tmux state now with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open the `sesh` session picker popup
-- `prefix + Space`: open the mnemonic which-key menu
+- `prefix + Space`: open the mnemonic Which-Key leader menu (`tmux-menu.py`)
+- `Ctrl-p` / `prefix + P`: open the fuzzy Command Palette (`tmux-menu.py --search`)
 - `prefix + ?`: open live help for the prefix key table
 - `prefix + prefix`: send literal `Ctrl-a` to the current pane
 - `prefix + c`: create a new window in the current pane path
@@ -70,6 +71,28 @@ Inside the `prefix + T` sesh picker:
 - `Ctrl-x`: zoxide entries
 - `Ctrl-f`: find directories with `fd`
 - `Ctrl-d`: kill selected tmux session and refresh
+
+## Leader Menu & Command Palette (`tmux-menu`)
+
+Triggered via:
+- `prefix + Space`: Which-Key mnemonic tree
+- `Ctrl-p` or `prefix + P`: Fuzzy Command Palette
+
+Inside the TUI:
+- **Which-Key navigation**: press a shortcut key (e.g. `p` panes, `w` windows, `g` git, `a` AI, `t` tools, `P` plugins, `o` options).
+- `/`: jump directly into Command Palette fuzzy search.
+- `Esc` / `Backspace`: go up one group level (or close at root).
+- `q`: quit.
+
+### Execution Modifiers & Error Recovery
+
+| Key | Mode | Behavior |
+| :--- | :--- | :--- |
+| **`Enter`** | **Run** | Executes command in its target container. Closes on exit if successful (`exit 0`), or keeps shell open if `"persist_shell": true` is configured in `config.json`. **If it fails, pauses with error prompt and allows `[s]` Debug shell or `[any key]` Close.** |
+| **`Alt-v`** / `Ctrl-v` | **Horizontal Split** | Opens command in a side split pane. |
+| **`Alt-s`** / `Ctrl-s` | **Vertical Split** | Opens command in a bottom split pane. |
+| **`Alt-w`** / `Ctrl-t` | **New Window** | Opens command in a new window. |
+| **`Alt-i`** / `Ctrl-y` | **Insert in Shell** | Inserts command text into active pane prompt without executing. |
 
 ## AI Assistant
 
@@ -124,14 +147,15 @@ for the fzf file, directory, and Zoxide-ranked recent-directory workflows.
 
 ## Plugin Bindings
 
-- `Ctrl-p`: open `tmux-palette`
+- `Ctrl-p` / `prefix + P`: open command palette (`tmux-menu.py --search`)
+- `prefix + Space`: open Which-Key leader menu (`tmux-menu.py`)
+- `prefix + ?`: open live prefix keybindings browser (`tmux-prefix-help.py`)
 - `prefix + *`: kill the foreground process in the current pane with `SIGKILL` via `tmux-cowboy`
-- `prefix + F`: open `tmux-fzf`
 - `prefix + Ctrl-h`: fuzzy-find links, paths, and supported addresses in pane history with `tmux-fzf-links`
 - `prefix + Tab`: open Extrakto to fuzzy-find text from pane history
 - `prefix + I`: install plugins with TPM
 - `prefix + U`: update plugins with TPM
-- `prefix + Alt-u`: remove plugins no longer declared in `.tmux.conf`
+- `prefix + Alt-u`: remove / uninstall plugins no longer declared in `.tmux.conf` with TPM
 - `prefix + S`: save sessions, windows, panes, working directories, and captured pane output with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore saved tmux state with `tmux-resurrect`
 
@@ -152,56 +176,6 @@ Inside Extrakto:
 - Autosave runs every 15 minutes while tmux is running and the status line is enabled.
 - Captured pane output is restored as a recovery net, but important command output should still be saved with a log file, `tee`, or another durable artifact.
 - Saved state is currently under `~/.local/share/tmux/resurrect`; `last` points at the most recent save. If `~/.tmux/resurrect` exists or `@resurrect-dir` is set, Resurrect can use that path instead.
-
-## tmux-palette
-
-Open with `Ctrl-p`.
-
-Repo-managed additions:
-
-- `AI`: use pane-aware `aichat` helpers or open Antigravity and Codex agent panes
-- `Panes`: capture pane to file, copy pane directory, synchronize panes with an immediate `SYNC` refresh, marked-pane operations, layouts and rotation, clear scrollback
-- `Git`: open Lazygit in a popup, side pane, or new window. Show a Onefetch overview for the current pane directory.
-- `System`:
-  - inspect each client's session, size, terminal, and read-only state
-  - detach the other clients
-  - open `btop` in a popup, side pane, or new window
-  - show tmux messages
-  - open the scratch popup
-- `TMUX Tools`: open Snaglord or choose a file/directory insertion workflow
-- `TMUX Plugins`: individual palettes for `tmux-fzf`, Extrakto, `TPM`, `tmux-cowboy`, `tmux-sensible`, `tmux-resurrect`, and `tmux-continuum`
-
-Useful plugin palette actions:
-
-- `Extrakto`: default extraction, focused word/line/path/URL extraction, plugin help
-- `tmux-resurrect`: save state, restore state, list saved states from the active save directory, show latest save, show options
-- `tmux-continuum`: run continuum save, run continuum restore, show status, show options, list autosave files
-
-## tmux which-key
-
-Open with `prefix + Space`. Unlike the fuzzy `Ctrl-p` palette, which-key is
-organized around mnemonic single-key paths:
-
-The popup uses the Tokyo Night status-bar background and muted border while
-retaining the plugin's built-in readable menu accents.
-
-- `p`: panes; `m` continues to marked panes and `L` to layouts
-- `w`: windows
-- `s`: sessions
-- `b`: buffers and copy mode
-- `c`: clients
-- `g`: Git tools. Press `g` again to select a Lazygit location (`p` popup, `s` side pane, or `w` new window).
-- `a`: AI helpers. Then press `g` for agents (`a` Antigravity, `c` Codex, `r` resume Codex).
-- `t`: Snaglord, file picker, system monitor (`m`, then `p` popup, `s` side pane, or `w` new window), messages, and scratch terminal
-- `P`: tmux-fzf, Extrakto, TPM, Cowboy, Sensible, Resurrect, and Continuum
-- `o`: options and environment inspection
-- `r`: reload config
-- `:`: tmux command prompt
-- `?`: live prefix-key help
-
-Press Escape or Backspace to return one level. Escape at the root closes the
-popup. The command descriptions intentionally match the `tmux-palette` titles,
-so the same repo-managed workflows are available from both interfaces.
 
 ## Useful tmux-sensible Bindings
 

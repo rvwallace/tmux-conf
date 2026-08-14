@@ -18,8 +18,9 @@ TARGET_INSERT_PATHS_SCRIPT="${SCRIPT_DIR}/tmux-insert-paths.sh"
 TARGET_YAZI_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-yazi-picker.sh"
 TARGET_DEFER_TMUX_SCRIPT="${SCRIPT_DIR}/defer-tmux-command.sh"
 TARGET_WHICH_KEY_POPUP_SCRIPT="${SCRIPT_DIR}/tmux-which-key-popup.sh"
-TARGET_PALETTE_DIR="${HOME}/.config/tmux-palette"
-TARGET_WHICH_KEY_DIR="${HOME}/.config/tmux-which-key"
+TARGET_TMUX_MENU_SCRIPT="${SCRIPT_DIR}/tmux-menu.py"
+TARGET_PREFIX_HELP_SCRIPT="${SCRIPT_DIR}/tmux-prefix-help.py"
+TARGET_TMUX_MENU_DIR="${HOME}/.config/tmux-menu"
 TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
 TPM_DIR="${PLUGIN_DIR}/tpm"
@@ -130,25 +131,30 @@ fi
 ln -s "${REPO_DIR}/scripts/tmux-which-key-popup.sh" "${TARGET_WHICH_KEY_POPUP_SCRIPT}"
 echo "Linked ${TARGET_WHICH_KEY_POPUP_SCRIPT} -> ${REPO_DIR}/scripts/tmux-which-key-popup.sh"
 
-if [ -L "${TARGET_PALETTE_DIR}" ]; then
-  rm -f "${TARGET_PALETTE_DIR}"
-elif [ -e "${TARGET_PALETTE_DIR}" ]; then
-  backup="${TARGET_PALETTE_DIR}.backup.$(date +%Y%m%d-%H%M%S)"
-  mv "${TARGET_PALETTE_DIR}" "${backup}"
-  echo "Moved existing ${TARGET_PALETTE_DIR} to ${backup}"
+if [ -L "${TARGET_TMUX_MENU_SCRIPT}" ] || [ -e "${TARGET_TMUX_MENU_SCRIPT}" ]; then
+  rm -f "${TARGET_TMUX_MENU_SCRIPT}"
 fi
-ln -s "${REPO_DIR}/tmux-palette" "${TARGET_PALETTE_DIR}"
-echo "Linked ${TARGET_PALETTE_DIR} -> ${REPO_DIR}/tmux-palette"
+ln -s "${REPO_DIR}/scripts/tmux-menu.py" "${TARGET_TMUX_MENU_SCRIPT}"
+echo "Linked ${TARGET_TMUX_MENU_SCRIPT} -> ${REPO_DIR}/scripts/tmux-menu.py"
 
-if [ -L "${TARGET_WHICH_KEY_DIR}" ]; then
-  rm -f "${TARGET_WHICH_KEY_DIR}"
-elif [ -e "${TARGET_WHICH_KEY_DIR}" ]; then
-  backup="${TARGET_WHICH_KEY_DIR}.backup.$(date +%Y%m%d-%H%M%S)"
-  mv "${TARGET_WHICH_KEY_DIR}" "${backup}"
-  echo "Moved existing ${TARGET_WHICH_KEY_DIR} to ${backup}"
+if [ -L "${TARGET_PREFIX_HELP_SCRIPT}" ] || [ -e "${TARGET_PREFIX_HELP_SCRIPT}" ]; then
+  rm -f "${TARGET_PREFIX_HELP_SCRIPT}"
 fi
-ln -s "${REPO_DIR}/tmux-which-key" "${TARGET_WHICH_KEY_DIR}"
-echo "Linked ${TARGET_WHICH_KEY_DIR} -> ${REPO_DIR}/tmux-which-key"
+ln -s "${REPO_DIR}/scripts/tmux-prefix-help.py" "${TARGET_PREFIX_HELP_SCRIPT}"
+echo "Linked ${TARGET_PREFIX_HELP_SCRIPT} -> ${REPO_DIR}/scripts/tmux-prefix-help.py"
+
+if [ -L "${TARGET_TMUX_MENU_DIR}" ]; then
+  rm -f "${TARGET_TMUX_MENU_DIR}"
+elif [ -e "${TARGET_TMUX_MENU_DIR}" ]; then
+  backup="${TARGET_TMUX_MENU_DIR}.backup.$(date +%Y%m%d-%H%M%S)"
+  mv "${TARGET_TMUX_MENU_DIR}" "${backup}"
+  echo "Moved existing ${TARGET_TMUX_MENU_DIR} to ${backup}"
+fi
+ln -s "${REPO_DIR}/tmux-menu" "${TARGET_TMUX_MENU_DIR}"
+echo "Linked ${TARGET_TMUX_MENU_DIR} -> ${REPO_DIR}/tmux-menu"
+
+# Clean legacy symlinks if present
+rm -f "${HOME}/.config/tmux-palette" "${HOME}/.config/tmux-which-key" 2>/dev/null || true
 
 if [ -L "${TARGET_SNAGLORD_DIR}" ]; then
   rm -f "${TARGET_SNAGLORD_DIR}"
