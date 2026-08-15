@@ -12,7 +12,7 @@ case "${mode}" in
 esac
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-commands=(bash btop bun fd fzf fzf-tmux git jq lazygit nvim onefetch python3 sesh tmux tmux-snaglord tree uv yazi zoxide)
+commands=(bash btop bun fd fzf fzf-tmux git go jq lazygit nvim onefetch python3 sesh tmux tmux-snaglord tree uv yazi zoxide)
 missing=()
 
 find_missing() {
@@ -53,6 +53,9 @@ linux_package_for() {
     apt:python3 | dnf:python3) printf 'python3' ;;
     pacman:python3) printf 'python' ;;
     apt:fzf-tmux | dnf:fzf-tmux | pacman:fzf-tmux) printf 'fzf' ;;
+    apt:go) printf 'golang-go' ;;
+    dnf:go) printf 'golang' ;;
+    pacman:go) printf 'go' ;;
     apt:bash | apt:btop | apt:fzf | apt:git | apt:jq | apt:tmux | apt:tree | apt:zoxide) printf '%s' "${command_name}" ;;
     dnf:bash | dnf:btop | dnf:fzf | dnf:git | dnf:jq | dnf:tmux | dnf:tree | dnf:zoxide) printf '%s' "${command_name}" ;;
     pacman:bash | pacman:btop | pacman:bun | pacman:fd | pacman:fzf | pacman:git | pacman:jq | pacman:lazygit | pacman:onefetch | pacman:tmux | pacman:tree | pacman:uv | pacman:yazi | pacman:zoxide) printf '%s' "${command_name}" ;;
@@ -66,6 +69,7 @@ print_linux_guidance() {
   for command_name in "${missing[@]}"; do
     case "${command_name}" in
       bun) printf '  bun:      https://bun.sh/docs/installation\n' ;;
+      go) printf '  go:       https://go.dev/doc/install\n' ;;
       sesh) printf '  sesh:     https://github.com/joshmedeski/sesh#installation\n' ;;
       lazygit) printf '  lazygit:  https://github.com/jesseduffield/lazygit#installation\n' ;;
       onefetch) printf '  onefetch: https://github.com/o2sh/onefetch#installation\n' ;;
