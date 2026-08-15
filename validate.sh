@@ -201,6 +201,7 @@ expect_contains "grep -F '\"title\": \"Layouts\"' \"$REPO_DIR/tmux-menu/config.j
 expect_contains "grep -F 'select-layout' \"$REPO_DIR/tmux-menu/config.json\" | grep -F 'tiled'" "tiled" "tiled layout command"
 expect_contains "grep -F '\"title\": \"Clients\"' \"$REPO_DIR/tmux-menu/config.json\"" "Clients" "clients menu group"
 expect_contains "grep -F 'tmux-omni --clients' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-omni --clients" "attached clients helper command"
+expect_contains "grep -F 'tmux-omni --messages' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-omni --messages" "messages inspector menu command"
 expect_contains "grep -F 'detach-client -a' \"$REPO_DIR/tmux-menu/config.json\"" "detach-client -a" "detach other clients command"
 expect_contains "tmux list-keys -T prefix" "extrakto/scripts/open.sh" "extrakto binding"
 expect_contains "tmux list-keys -T prefix" "bind-key    -T prefix n       next-window" "next window binding"

@@ -106,7 +106,7 @@ func (m AppModel) updateWhichKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	keyStr := msg.String()
 
 	switch keyStr {
-	case "/", "ctrl+p":
+	case "/", "ctrl+f":
 		m.Mode = ModePalette
 		m.Palette.TextInput.Focus()
 		m.Palette.FilterCommands()
@@ -121,6 +121,109 @@ func (m AppModel) updateWhichKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case "q":
 		return m, tea.Quit
+
+	case "down", "ctrl+n", "ctrl+j":
+		m.WhichKey.CursorDown()
+		return m, nil
+
+	case "up", "ctrl+p", "ctrl+k":
+		m.WhichKey.CursorUp()
+		return m, nil
+
+	case "enter":
+		item := m.WhichKey.SelectedItem()
+		if item != nil {
+			if len(item.Items) > 0 {
+				icon := item.Icon
+				if icon == "" {
+					icon = "󰘳"
+				}
+				m.WhichKey.NavStack = append(m.WhichKey.NavStack, NavFrame{
+					Title:       item.Title,
+					Icon:        icon,
+					Items:       item.Items,
+					CursorIndex: 0,
+				})
+				return m, nil
+			} else if item.Action != "" {
+				target := item.Target
+				if target == "" {
+					target = "tmux"
+				}
+				m.PendingExec = &PendingExecution{
+					Action:         item.Action,
+					Target:         target,
+					Title:          item.Title,
+					PersistShell:   item.PersistShell || item.Shell,
+					OriginalTarget: target,
+				}
+				return m, tea.Quit
+			}
+		}
+		// Fallback: switch to palette search
+		m.Mode = ModePalette
+		m.Palette.TextInput.Focus()
+		m.Palette.FilterCommands()
+		return m, textinput.Blink
+
+	case "alt+v", "ctrl+v", "alt+h", "ctrl+h", "√":
+		item := m.WhichKey.SelectedItem()
+		if item != nil && item.Action != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.Action,
+				Target:         "split_h",
+				Title:          item.Title,
+				PersistShell:   true,
+				OriginalTarget: item.Target,
+			}
+			return m, tea.Quit
+		}
+
+	case "alt+s", "ctrl+s", "alt+x", "ctrl+x", "ß":
+		item := m.WhichKey.SelectedItem()
+		if item != nil && item.Action != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.Action,
+				Target:         "split_v",
+				Title:          item.Title,
+				PersistShell:   true,
+				OriginalTarget: item.Target,
+			}
+			return m, tea.Quit
+		}
+
+	case "alt+w", "ctrl+w", "ctrl+t", "alt+t", "∑":
+		item := m.WhichKey.SelectedItem()
+		if item != nil && item.Action != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.Action,
+				Target:         "window",
+				Title:          item.Title,
+				PersistShell:   true,
+				OriginalTarget: item.Target,
+			}
+			return m, tea.Quit
+		}
+
+	case "alt+i", "ctrl+i", "tab", "shift+tab", "ˆ", "^":
+		item := m.WhichKey.SelectedItem()
+		if item != nil && item.Action != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.Action,
+				Target:         "send_keys",
+				Title:          item.Title,
+				PersistShell:   false,
+				OriginalTarget: item.Target,
+			}
+			return m, tea.Quit
+		}
+
+	case "y":
+		item := m.WhichKey.SelectedItem()
+		if item != nil && item.Action != "" {
+			CopyToClipboard(item.Action)
+			return m, tea.Quit
+		}
 	}
 
 	// Match key against current items
@@ -134,9 +237,10 @@ func (m AppModel) updateWhichKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 					icon = "󰘳"
 				}
 				m.WhichKey.NavStack = append(m.WhichKey.NavStack, NavFrame{
-					Title: item.Title,
-					Icon:  icon,
-					Items: item.Items,
+					Title:       item.Title,
+					Icon:        icon,
+					Items:       item.Items,
+					CursorIndex: 0,
 				})
 				return m, nil
 			} else if item.Action != "" {
@@ -167,14 +271,20 @@ func (m AppModel) updatePalette(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	// Target modifiers
 	switch keyStr {
-	case "alt+v", "ctrl+v", "√":
+	case "alt+v", "ctrl+v", "alt+h", "ctrl+h", "√":
 		return m.executeSelectedPaletteItem("split_h")
-	case "alt+s", "ctrl+s", "ß":
+	case "alt+s", "ctrl+s", "alt+x", "ctrl+x", "ß":
 		return m.executeSelectedPaletteItem("split_v")
-	case "alt+w", "ctrl+w", "ctrl+t", "∑":
+	case "alt+w", "ctrl+w", "ctrl+t", "alt+t", "∑":
 		return m.executeSelectedPaletteItem("window")
-	case "alt+i", "ctrl+i", "ctrl+y", "ˆ", "^":
+	case "alt+i", "ctrl+i", "tab", "shift+tab", "ˆ", "^":
 		return m.executeSelectedPaletteItem("send_keys")
+	case "ctrl+y", "alt+y":
+		cmd := m.Palette.SelectedCommand()
+		if cmd != nil && cmd.Action != "" {
+			CopyToClipboard(cmd.Action)
+			return m, tea.Quit
+		}
 	}
 
 	switch keyStr {
@@ -182,11 +292,11 @@ func (m AppModel) updatePalette(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.Mode = ModeWhichKey
 		return m, nil
 
-	case "down", "ctrl+n", "ctrl+j", "tab":
+	case "down", "ctrl+n", "ctrl+j":
 		m.Palette.CursorDown(maxVisible)
 		return m, nil
 
-	case "up", "ctrl+p", "ctrl+k", "shift+tab":
+	case "up", "ctrl+p", "ctrl+k":
 		m.Palette.CursorUp(maxVisible)
 		return m, nil
 
@@ -231,11 +341,16 @@ func (m AppModel) executeSelectedPaletteItem(targetOverride string) (tea.Model, 
 		target = cmd.Target
 	}
 
+	persist := cmd.PersistShell
+	if target == "window" || target == "split_h" || target == "split_v" {
+		persist = true
+	}
+
 	m.PendingExec = &PendingExecution{
 		Action:         cmd.Action,
 		Target:         target,
 		Title:          cmd.Title,
-		PersistShell:   cmd.PersistShell,
+		PersistShell:   persist,
 		OriginalTarget: cmd.Target,
 	}
 
@@ -258,12 +373,21 @@ func runInspector(inspModel InspectModel, paneID string) {
 	}
 
 	if app, ok := finalModel.(InspectorAppModel); ok && app.Model.PendingExec != "" {
+		target := app.Model.PendingExecTarget
+		if target == "" {
+			target = "tmux"
+		}
+		title := app.Model.PendingExecTitle
+		if title == "" {
+			title = app.Model.Title
+		}
+		persist := (target == "window" || target == "split_h" || target == "split_v")
 		execErr := RunTmuxTarget(
 			app.Model.PendingExec,
-			"tmux",
+			target,
 			paneID,
-			app.Model.Title,
-			false,
+			title,
+			persist,
 			"tmux",
 		)
 		if execErr != nil {
@@ -295,6 +419,9 @@ func main() {
 	envLong := flag.Bool("env", false, "Open Tmux Environment Inspector")
 	buffersFlag := flag.Bool("B", false, "Open Paste Buffers Inspector")
 	buffersLong := flag.Bool("buffers", false, "Open Paste Buffers Inspector")
+	messagesFlag := flag.Bool("M", false, "Open Tmux Messages Inspector")
+	messagesLong := flag.Bool("messages", false, "Open Tmux Messages Inspector")
+	logsFlag := flag.Bool("logs", false, "Open Tmux Messages Inspector")
 	clientsFlag := flag.Bool("clients", false, "Open Connected Clients Inspector")
 	aiFlag := flag.String("ai", "", "Run AI Assistant mode (ask, error, fix, summarize, command, explain, explain-copy)")
 	validateFlag := flag.Bool("validate", false, "Validate config.json and print diagnostics")
@@ -322,6 +449,8 @@ func main() {
 			*envFlag = true
 		case "buffers", "buffer":
 			*buffersFlag = true
+		case "messages", "msg", "logs", "log":
+			*messagesFlag = true
 		case "clients":
 			*clientsFlag = true
 		case "validate", "check-config", "lint":
@@ -381,6 +510,12 @@ func main() {
 	if *keysFlag || *keysLong {
 		items := LoadKeybindingsData()
 		insp := NewInspectModel("Keybindings", "󰋗", "Key", "Category", "Description", "Command", items, 15, 12, 32)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Execute"
+		insp.AllowSendKeys = true
+		insp.AllowWindow = true
+		insp.AllowSplit = true
+		insp.AllowCopy = true
 		runInspector(insp, paneID)
 		return
 	}
@@ -389,6 +524,12 @@ func main() {
 	if *cmdsFlag || *cmdsLong {
 		items := LoadCommandsData()
 		insp := NewInspectModel("Tmux Commands", "󰘳", "Command", "Alias", "Syntax / Usage", "", items, 24, 10, 0)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Prompt"
+		insp.AllowSendKeys = true
+		insp.AllowWindow = true
+		insp.AllowSplit = true
+		insp.AllowCopy = true
 		runInspector(insp, paneID)
 		return
 	}
@@ -397,6 +538,9 @@ func main() {
 	if *optsFlag || *optsLong {
 		items := LoadOptionsData()
 		insp := NewInspectModel("Tmux Options", "󰘳", "Option Name", "Scope", "Current Value", "", items, 32, 10, 0)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Toggle/Edit"
+		insp.AllowCopy = true
 		runInspector(insp, paneID)
 		return
 	}
@@ -405,6 +549,9 @@ func main() {
 	if *envFlag || *envLong {
 		items := LoadEnvironmentData()
 		insp := NewInspectModel("Environment", "󰈞", "Variable", "Scope", "Value", "", items, 28, 10, 0)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Set/Prompt"
+		insp.AllowCopy = true
 		runInspector(insp, paneID)
 		return
 	}
@@ -413,6 +560,20 @@ func main() {
 	if *buffersFlag || *buffersLong {
 		items := LoadBuffersData()
 		insp := NewInspectModel("Paste Buffers", "󰅍", "Buffer Name", "Size", "Sample Content", "", items, 16, 12, 0)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Paste"
+		insp.AllowSendKeys = true
+		insp.AllowDelete = true
+		insp.AllowCopy = true
+		runInspector(insp, paneID)
+		return
+	}
+
+	// Mode 5.5: Messages Inspector
+	if *messagesFlag || *messagesLong || *logsFlag {
+		items := LoadMessagesData()
+		insp := NewInspectModel("Tmux Messages", "󰍡", "Time", "Source", "Log Message", "", items, 8, 16, 0)
+		insp.AllowCopy = true
 		runInspector(insp, paneID)
 		return
 	}
@@ -421,6 +582,9 @@ func main() {
 	if *clientsFlag {
 		items := LoadClientsData()
 		insp := NewInspectModel("Connected Clients", "󰒍", "Client", "Session", "Dimensions (TTY)", "PID", items, 18, 14, 22)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Switch"
+		insp.AllowCopy = true
 		runInspector(insp, paneID)
 		return
 	}

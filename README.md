@@ -157,20 +157,34 @@ The tracked configuration at `./tmux-menu/config.json` is symlinked to:
 
 ### Modes & Navigation
 
-- **Which-Key Mode (`prefix + Space`)**: Mnemonic tree navigation. Root groups are `p` panes, `w` windows, `s` sessions, `b` buffers, `c` clients, `g` Git, `a` AI, `t` tools, `P` plugins, and `o` options. Press a key to drill into a submenu or execute an action. Press `/` to switch into Command Palette search mode, `Esc` or `Backspace` to navigate up one level, and `q` or `Esc` at the root to close.
-- **Command Palette Mode (`prefix + P` or `prefix + Ctrl-p`)**: Fuzzy search across all actions, categories, descriptions, and key shortcuts. As you type, results update in real time. Press `Enter` to run the selected action, `Esc` (clears input or returns to Which-Key Leader mode), `Backspace` on empty input, or `Ctrl-Space` / `Ctrl-l` to switch back to Leader mode.
+- **Which-Key Mode (`prefix + Space`)**: Mnemonic tree navigation. Root groups are `p` panes, `w` windows, `s` sessions, `b` buffers, `c` clients, `g` Git, `a` AI, `t` tools, `P` plugins, and `o` options.
+  - **Instant jump**: Press a key to drill into a submenu or execute an action directly.
+  - **Cursor navigation**: Use `↑` / `↓` / `Tab` / `Shift-Tab` to highlight items in the grid.
+  - **`<Enter>`**: Executes the highlighted action or enters the highlighted subgroup (or switches into Command Palette search if at root).
+  - **`y`**: Copies the highlighted action to clipboard.
+  - **`/` or `Ctrl-p`**: Switch into Command Palette fuzzy search mode.
+  - **`Esc` or `Backspace`**: Navigate up one level; `q` or `Esc` at root to close.
+- **Command Palette Mode (`prefix + P` or `prefix + Ctrl-p`)**: Fuzzy search across all actions, categories, descriptions, and key shortcuts. As you type, results update in real time.
+  - **`<Enter>`**: Run the selected action.
+  - **`Ctrl-y` / `Alt-y`**: Copy the selected action to clipboard.
+  - **`Esc`**: Clears search input or returns to Which-Key Leader mode; `Backspace` on empty input or `Ctrl-Space` / `Ctrl-l` returns to Leader mode.
+- **Interactive Inspectors**:
+  - `prefix + ?` (`tmux-omni --keys`): Active prefix keybindings browser with search, execution, and copy.
+  - `tmux-omni --messages` (`prefix + Space` → `t` → `M`): Searchable, scrollable log viewer for `tmux show-messages` with copy support.
+  - `tmux-omni --commands` / `--options` / `--env` / `--buffers` / `--clients`: Dedicated introspection tables.
 
-### Execution Targets & Lifecycle
+### Execution Targets & Modifiers
 
-When selecting any command, the execution behavior can be customized dynamically:
+When selecting any command in Which-Key, Command Palette, or Inspectors, you can dynamically customize its execution target:
 
-- **`<Enter>`**: Runs the command in its target container (popup, split, or window). If the command succeeds (`exit 0`), the container closes cleanly upon exit (unless `"persist_shell": true` is configured on that item in `config.json`, which keeps an active `$SHELL` open). If the command fails (`exit != 0`), the output remains visible on screen with an interactive error prompt:
-  - `[s]`: Drop into an interactive `$SHELL` in that container to debug the issue.
-  - `[any key]`: Dismiss the container.
-- **`Alt-v` / `Ctrl-v`**: Run selected command in a Horizontal (side) split.
-- **`Alt-s` / `Ctrl-s`**: Run selected command in a Vertical (bottom) split.
-- **`Alt-w` / `Ctrl-t`**: Run selected command in a New Window.
-- **`Alt-i` / `Ctrl-y`**: Insert command text directly into active pane prompt without executing.
+| Key | Mode | Behavior |
+| :--- | :--- | :--- |
+| **`<Enter>`** | **Run** | Executes command in its target container. If the command fails (`exit != 0`), output remains visible with `[s]` Debug shell or `[any key]` Close. |
+| **`Ctrl-i`** / `Alt-i` / `Tab` | **Insert into Prompt** | Populates `tmux <command>` directly into the active shell prompt without executing, allowing editing or manual review. |
+| **`Ctrl-w`** / `Alt-w` / `Ctrl-t` | **New Window** | Runs `tmux <command>` in a new window with a persistent shell. |
+| **`Ctrl-v`** / `Alt-v` | **Horizontal Split** | Runs `tmux <command>` in a side split pane. |
+| **`Ctrl-s`** / `Alt-s` | **Vertical Split** | Runs `tmux <command>` in a bottom split pane. |
+| **`y`** / `c` | **Copy to Clipboard** | Copies the command string to system clipboard. |
 
 ### Configuration & Schema Tooling
 

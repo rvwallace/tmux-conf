@@ -29,25 +29,34 @@ type InspectItem struct {
 
 // InspectModel is a unified, searchable table model for all tmux list inspectors.
 type InspectModel struct {
-	Title        string
-	Icon         string
-	Col1Header   string
-	Col2Header   string
-	Col3Header   string
-	Col4Header   string
-	Items        []InspectItem
-	Filtered     []InspectItem
-	CursorIndex  int
-	ScrollTop    int
-	TextInput    textinput.Model
-	Width        int
-	Height       int
-	Col1Width    int
-	Col2Width    int
-	Col3Width    int
-	StatusMsg    string
-	PendingExec  string
-	NeedsRefresh bool
+	Title             string
+	Icon              string
+	Col1Header        string
+	Col2Header        string
+	Col3Header        string
+	Col4Header        string
+	Items             []InspectItem
+	Filtered          []InspectItem
+	CursorIndex       int
+	ScrollTop         int
+	TextInput         textinput.Model
+	Width             int
+	Height            int
+	Col1Width         int
+	Col2Width         int
+	Col3Width         int
+	StatusMsg         string
+	PendingExec       string
+	PendingExecTarget string
+	PendingExecTitle  string
+	NeedsRefresh      bool
+	AllowExecute      bool
+	AllowSendKeys     bool
+	AllowWindow       bool
+	AllowSplit        bool
+	AllowCopy         bool
+	AllowDelete       bool
+	ExecuteLabel      string
 }
 
 func NewInspectModel(title, icon, col1H, col2H, col3H, col4H string, items []InspectItem, col1W, col2W, col3W int) InspectModel {
@@ -348,39 +357,28 @@ func (m InspectModel) View() string {
 	var legendText string
 	if m.StatusMsg != "" {
 		legendText = lipgloss.NewStyle().Foreground(ColorAccentGreen).Bold(true).Render(m.StatusMsg)
-	} else if m.Title == "Paste Buffers" {
-		legendText = lipgloss.JoinHorizontal(
-			lipgloss.Left,
-			FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render("Paste"), "   ",
-			FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Copy"), "   ",
-			FooterKeyStyle.Render("<d/x>"), " ", FooterDescStyle.Render("Delete"), "   ",
-			FooterKeyStyle.Render("<Tab/↑/↓>"), " ", FooterDescStyle.Render("Move"), "   ",
-			FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Close"),
-		)
-	} else if m.Title == "Keybindings" {
-		legendText = lipgloss.JoinHorizontal(
-			lipgloss.Left,
-			FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render("Execute"), "   ",
-			FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Copy Command"), "   ",
-			FooterKeyStyle.Render("<Tab/↑/↓>"), " ", FooterDescStyle.Render("Move"), "   ",
-			FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Close"),
-		)
-	} else if m.Title == "Tmux Options" {
-		legendText = lipgloss.JoinHorizontal(
-			lipgloss.Left,
-			FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render("Toggle/Edit"), "   ",
-			FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Copy"), "   ",
-			FooterKeyStyle.Render("<Tab/↑/↓>"), " ", FooterDescStyle.Render("Move"), "   ",
-			FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Close"),
-		)
 	} else {
-		legendText = lipgloss.JoinHorizontal(
-			lipgloss.Left,
-			FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render("Apply/Run"), "   ",
-			FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Copy"), "   ",
-			FooterKeyStyle.Render("<Tab/↑/↓>"), " ", FooterDescStyle.Render("Navigate"), "   ",
-			FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Close"),
-		)
+		var parts []string
+		if m.AllowExecute && m.ExecuteLabel != "" {
+			parts = append(parts, FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render(m.ExecuteLabel), "   ")
+		}
+		if m.AllowSendKeys {
+			parts = append(parts, FooterKeyStyle.Render("<C-i>"), " ", FooterDescStyle.Render("Send"), "   ")
+		}
+		if m.AllowWindow {
+			parts = append(parts, FooterKeyStyle.Render("<C-w>"), " ", FooterDescStyle.Render("Win"), "   ")
+		}
+		if m.AllowSplit {
+			parts = append(parts, FooterKeyStyle.Render("<C-v>/<C-s>"), " ", FooterDescStyle.Render("Split"), "   ")
+		}
+		if m.AllowCopy {
+			parts = append(parts, FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Copy"), "   ")
+		}
+		if m.AllowDelete {
+			parts = append(parts, FooterKeyStyle.Render("<d/x>"), " ", FooterDescStyle.Render("Delete"), "   ")
+		}
+		parts = append(parts, FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Close"))
+		legendText = lipgloss.JoinHorizontal(lipgloss.Left, parts...)
 	}
 
 	brand := FooterBrandStyle.Render("󰌌 Tokyo Night")
@@ -846,6 +844,47 @@ func LoadBuffersData() []InspectItem {
 	return items
 }
 
+// LoadMessagesData queries tmux server message logs.
+func LoadMessagesData() []InspectItem {
+	var items []InspectItem
+	if out, err := exec.Command("tmux", "show-messages").Output(); err == nil {
+		lines := strings.Split(string(out), "\n")
+		// Reverse order so newest messages appear at the top
+		for i := len(lines) - 1; i >= 0; i-- {
+			line := strings.TrimSpace(lines[i])
+			if line == "" {
+				continue
+			}
+
+			parts := strings.SplitN(line, ": ", 3)
+			timeStr := ""
+			sourceStr := "server"
+			msgStr := line
+
+			if len(parts) >= 3 {
+				timeStr = parts[0]
+				sourceStr = parts[1]
+				msgStr = parts[2]
+			} else if len(parts) == 2 {
+				timeStr = parts[0]
+				msgStr = parts[1]
+			}
+
+			searchable := strings.ToLower(line)
+
+			items = append(items, InspectItem{
+				Col1:       timeStr,
+				Col2:       sourceStr,
+				Col3:       msgStr,
+				SearchText: searchable,
+				RawCopy:    line,
+				ActionCmd:  msgStr,
+			})
+		}
+	}
+	return items
+}
+
 // InspectorAppModel wraps InspectModel into a Bubble Tea interactive app.
 type InspectorAppModel struct {
 	Model InspectModel
@@ -878,24 +917,89 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, tea.Quit
 
-		case "down", "ctrl+n", "ctrl+j", "tab":
+		case "down", "ctrl+n", "ctrl+j":
 			m.Model.CursorDown(maxVisible)
 			return m, nil
 
-		case "up", "ctrl+p", "ctrl+k", "shift+tab":
+		case "up", "ctrl+p", "ctrl+k":
 			m.Model.CursorUp(maxVisible)
 			return m, nil
 
 		case "enter":
 			item := m.Model.SelectedItem()
+			if item == nil {
+				return m, nil
+			}
+			if m.Model.AllowExecute && item.ActionCmd != "" {
+				m.Model.PendingExec = item.ActionCmd
+				m.Model.PendingExecTarget = "tmux"
+				m.Model.PendingExecTitle = item.Col1
+				return m, tea.Quit
+			} else if m.Model.AllowCopy && item.RawCopy != "" {
+				CopyToClipboard(item.RawCopy)
+				disp := item.RawCopy
+				if len(disp) > 40 {
+					disp = disp[:37] + "..."
+				}
+				m.Model.StatusMsg = fmt.Sprintf("Copied to clipboard: %s", disp)
+				return m, nil
+			}
+			return m, nil
+
+		case "alt+i", "ctrl+i", "ctrl+y", "tab", "shift+tab", "ˆ", "^":
+			if !m.Model.AllowSendKeys {
+				return m, nil
+			}
+			item := m.Model.SelectedItem()
 			if item != nil && item.ActionCmd != "" {
 				m.Model.PendingExec = item.ActionCmd
+				m.Model.PendingExecTarget = "send_keys"
+				m.Model.PendingExecTitle = item.Col1
+				return m, tea.Quit
+			}
+			return m, nil
+
+		case "alt+w", "ctrl+w", "ctrl+t", "alt+t", "∑":
+			if !m.Model.AllowWindow {
+				return m, nil
+			}
+			item := m.Model.SelectedItem()
+			if item != nil && item.ActionCmd != "" {
+				m.Model.PendingExec = item.ActionCmd
+				m.Model.PendingExecTarget = "window"
+				m.Model.PendingExecTitle = item.Col1
+				return m, tea.Quit
+			}
+			return m, nil
+
+		case "alt+v", "ctrl+v", "alt+h", "ctrl+h", "√":
+			if !m.Model.AllowSplit {
+				return m, nil
+			}
+			item := m.Model.SelectedItem()
+			if item != nil && item.ActionCmd != "" {
+				m.Model.PendingExec = item.ActionCmd
+				m.Model.PendingExecTarget = "split_h"
+				m.Model.PendingExecTitle = item.Col1
+				return m, tea.Quit
+			}
+			return m, nil
+
+		case "alt+s", "ctrl+s", "alt+x", "ctrl+x", "ß":
+			if !m.Model.AllowSplit {
+				return m, nil
+			}
+			item := m.Model.SelectedItem()
+			if item != nil && item.ActionCmd != "" {
+				m.Model.PendingExec = item.ActionCmd
+				m.Model.PendingExecTarget = "split_v"
+				m.Model.PendingExecTitle = item.Col1
 				return m, tea.Quit
 			}
 			return m, nil
 
 		case "d", "x":
-			if m.Model.Title == "Paste Buffers" {
+			if m.Model.AllowDelete && m.Model.Title == "Paste Buffers" {
 				item := m.Model.SelectedItem()
 				if item != nil && item.Col1 != "" {
 					_ = exec.Command("tmux", "delete-buffer", "-b", item.Col1).Run()
@@ -907,6 +1011,9 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "y", "c":
+			if !m.Model.AllowCopy {
+				return m, nil
+			}
 			item := m.Model.SelectedItem()
 			if item != nil && item.RawCopy != "" {
 				CopyToClipboard(item.RawCopy)
@@ -915,6 +1022,22 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					disp = disp[:37] + "..."
 				}
 				m.Model.StatusMsg = fmt.Sprintf("Copied to clipboard: %s", disp)
+				return m, nil
+			}
+
+		case "Y", "C":
+			if !m.Model.AllowCopy {
+				return m, nil
+			}
+			item := m.Model.SelectedItem()
+			if item != nil && item.RawCopy != "" {
+				formatted := FormatForShell(item.RawCopy, "tmux")
+				CopyToClipboard(formatted)
+				disp := formatted
+				if len(disp) > 40 {
+					disp = disp[:37] + "..."
+				}
+				m.Model.StatusMsg = fmt.Sprintf("Copied shell cmd: %s", disp)
 				return m, nil
 			}
 		}

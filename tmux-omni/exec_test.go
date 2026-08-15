@@ -56,6 +56,42 @@ func TestBuildGuardedShellScript(t *testing.T) {
 	}
 }
 
+func TestFormatForShell(t *testing.T) {
+	tests := []struct {
+		action         string
+		originalTarget string
+		expected       string
+	}{
+		{
+			action:         "show-messages",
+			originalTarget: "tmux",
+			expected:       "tmux show-messages",
+		},
+		{
+			action:         "tmux show-messages",
+			originalTarget: "tmux",
+			expected:       "tmux show-messages",
+		},
+		{
+			action:         "set-window-option synchronize-panes ; refresh-client -S",
+			originalTarget: "tmux",
+			expected:       "tmux set-window-option synchronize-panes ; tmux refresh-client -S",
+		},
+		{
+			action:         "lazygit",
+			originalTarget: "popup",
+			expected:       "lazygit",
+		},
+	}
+
+	for _, tt := range tests {
+		got := FormatForShell(tt.action, tt.originalTarget)
+		if got != tt.expected {
+			t.Errorf("FormatForShell(%q, %q) = %q, expected %q", tt.action, tt.originalTarget, got, tt.expected)
+		}
+	}
+}
+
 func TestParseArgs(t *testing.T) {
 	args := parseArgs(`display-popup -w "68%" -h "65%" 'echo "hello world"'`)
 	if len(args) != 6 {

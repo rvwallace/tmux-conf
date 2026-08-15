@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"syscall"
+	"time"
 )
 
 // CopyToClipboard copies text to the system clipboard across macOS, Wayland, X11, or tmux buffer.
@@ -77,6 +79,28 @@ func QuoteShellSingle(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", "'\\''") + "'"
 }
 
+// FormatForShell prepares an action string for safe shell execution.
+// If originalTarget is "tmux", it splits chained commands and ensures each has a "tmux " prefix.
+func FormatForShell(action string, originalTarget string) string {
+	if originalTarget == "tmux" {
+		subCmds := SplitTmuxCommands(action)
+		var formatted []string
+		for _, sc := range subCmds {
+			trimmed := strings.TrimSpace(sc)
+			if trimmed == "" {
+				continue
+			}
+			if !strings.HasPrefix(trimmed, "tmux ") && trimmed != "tmux" {
+				formatted = append(formatted, "tmux "+trimmed)
+			} else {
+				formatted = append(formatted, trimmed)
+			}
+		}
+		return strings.Join(formatted, " ; ")
+	}
+	return action
+}
+
 // BuildGuardedShellScript generates an interactive error-guard shell wrapper.
 func BuildGuardedShellScript(cmdStr string, title string, persistShell bool) string {
 	if title == "" {
@@ -85,7 +109,14 @@ func BuildGuardedShellScript(cmdStr string, title string, persistShell bool) str
 	quotedTitle := QuoteShellSingle(title)
 
 	if persistShell {
-		return fmt.Sprintf("%s ; exec \"${SHELL:-/bin/zsh}\"", cmdStr)
+		return fmt.Sprintf(`
+%s
+_status=$?
+if [ "$_status" -ne 0 ]; then
+  printf '\n\033[1;31m✖ Command failed with exit code %%d: %%s\033[0m\n' "$_status" %s
+fi
+exec "${SHELL:-/bin/zsh}"
+`, cmdStr, quotedTitle)
 	}
 
 	return fmt.Sprintf(`
@@ -187,48 +218,59 @@ func RunTmuxTarget(
 
 	// 1. Direct tmux commands
 	if target == "tmux" {
+		if expandedAction == "show-messages" {
+			time.Sleep(60 * time.Millisecond)
+			homeDir, _ := os.UserHomeDir()
+			omniBin := filepath.Join(homeDir, ".config/tmux/scripts/tmux-omni")
+			cmd := exec.Command("tmux", "display-popup", "-E", "-w", "80%", "-h", "80%", omniBin, "--messages")
+			cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+			return cmd.Start()
+		}
+
+		time.Sleep(60 * time.Millisecond)
 		parts := SplitTmuxCommands(expandedAction)
 		for _, part := range parts {
 			args := parseArgs(part)
 			cmd := exec.Command("tmux", args...)
 			cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-			if err := cmd.Start(); err != nil {
+			if err := cmd.Run(); err != nil {
 				_ = exec.Command("tmux", "display-message", fmt.Sprintf("✖ Execution failed: %v", err)).Run()
+				return err
 			}
+		}
+		if !strings.Contains(expandedAction, "display-message") {
+			_ = exec.Command("tmux", "display-message", fmt.Sprintf("✔ Executed: %s", expandedAction)).Run()
 		}
 		return nil
 	}
 
 	// 2. Send keys to target pane
 	if target == "send" || target == "send_keys" || target == "send-keys" {
-		textToSend := expandedAction
-		if originalTarget == "tmux" {
-			subCmds := SplitTmuxCommands(textToSend)
-			var formatted []string
-			for _, sc := range subCmds {
-				if !strings.HasPrefix(sc, "tmux ") {
-					formatted = append(formatted, "tmux "+sc)
-				} else {
-					formatted = append(formatted, sc)
-				}
-			}
-			textToSend = strings.Join(formatted, " ; ")
-		}
+		textToSend := FormatForShell(expandedAction, originalTarget)
 
-		var args []string
-		args = append(args, "send-keys")
+		// Brief delay for the popup to close and target pane terminal to settle
+		time.Sleep(60 * time.Millisecond)
+
+		// Use a temporary tmux paste buffer for atomic paste to avoid dropped characters from pty redraw
+		bufName := fmt.Sprintf("omni-send-%d", time.Now().UnixNano())
+		_ = exec.Command("tmux", "set-buffer", "-b", bufName, "--", textToSend).Run()
+
+		var pasteArgs []string
+		pasteArgs = append(pasteArgs, "paste-buffer", "-d", "-b", bufName)
 		if cleanPaneID != "" {
-			args = append(args, "-t", cleanPaneID)
+			pasteArgs = append(pasteArgs, "-t", cleanPaneID)
 		}
-		args = append(args, textToSend)
+		_ = exec.Command("tmux", pasteArgs...).Run()
 
-		cmd := exec.Command("tmux", args...)
-		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-		return cmd.Start()
+		_ = exec.Command("tmux", "display-message", fmt.Sprintf("󰍡 Inserted into %s: %s", cleanPaneID, textToSend)).Run()
+		return nil
 	}
 
 	// 3. Shell wrapper commands (splits, windows, popups)
-	guardedScript := BuildGuardedShellScript(expandedAction, title, persistShell)
+	formattedAction := FormatForShell(expandedAction, originalTarget)
+	guardedScript := BuildGuardedShellScript(formattedAction, title, persistShell)
+
+	time.Sleep(60 * time.Millisecond)
 
 	switch target {
 	case "split-h", "split_h":
@@ -245,7 +287,7 @@ func RunTmuxTarget(
 		return cmd.Start()
 
 	case "split-v", "split_v":
-		args := []string{"split-window", "-v"}
+		args := []string{"split-window", "-v", "-p", "40"}
 		if cleanPaneID != "" {
 			args = append(args, "-t", cleanPaneID)
 		}

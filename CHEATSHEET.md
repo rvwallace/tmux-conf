@@ -77,26 +77,29 @@ Inside the `prefix + T` sesh picker:
 Triggered via:
 - `prefix + Space`: Which-Key mnemonic tree
 - `prefix + P` or `prefix + Ctrl-p`: Fuzzy Command Palette
+- `prefix + ?`: Live prefix keybindings inspector
 
 Inside the TUI:
-- **Which-Key navigation**: press a shortcut key (e.g. `p` panes, `w` windows, `g` git, `a` AI, `t` tools, `P` plugins, `o` options).
+- **Which-Key navigation**: press a shortcut key (e.g. `p` panes, `w` windows, `g` git, `a` AI, `t` tools, `P` plugins, `o` options), or use `↑`/`↓`/`Tab` to highlight.
 - **Switch to Palette**: `/` or `Ctrl-p` jumps directly into Command Palette fuzzy search.
 - **Switch to Leader**: `Esc` / `Backspace` (when input is empty) or `Ctrl-Space` / `Ctrl-l` instantly switches back to Which-Key Leader view.
 - **Navigation & Close**: `Esc` / `Backspace` goes up one group level (or close at root), `q` quits.
 
-### Execution Modifiers & Error Recovery
+### Execution Modifiers & Actions
 
 | Key | Mode | Behavior |
 | :--- | :--- | :--- |
-| **`Enter`** | **Run** | Executes command in its target container. Closes on exit if successful (`exit 0`), or keeps shell open if `"persist_shell": true` is configured in `config.json`. **If it fails, pauses with error prompt and allows `[s]` Debug shell or `[any key]` Close.** |
-| **`Alt-v`** / `Ctrl-v` | **Horizontal Split** | Opens command in a side split pane. |
-| **`Alt-s`** / `Ctrl-s` | **Vertical Split** | Opens command in a bottom split pane. |
-| **`Alt-w`** / `Ctrl-t` | **New Window** | Opens command in a new window. |
-| **`Alt-i`** / `Ctrl-y` | **Insert in Shell** | Inserts command text into active pane prompt without executing. |
+| **`Enter`** | **Run** | Executes command in its target container. If it fails, pauses with error prompt and allows `[s]` Debug shell or `[any key]` Close. |
+| **`Ctrl-i`** / `Alt-i` / `Tab` | **Insert into Prompt** | Populates `tmux <command>` directly into the active shell prompt without executing, allowing editing or manual review. |
+| **`Ctrl-w`** / `Alt-w` / `Ctrl-t` | **New Window** | Opens command in a new window with a persistent shell. |
+| **`Ctrl-v`** / `Alt-v` | **Horizontal Split** | Opens command in a side split pane with a persistent shell. |
+| **`Ctrl-s`** / `Alt-s` | **Vertical Split** | Opens command in a bottom split pane with a persistent shell. |
+| **`y`** / `c` | **Copy to Clipboard** | Copies the command to system clipboard. |
 
 Quick editing and customization:
 - `prefix + Space` → `o` → `m`: edit `config.json` in `$EDITOR`
 - `prefix + Space` → `o` → `t`: edit `.tmux.conf` in `$EDITOR`
+- `prefix + Space` → `t` → `M`: open Tmux Messages log inspector (`tmux-omni --messages`)
 - Refer to [`CONFIG_GUIDE.md`](./CONFIG_GUIDE.md) and [`config.schema.json`](./tmux-menu/config.schema.json) for schema rules and target documentation.
 
 ## AI Assistant
