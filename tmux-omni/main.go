@@ -273,6 +273,15 @@ func runInspector(inspModel InspectModel, paneID string) {
 	}
 }
 
+func runAI(mode, paneID string) {
+	model := NewAIModel(mode, paneID)
+	p := tea.NewProgram(model, tea.WithAltScreen(), tea.WithMouseCellMotion())
+	if _, err := p.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error running AI assistant: %v\n", err)
+		os.Exit(1)
+	}
+}
+
 func main() {
 	searchFlag := flag.Bool("s", false, "Start in Command Palette search mode")
 	searchLong := flag.Bool("search", false, "Start in Command Palette search mode")
@@ -287,6 +296,7 @@ func main() {
 	buffersFlag := flag.Bool("B", false, "Open Paste Buffers Inspector")
 	buffersLong := flag.Bool("buffers", false, "Open Paste Buffers Inspector")
 	clientsFlag := flag.Bool("clients", false, "Open Connected Clients Inspector")
+	aiFlag := flag.String("ai", "", "Run AI Assistant mode (ask, error, fix, summarize, command, explain, explain-copy)")
 	validateFlag := flag.Bool("validate", false, "Validate config.json and print diagnostics")
 	validateLong := flag.Bool("check-config", false, "Validate config.json and print diagnostics")
 	configFlag := flag.String("config", "", "Path to config.json")
@@ -294,8 +304,11 @@ func main() {
 
 	// Check positional subcommand or pane ID
 	subcmd := ""
+	aiModeArg := ""
 	paneIDArg := ""
-	for _, arg := range flag.Args() {
+	args := flag.Args()
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
 		switch arg {
 		case "search", "palette":
 			*searchFlag = true
@@ -313,6 +326,13 @@ func main() {
 			*clientsFlag = true
 		case "validate", "check-config", "lint":
 			*validateFlag = true
+		case "ai", "aichat":
+			if i+1 < len(args) {
+				aiModeArg = args[i+1]
+				i++
+			}
+		case "ask", "error", "fix", "summarize", "command", "explain", "explain-copy":
+			aiModeArg = arg
 		default:
 			if paneIDArg == "" {
 				paneIDArg = arg
@@ -320,6 +340,10 @@ func main() {
 		}
 	}
 	_ = subcmd
+
+	if *aiFlag != "" {
+		aiModeArg = *aiFlag
+	}
 
 	// Mode 0: Config Validation / Linter
 	if *validateFlag || *validateLong {
@@ -347,6 +371,12 @@ func main() {
 	}
 
 	paneID := GetCurrentPaneID(paneIDArg)
+
+	// Mode 0.5: AI Assistant
+	if aiModeArg != "" {
+		runAI(aiModeArg, paneID)
+		return
+	}
 
 	// Mode 1: Keybindings Inspector
 	if *keysFlag || *keysLong {
