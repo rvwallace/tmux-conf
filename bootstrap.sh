@@ -18,9 +18,7 @@ TARGET_INSERT_PATHS_SCRIPT="${SCRIPT_DIR}/tmux-insert-paths.sh"
 TARGET_YAZI_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-yazi-picker.sh"
 TARGET_DEFER_TMUX_SCRIPT="${SCRIPT_DIR}/defer-tmux-command.sh"
 TARGET_WHICH_KEY_POPUP_SCRIPT="${SCRIPT_DIR}/tmux-which-key-popup.sh"
-TARGET_TMUX_MENU_SCRIPT="${SCRIPT_DIR}/tmux-menu.py"
 TARGET_TMUX_OMNI_SCRIPT="${SCRIPT_DIR}/tmux-omni"
-TARGET_PREFIX_HELP_SCRIPT="${SCRIPT_DIR}/tmux-prefix-help.py"
 TARGET_TMUX_MENU_DIR="${HOME}/.config/tmux-menu"
 TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
@@ -132,12 +130,6 @@ fi
 ln -s "${REPO_DIR}/scripts/tmux-which-key-popup.sh" "${TARGET_WHICH_KEY_POPUP_SCRIPT}"
 echo "Linked ${TARGET_WHICH_KEY_POPUP_SCRIPT} -> ${REPO_DIR}/scripts/tmux-which-key-popup.sh"
 
-if [ -L "${TARGET_TMUX_MENU_SCRIPT}" ] || [ -e "${TARGET_TMUX_MENU_SCRIPT}" ]; then
-  rm -f "${TARGET_TMUX_MENU_SCRIPT}"
-fi
-ln -s "${REPO_DIR}/scripts/tmux-menu.py" "${TARGET_TMUX_MENU_SCRIPT}"
-echo "Linked ${TARGET_TMUX_MENU_SCRIPT} -> ${REPO_DIR}/scripts/tmux-menu.py"
-
 if [ -d "${REPO_DIR}/tmux-omni" ]; then
   if command -v go >/dev/null 2>&1; then
     (cd "${REPO_DIR}/tmux-omni" && go build -ldflags="-s -w" -o "${TARGET_TMUX_OMNI_SCRIPT}" .)
@@ -146,12 +138,6 @@ if [ -d "${REPO_DIR}/tmux-omni" ]; then
     echo "Warning: 'go' is not installed; skipped building ${TARGET_TMUX_OMNI_SCRIPT}. Run ./scripts/install-deps.sh to install Go." >&2
   fi
 fi
-
-if [ -L "${TARGET_PREFIX_HELP_SCRIPT}" ] || [ -e "${TARGET_PREFIX_HELP_SCRIPT}" ]; then
-  rm -f "${TARGET_PREFIX_HELP_SCRIPT}"
-fi
-ln -s "${REPO_DIR}/scripts/tmux-prefix-help.py" "${TARGET_PREFIX_HELP_SCRIPT}"
-echo "Linked ${TARGET_PREFIX_HELP_SCRIPT} -> ${REPO_DIR}/scripts/tmux-prefix-help.py"
 
 if [ -L "${TARGET_TMUX_MENU_DIR}" ]; then
   rm -f "${TARGET_TMUX_MENU_DIR}"
@@ -163,7 +149,8 @@ fi
 ln -s "${REPO_DIR}/tmux-menu" "${TARGET_TMUX_MENU_DIR}"
 echo "Linked ${TARGET_TMUX_MENU_DIR} -> ${REPO_DIR}/tmux-menu"
 
-# Clean legacy symlinks if present
+# Clean legacy symlinks and scripts if present
+rm -f "${SCRIPT_DIR}/tmux-menu.py" "${SCRIPT_DIR}/tmux-prefix-help.py" 2>/dev/null || true
 rm -f "${HOME}/.config/tmux-palette" "${HOME}/.config/tmux-which-key" 2>/dev/null || true
 
 if [ -L "${TARGET_SNAGLORD_DIR}" ]; then
