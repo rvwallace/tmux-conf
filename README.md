@@ -29,7 +29,6 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 - [`./scripts/defer-tmux-command.sh`](./scripts/defer-tmux-command.sh): closes popups before starting another tmux popup, picker, prompt, or pane.
 - [`./scripts/tmux-which-key-popup.sh`](./scripts/tmux-which-key-popup.sh): runs inspection-oriented helper popups without fragile nested shell quoting.
 - [`./tmux-omni/`](./tmux-omni/): fast Go + Bubble Tea unified leader menu and command palette with LazyVim/NvChad styling, dynamic target modifiers, and error guard with clipboard copy (binary installed to `~/.config/tmux/scripts/tmux-omni`).
-- [`./scripts/tmux-menu.py`](./scripts/tmux-menu.py): legacy Textual TUI leader menu and command palette.
 - [`./tmux-menu/config.json`](./tmux-menu/config.json): unified command and group registry, symlinked through `~/.config/tmux-menu`.
 - [`./tmux-snaglord/config.toml`](./tmux-snaglord/config.toml): prompt parser config for stock `tmux-snaglord`, symlinked through `~/.config/tmux-snaglord`.
 
@@ -264,8 +263,7 @@ This script:
 - recreates the `~/.config/tmux/scripts/tmux-insert-paths.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-yazi-picker.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-which-key-popup.sh` symlink to this repo
-- recreates the `~/.config/tmux/scripts/tmux-menu.py` symlink to this repo
-- recreates the `~/.config/tmux/scripts/tmux-prefix-help.py` symlink to this repo
+- compiles and installs `tmux-omni` to `~/.config/tmux/scripts/tmux-omni`
 - recreates the `~/.config/tmux-menu` symlink to this repo
 - recreates the `~/.config/tmux-snaglord` symlink to this repo
 - ensures `~/.config/tmux/plugins/` exists
