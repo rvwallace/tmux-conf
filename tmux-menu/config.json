@@ -1,4 +1,5 @@
 {
+  "$schema": "./config.schema.json",
   "title": "Tmux Menu",
   "items": [
     {
@@ -309,7 +310,9 @@
         { "key": "w", "title": "Show Window Options", "icon": "󰈞", "description": "search and toggle window options", "action": "~/.config/tmux/scripts/tmux-omni --options", "target": "popup" },
         { "key": "e", "title": "Show Environment", "icon": "󰈞", "description": "search global environment variables", "action": "~/.config/tmux/scripts/tmux-omni --env", "target": "popup" },
         { "key": "C", "title": "Show Commands Reference", "icon": "󰘳", "description": "search and run all 100+ native tmux commands", "action": "~/.config/tmux/scripts/tmux-omni --commands", "target": "popup" },
-        { "key": "c", "title": "Customize Mode", "icon": "󰘳", "description": "enter interactive tmux customize-mode", "action": "customize-mode -Z", "target": "tmux" }
+        { "key": "c", "title": "Customize Mode", "icon": "󰘳", "description": "enter interactive tmux customize-mode", "action": "customize-mode -Z", "target": "tmux" },
+        { "key": "m", "title": "Edit Menu Config", "icon": "󰑕", "description": "edit ~/.config/tmux-menu/config.json", "action": "${EDITOR:-nvim} ~/.config/tmux-menu/config.json", "target": "popup", "popup_width": "85%", "popup_height": "85%" },
+        { "key": "t", "title": "Edit Tmux Config", "icon": "󰑕", "description": "edit ~/.tmux.conf", "action": "${EDITOR:-nvim} ~/.tmux.conf", "target": "popup", "popup_width": "85%", "popup_height": "85%" }
       ]
     },
     { "key": "r", "title": "Reload Config", "icon": "󰑕", "description": "reload ~/.tmux.conf configuration", "action": "source-file ~/.tmux.conf ; display-message 'Config reloaded'", "target": "tmux" },
