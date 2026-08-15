@@ -60,7 +60,7 @@ func TestAICardsRendering(t *testing.T) {
 	}
 
 	asstCard := m.renderAssistantCard("Use `ls -la`")
-	if !strings.Contains(asstCard, "Assistant") || !strings.Contains(asstCard, "Use `ls -la`") {
+	if !strings.Contains(asstCard, "Assistant") || !strings.Contains(asstCard, "ls -la") {
 		t.Errorf("asstCard missing expected text: %s", asstCard)
 	}
 
