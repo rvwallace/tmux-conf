@@ -200,7 +200,7 @@ func RunTmuxTarget(
 	}
 
 	// 2. Send keys to target pane
-	if target == "send_keys" {
+	if target == "send" || target == "send_keys" || target == "send-keys" {
 		textToSend := expandedAction
 		if originalTarget == "tmux" {
 			subCmds := SplitTmuxCommands(textToSend)
@@ -231,8 +231,8 @@ func RunTmuxTarget(
 	guardedScript := BuildGuardedShellScript(expandedAction, title, persistShell)
 
 	switch target {
-	case "split_h":
-		args := []string{"split-window", "-h"}
+	case "split-h", "split_h":
+		args := []string{"split-window", "-h", "-p", "40"}
 		if cleanPaneID != "" {
 			args = append(args, "-t", cleanPaneID)
 		}
@@ -244,7 +244,7 @@ func RunTmuxTarget(
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 		return cmd.Start()
 
-	case "split_v":
+	case "split-v", "split_v":
 		args := []string{"split-window", "-v"}
 		if cleanPaneID != "" {
 			args = append(args, "-t", cleanPaneID)
@@ -271,7 +271,7 @@ func RunTmuxTarget(
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 		return cmd.Start()
 
-	case "popup":
+	case "popup", "popup-shell", "popup_shell":
 		// Replace current popup process
 		return syscall.Exec(shellBin, []string{shellBin, "-lc", guardedScript}, os.Environ())
 

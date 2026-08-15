@@ -9,9 +9,6 @@ TARGET_THEME_DIR="${HOME}/.config/tmux/themes"
 TARGET_SCROLLBACK_SCRIPT="${SCRIPT_DIR}/edit-scrollback.sh"
 TARGET_COPY_PATH_SCRIPT="${SCRIPT_DIR}/copy-pane-path.sh"
 TARGET_SHOW_CLIENTS_SCRIPT="${SCRIPT_DIR}/show-clients.sh"
-TARGET_AI_SCRIPT="${SCRIPT_DIR}/ai-assist.sh"
-TARGET_AI_PROMPT_SCRIPT="${SCRIPT_DIR}/ai-prompt.sh"
-TARGET_AICHAT_TUI_SCRIPT="${SCRIPT_DIR}/aichat-tui.py"
 TARGET_AGENT_PANE_SCRIPT="${SCRIPT_DIR}/launch-agent-pane.sh"
 TARGET_FILE_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-file-picker"
 TARGET_INSERT_PATHS_SCRIPT="${SCRIPT_DIR}/tmux-insert-paths.sh"
@@ -76,23 +73,12 @@ fi
 ln -s "${REPO_DIR}/scripts/show-clients.sh" "${TARGET_SHOW_CLIENTS_SCRIPT}"
 echo "Linked ${TARGET_SHOW_CLIENTS_SCRIPT} -> ${REPO_DIR}/scripts/show-clients.sh"
 
-if [ -L "${TARGET_AI_SCRIPT}" ] || [ -e "${TARGET_AI_SCRIPT}" ]; then
-  rm -f "${TARGET_AI_SCRIPT}"
+if [ -L "${SCRIPT_DIR}/ai-assist.sh" ] || [ -e "${SCRIPT_DIR}/ai-assist.sh" ]; then
+  rm -f "${SCRIPT_DIR}/ai-assist.sh"
 fi
-ln -s "${REPO_DIR}/scripts/ai-assist.sh" "${TARGET_AI_SCRIPT}"
-echo "Linked ${TARGET_AI_SCRIPT} -> ${REPO_DIR}/scripts/ai-assist.sh"
-
-if [ -L "${TARGET_AI_PROMPT_SCRIPT}" ] || [ -e "${TARGET_AI_PROMPT_SCRIPT}" ]; then
-  rm -f "${TARGET_AI_PROMPT_SCRIPT}"
+if [ -L "${SCRIPT_DIR}/ai-prompt.sh" ] || [ -e "${SCRIPT_DIR}/ai-prompt.sh" ]; then
+  rm -f "${SCRIPT_DIR}/ai-prompt.sh"
 fi
-ln -s "${REPO_DIR}/scripts/ai-prompt.sh" "${TARGET_AI_PROMPT_SCRIPT}"
-echo "Linked ${TARGET_AI_PROMPT_SCRIPT} -> ${REPO_DIR}/scripts/ai-prompt.sh"
-
-if [ -L "${TARGET_AICHAT_TUI_SCRIPT}" ] || [ -e "${TARGET_AICHAT_TUI_SCRIPT}" ]; then
-  rm -f "${TARGET_AICHAT_TUI_SCRIPT}"
-fi
-ln -s "${REPO_DIR}/scripts/aichat-tui.py" "${TARGET_AICHAT_TUI_SCRIPT}"
-echo "Linked ${TARGET_AICHAT_TUI_SCRIPT} -> ${REPO_DIR}/scripts/aichat-tui.py"
 
 if [ -L "${TARGET_AGENT_PANE_SCRIPT}" ] || [ -e "${TARGET_AGENT_PANE_SCRIPT}" ]; then
   rm -f "${TARGET_AGENT_PANE_SCRIPT}"
@@ -150,7 +136,7 @@ ln -s "${REPO_DIR}/tmux-menu" "${TARGET_TMUX_MENU_DIR}"
 echo "Linked ${TARGET_TMUX_MENU_DIR} -> ${REPO_DIR}/tmux-menu"
 
 # Clean legacy symlinks and scripts if present
-rm -f "${SCRIPT_DIR}/tmux-menu.py" "${SCRIPT_DIR}/tmux-prefix-help.py" 2>/dev/null || true
+rm -f "${SCRIPT_DIR}/tmux-menu.py" "${SCRIPT_DIR}/tmux-prefix-help.py" "${SCRIPT_DIR}/aichat-tui.py" 2>/dev/null || true
 rm -f "${HOME}/.config/tmux-palette" "${HOME}/.config/tmux-which-key" 2>/dev/null || true
 
 if [ -L "${TARGET_SNAGLORD_DIR}" ]; then
