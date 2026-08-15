@@ -733,6 +733,14 @@ func (m AIModel) View() string {
 		Width(m.Width).
 		Render(hints)
 
+	if m.isCompactMode() {
+		content := m.renderCompactView(headerBox, footerLine)
+		if m.ShowHelp {
+			return m.renderHelpModal(content)
+		}
+		return content
+	}
+
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		headerBox,
 		vpView,
@@ -746,6 +754,98 @@ func (m AIModel) View() string {
 	}
 
 	return content
+}
+
+func (m AIModel) renderCompactView(headerBox, footerLine string) string {
+	boxWidth := m.Width - 6
+	if boxWidth < 30 {
+		boxWidth = 30
+	}
+
+	// 1. Top Input / Prompt Box
+	promptTitle := "󰘳 Prompt Description"
+	if m.CandidateCommand != "" {
+		promptTitle = "󰑕 Refine Instruction (or press Enter/s to send to pane)"
+	} else if m.Mode == AIModeFix {
+		promptTitle = "󰁨 Refine Fix Instruction (or press Enter/s to send to pane)"
+	}
+
+	promptBadge := lipgloss.NewStyle().
+		Foreground(ColorAccentBlue).
+		Bold(true).
+		Render(promptTitle)
+
+	inputView := m.CmdInput.View()
+	inputCardContent := lipgloss.JoinVertical(lipgloss.Left, promptBadge, inputView)
+	inputCard := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(ColorAccentBlue).
+		Background(ColorBgCard).
+		Padding(0, 1).
+		Width(boxWidth).
+		Render(inputCardContent)
+
+	// 2. Middle Card (Candidate / Spinner / Examples)
+	var middleCard string
+	if m.IsBusy {
+		loadingLabel := " Generating shell command..."
+		if m.Mode == AIModeFix {
+			loadingLabel = " Diagnosing error & generating fix..."
+		}
+		spinnerText := fmt.Sprintf("%s%s", m.Spinner.View(), lipgloss.NewStyle().Foreground(ColorAccentCyan).Bold(true).Render(loadingLabel))
+		middleCard = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(ColorAccentCyan).
+			Background(ColorBgCard).
+			Padding(1, 2).
+			Width(boxWidth).
+			Render(spinnerText)
+	} else if m.CandidateCommand != "" {
+		candBadge := lipgloss.NewStyle().
+			Foreground(ColorAccentGreen).
+			Bold(true).
+			Render("󰁨 Candidate Command (ready to insert)")
+		cmdText := lipgloss.NewStyle().
+			Foreground(ColorAccentGreen).
+			Bold(true).
+			Render("$ " + m.CandidateCommand)
+		candContent := lipgloss.JoinVertical(lipgloss.Left, candBadge, cmdText)
+		middleCard = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(ColorAccentGreen).
+			Background(ColorBgCard).
+			Padding(0, 1).
+			Width(boxWidth).
+			Render(candContent)
+	} else {
+		// Examples chip
+		exBadge := lipgloss.NewStyle().
+			Foreground(ColorAccentPurple).
+			Bold(true).
+			Render("󰋗 Examples:")
+		ex1 := lipgloss.NewStyle().Foreground(ColorFgMuted).Render("  • find files modified in last 24h")
+		ex2 := lipgloss.NewStyle().Foreground(ColorFgMuted).Render("  • undo last git commit keeping changes staged")
+		ex3 := lipgloss.NewStyle().Foreground(ColorFgMuted).Render("  • find process on port 8080 and kill it")
+		exContent := lipgloss.JoinVertical(lipgloss.Left, exBadge, ex1, ex2, ex3)
+		middleCard = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(ColorBorder).
+			Background(ColorBgCard).
+			Padding(0, 1).
+			Width(boxWidth).
+			Render(exContent)
+	}
+
+	body := lipgloss.JoinVertical(lipgloss.Left,
+		lipgloss.NewStyle().Padding(1, 2).Render(inputCard),
+		lipgloss.NewStyle().Padding(0, 2).Render(middleCard),
+	)
+
+	return lipgloss.JoinVertical(lipgloss.Left,
+		headerBox,
+		body,
+		footerLine,
+	)
 }
 
 func (m AIModel) renderHelpModal(background string) string {
