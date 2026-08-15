@@ -18,8 +18,6 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 - [`./scripts/copy-pane-path.sh`](./scripts/copy-pane-path.sh): safely copies the active pane directory to the system clipboard or tmux buffer.
 - [`./scripts/show-clients.sh`](./scripts/show-clients.sh): lists each attached tmux client and waits so the palette popup remains visible.
 - [`./scripts/install-deps.sh`](./scripts/install-deps.sh): checks or installs runtime dependencies on macOS and Linux.
-- [`./scripts/ai-assist.sh`](./scripts/ai-assist.sh): pane-aware `aichat` assistant backend for shell Q&A, recent-error diagnosis, command suggestions, and explanations.
-- [`./scripts/ai-prompt.sh`](./scripts/ai-prompt.sh): tmux prompt launcher used by AI key bindings and palette actions.
 - [`./scripts/launch-agent-pane.sh`](./scripts/launch-agent-pane.sh): opens Antigravity or Codex in a right-side pane rooted at the active pane directory.
 - [`./scripts/tmux-file-picker`](./scripts/tmux-file-picker): vendored upstream fuzzy file and directory picker that inserts selected paths into the active pane.
 - [`./scripts/tmux-file-picker.UPSTREAM.md`](./scripts/tmux-file-picker.UPSTREAM.md): source commit and license attribution for the vendored picker.
@@ -181,6 +179,26 @@ When selecting any command, the execution behavior can be customized dynamically
 - **Linter & Validation**: Run `tmux-omni --validate` or `./validate.sh` to check for missing fields, invalid targets, or duplicate keybindings.
 - **Quick Edit**: Use `prefix + Space` → `o` → `m` to edit `config.json` directly in `$EDITOR`.
 
+### AI Assistant Subsystem
+
+`tmux-omni` includes a native, interactive AI assistant powered by `aichat` (requires `aichat` in `PATH`). AI actions open in a 40% horizontal split pane with Tokyo Night styling and Vim modal editing:
+
+- **Modal Navigation**: `Tab` toggles between Input (Insert mode) and Transcript (Normal mode); `Esc` exits Insert mode; `i`/`a` enters Insert mode.
+- **Normal Mode**:
+  - `j`/`k`, `Ctrl-d`/`Ctrl-u`, `g`/`G`: Viewport navigation
+  - `y`/`c`: Copy full response or candidate command to clipboard and tmux buffer
+  - `x`: Quick cycle-copy code blocks (step 1, 2, 3...)
+  - `X` / `Ctrl-x`: Open interactive Code Block Picker modal to choose and copy/send any code block
+  - `s`: Insert candidate command or selected code block into target pane via bracketed paste
+  - `m`: Model switcher overlay (`claude-3-5-sonnet`, `gpt-4o`, `deepseek-chat`, `ollama`, etc.)
+  - `S` / `E`: Export session transcript to clean Markdown and open in `$EDITOR` in a new tmux window
+  - `1`–`5` / `d` / `r`: Scrollback depth control (100, 200, 500, 1000, all) and context reload
+- **Insert Mode**:
+  - `Enter`: Submit prompt (or send candidate command if input empty); `Shift+Enter`: multiline newline
+  - `Ctrl-x`: Open Code Block Picker modal
+  - `↑`/`↓` (`Ctrl-p`/`Ctrl-n`): Persistent prompt history (`~/.local/share/tmux/ai_history`)
+  - Slash Commands: `/git`, `/diff`, `/tree`, `/env`, `/refresh` to inject live context
+
 ## Reloading
 
 After pulling repository updates, rerun bootstrap before reloading tmux:
@@ -230,7 +248,7 @@ After adding or updating plugins in `.tmux.conf`, manage them with TPM:
 
 Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
 
-The `aichat` actions in the AI category require the `aichat` CLI in `PATH` and are powered by the native Go Bubble Tea TUI (`tmux-omni ai <mode>`). Open the palette with `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Every AI title starts with `AI:`, and each `aichat` helper description names `aichat`. Pane-aware actions capture the current path, foreground command, and recent scrollback (200 lines by default). All analysis actions (Ask, Diagnose Error, Summarize Pane, Explain, Explain Last Copy) open right-side tmux panes with persistent conversation sessions, accepting multi-turn follow-up questions and `/refresh` to update context, with full keyboard navigation (`Tab`, `j`/`k`, `y`/`c`, `q`, `Esc`, `?`). Summarize Pane supports switching depth directly in the TUI (`1`–`5` for 100/200/500/1000/all lines, `d` to cycle, `r` to reload). Output can be copied via `y`/`c` keys to both system clipboard and tmux buffer. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. Generate Command and Suggest Fix use compact, titled popups to show the generated command in a preview card where you can send it to the pane (`Enter` on empty input or `s`), refine it with additional typed instructions, copy it (`y`/`c`), or cancel (`Esc`). Commands are inserted into the original pane via bracketed paste for review and are never executed automatically; empty, multiline, or fenced command output is rejected.
+The `aichat` actions in the AI category require the `aichat` CLI in `PATH` and are powered directly by the native Go Bubble Tea TUI (`tmux-omni ai <mode>`). Open the palette with `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Every AI title starts with `AI:`, and each `aichat` helper description names `aichat`. Pane-aware actions capture the current path, foreground command, and recent scrollback (200 lines by default). All AI actions (Ask, Diagnose Error, Suggest Fix, Summarize Pane, Generate Command, Explain, Explain Last Copy) open right-side tmux panes with persistent conversation sessions, accepting multi-turn follow-up questions, slash commands (`/git`, `/diff`, `/tree`, `/env`), and `/refresh` to update context, with full Vim modal keyboard navigation (`Tab`, `j`/`k`, `y`/`c`, `x`/`b` code block extraction, `X`/`s` command insertion, `m` model switcher, `S`/`E` transcript export, `q`, `Esc`, `?`). Summarize Pane supports switching depth directly in the TUI (`1`–`5` for 100/200/500/1000/all lines, `d` to cycle, `r` to reload). Output can be copied via `y`/`c` keys to both system clipboard and tmux buffer. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. In Generate Command and Suggest Fix, candidate commands or extracted code blocks can be inserted directly into the original pane via bracketed paste (`s`, `X`, or `Enter` on empty input) for review and are never executed automatically. Prompt history is persisted across sessions in `~/.local/share/tmux/ai_history` and navigable via `↑`/`↓` (`Ctrl-p`/`Ctrl-n`).
 
 The AI category also opens Antigravity and Codex as 45%-wide right-side panes in the active pane directory. Antigravity always starts a new session. Codex can start a new session or open its directory-filtered resume picker. These actions require `agy` or `codex` in `PATH`. They do not add dedicated tmux key bindings. Focus an agent pane and use `prefix + !` to move the running pane into its own window.
 
@@ -254,8 +272,6 @@ This script:
 - recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/copy-pane-path.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/show-clients.sh` symlink to this repo
-- recreates the `~/.config/tmux/scripts/ai-assist.sh` symlink to this repo
-- recreates the `~/.config/tmux/scripts/ai-prompt.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/launch-agent-pane.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-file-picker` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-insert-paths.sh` symlink to this repo
