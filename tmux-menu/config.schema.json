@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/rvwallace/tmux-conf/main/tmux-menu/config.schema.json",
+  "title": "Tmux Omni Configuration",
+  "description": "Configuration schema for tmux-omni leader menu and command palette",
+  "type": "object",
+  "required": [
+    "title",
+    "items"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URL or relative path to this JSON Schema file"
+    },
+    "title": {
+      "type": "string",
+      "description": "Title displayed at the top of the leader menu popup",
+      "default": "Tmux Menu"
+    },
+    "items": {
+      "type": "array",
+      "description": "List of top-level menu groups or action items",
+      "items": {
+        "$ref": "#/$defs/menuItem"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "menuItem": {
+      "type": "object",
+      "required": [
+        "key",
+        "title",
+        "description"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10,
+          "description": "Single hotkey character or key name pressed to trigger this item (e.g. 'p', 'w', '?', ':', 'C-s', 'M-1')"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display title of the item or submenu"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Nerd Font icon glyph displayed next to the item (e.g. '󰓦', '󰖲', '󰋜', '󰅍', '󰒍', '󰊢', '󰧑', '󰆍', '󰏖', '󰘳')"
+        },
+        "description": {
+          "type": "string",
+          "description": "Short explanation of what this action does or what the submenu contains"
+        },
+        "action": {
+          "type": "string",
+          "description": "Command to execute when selected. Used only for leaf actions (omitted if 'items' is present)."
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "tmux",
+            "popup",
+            "popup-shell",
+            "send",
+            "split-v",
+            "split-h",
+            "window"
+          ],
+          "default": "tmux",
+          "description": "Execution container:\n- 'tmux': Runs command directly in tmux server (e.g. 'select-pane -L', 'new-window')\n- 'popup': Runs interactive TUI/command in a floating tmux popup\n- 'popup-shell': Runs command in a popup and keeps shell open after command exits\n- 'send': Types command text directly into the active pane prompt without executing\n- 'split-v': Runs command in a new bottom vertical split pane\n- 'split-h': Runs command in a new right-hand horizontal split pane\n- 'window': Runs command in a new dedicated tmux window"
+        },
+        "popup_width": {
+          "type": "string",
+          "pattern": "^[0-9]{1,3}%?$",
+          "description": "Width of the popup window when target is 'popup' or 'popup-shell' (e.g. '80%', '70%', '100')",
+          "default": "80%"
+        },
+        "popup_height": {
+          "type": "string",
+          "pattern": "^[0-9]{1,3}%?$",
+          "description": "Height of the popup window when target is 'popup' or 'popup-shell' (e.g. '75%', '65%', '30')",
+          "default": "70%"
+        },
+        "persist_shell": {
+          "type": "boolean",
+          "description": "If true, keeps shell open even if command succeeds with exit code 0",
+          "default": false
+        },
+        "items": {
+          "type": "array",
+          "description": "Nested array of menu items if this entry is a subgroup",
+          "items": {
+            "$ref": "#/$defs/menuItem"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -287,6 +287,8 @@ func main() {
 	buffersFlag := flag.Bool("B", false, "Open Paste Buffers Inspector")
 	buffersLong := flag.Bool("buffers", false, "Open Paste Buffers Inspector")
 	clientsFlag := flag.Bool("clients", false, "Open Connected Clients Inspector")
+	validateFlag := flag.Bool("validate", false, "Validate config.json and print diagnostics")
+	validateLong := flag.Bool("check-config", false, "Validate config.json and print diagnostics")
 	configFlag := flag.String("config", "", "Path to config.json")
 	flag.Parse()
 
@@ -309,6 +311,8 @@ func main() {
 			*buffersFlag = true
 		case "clients":
 			*clientsFlag = true
+		case "validate", "check-config", "lint":
+			*validateFlag = true
 		default:
 			if paneIDArg == "" {
 				paneIDArg = arg
@@ -316,6 +320,31 @@ func main() {
 		}
 	}
 	_ = subcmd
+
+	// Mode 0: Config Validation / Linter
+	if *validateFlag || *validateLong {
+		configPath, err := FindConfigFile(*configFlag)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		cfg, err := LoadConfig(configPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		errs := ValidateConfig(cfg)
+		if len(errs) > 0 {
+			fmt.Fprintf(os.Stderr, "Config validation FAILED for %s (%d errors):\n", configPath, len(errs))
+			for _, e := range errs {
+				fmt.Fprintf(os.Stderr, "  ✖ %s\n", e)
+			}
+			os.Exit(1)
+		}
+		flat := FlattenCommands(cfg.Items, nil, "")
+		fmt.Printf("Config validation PASSED: %s (%d top-level items, %d total commands)\n", configPath, len(cfg.Items), len(flat))
+		return
+	}
 
 	paneID := GetCurrentPaneID(paneIDArg)
 

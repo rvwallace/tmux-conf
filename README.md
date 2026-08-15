@@ -176,6 +176,13 @@ When selecting any command, the execution behavior can be customized dynamically
 - **`Alt-w` / `Ctrl-t`**: Run selected command in a New Window.
 - **`Alt-i` / `Ctrl-y`**: Insert command text directly into active pane prompt without executing.
 
+### Configuration & Schema Tooling
+
+- **Configuration Guide**: See [`./CONFIG_GUIDE.md`](./CONFIG_GUIDE.md) for full documentation on menu structure, targets, custom scripts, and icon reference.
+- **JSON Schema**: [`./tmux-menu/config.schema.json`](./tmux-menu/config.schema.json) provides autocompletion, hover docs, and type validation in Neovim, VSCode, and Cursor.
+- **Linter & Validation**: Run `tmux-omni --validate` or `./validate.sh` to check for missing fields, invalid targets, or duplicate keybindings.
+- **Quick Edit**: Use `prefix + Space` → `o` → `m` to edit `config.json` directly in `$EDITOR`.
+
 ## Reloading
 
 After pulling repository updates, rerun bootstrap before reloading tmux:

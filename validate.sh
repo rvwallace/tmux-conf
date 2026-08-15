@@ -99,6 +99,15 @@ expect_contains "grep -F 'brew \"go\"' \"$REPO_DIR/Brewfile\"" "brew \"go\"" "go
 jq empty "$TARGET_TMUX_MENU_DIR/config.json" || fail "tmux-menu config is invalid JSON"
 pass "tmux-menu config is valid JSON"
 
+[ -f "$TARGET_TMUX_MENU_DIR/config.schema.json" ] || fail "config.schema.json missing"
+jq empty "$TARGET_TMUX_MENU_DIR/config.schema.json" || fail "config.schema.json is invalid JSON"
+pass "config.schema.json is valid JSON"
+
+[ -f "$REPO_DIR/CONFIG_GUIDE.md" ] || fail "CONFIG_GUIDE.md missing"
+pass "CONFIG_GUIDE.md present"
+
+expect_contains "$TARGET_TMUX_OMNI_SCRIPT --validate" "Config validation PASSED" "tmux-omni native config validation"
+
 jq -e '
   def valid_item:
     (type == "object")

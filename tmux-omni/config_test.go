@@ -93,3 +93,37 @@ func TestConfigLoadAndFlatten(t *testing.T) {
 		t.Errorf("expected KeySeq 'w', got '%s'", cmd2.KeySeq)
 	}
 }
+
+func TestValidateConfig(t *testing.T) {
+	// Valid config
+	valid := &Config{
+		Title: "Valid",
+		Items: []MenuItem{
+			{Key: "a", Title: "A", Description: "desc a", Action: "echo a", Target: "tmux"},
+			{
+				Key: "b", Title: "B", Description: "group b",
+				Items: []MenuItem{
+					{Key: "c", Title: "C", Description: "desc c", Action: "echo c", Target: "popup"},
+				},
+			},
+		},
+	}
+	if errs := ValidateConfig(valid); len(errs) != 0 {
+		t.Errorf("expected 0 errors for valid config, got: %v", errs)
+	}
+
+	// Invalid config with duplicate keys and invalid target
+	invalid := &Config{
+		Title: "",
+		Items: []MenuItem{
+			{Key: "a", Title: "A1", Description: "desc a1", Action: "echo 1", Target: "tmux"},
+			{Key: "a", Title: "A2", Description: "desc a2", Action: "echo 2", Target: "invalid-target"},
+			{Key: "b", Title: "B", Description: "", Action: ""}, // missing desc, missing action
+		},
+	}
+	errs := ValidateConfig(invalid)
+	if len(errs) < 3 {
+		t.Errorf("expected at least 3 validation errors, got %d: %v", len(errs), errs)
+	}
+}
+
