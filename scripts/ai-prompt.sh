@@ -47,11 +47,10 @@ if [ "$phase" != "run" ]; then
   exit 0
 fi
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -x "${script_dir}/aichat-tui.py" ]; then
-  exec "${script_dir}/aichat-tui.py" "$mode" "$pane_id"
-elif [ -x "${HOME}/.config/tmux/scripts/aichat-tui.py" ]; then
-  exec "${HOME}/.config/tmux/scripts/aichat-tui.py" "$mode" "$pane_id"
+if [ -x "${HOME}/.config/tmux/scripts/tmux-omni" ]; then
+  exec "${HOME}/.config/tmux/scripts/tmux-omni" ai "$mode" "$pane_id"
+elif command -v tmux-omni >/dev/null 2>&1; then
+  exec tmux-omni ai "$mode" "$pane_id"
 else
-  exec aichat-tui.py "$mode" "$pane_id"
+  exec ~/.config/tmux/scripts/tmux-omni ai "$mode" "$pane_id"
 fi

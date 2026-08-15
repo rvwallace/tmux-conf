@@ -144,9 +144,9 @@
       "items": [
         { "key": "a", "title": "AI: Ask", "icon": "󰧑", "description": "ask a question with pane context", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh ask \"#{pane_id}\"'", "target": "tmux" },
         { "key": "d", "title": "AI: Diagnose Error", "icon": "󰅚", "description": "diagnose most recent error in pane", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh error \"#{pane_id}\"'", "target": "tmux" },
-        { "key": "f", "title": "AI: Suggest Fix", "icon": "󰁨", "description": "suggest shell command fix for error", "action": "~/.config/tmux/scripts/aichat-tui.py fix \"#{pane_id}\"", "target": "popup", "popup_width": "70%", "popup_height": "65%" },
+        { "key": "f", "title": "AI: Suggest Fix", "icon": "󰁨", "description": "suggest shell command fix for error", "action": "~/.config/tmux/scripts/tmux-omni ai fix \"#{pane_id}\"", "target": "popup", "popup_width": "70%", "popup_height": "65%" },
         { "key": "s", "title": "AI: Summarize Pane", "icon": "󰦪", "description": "summarize recent pane activity and state", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh summarize \"#{pane_id}\"'", "target": "tmux" },
-        { "key": "c", "title": "AI: Generate Command", "icon": "󰘳", "description": "generate single shell command from description", "action": "~/.config/tmux/scripts/aichat-tui.py command \"#{pane_id}\"", "target": "popup", "popup_width": "70%", "popup_height": "65%" },
+        { "key": "c", "title": "AI: Generate Command", "icon": "󰘳", "description": "generate single shell command from description", "action": "~/.config/tmux/scripts/tmux-omni ai command \"#{pane_id}\"", "target": "popup", "popup_width": "70%", "popup_height": "65%" },
         { "key": "e", "title": "AI: Explain", "icon": "󰛨", "description": "explain command, snippet, or concept", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain \"#{pane_id}\"'", "target": "tmux" },
         { "key": "y", "title": "AI: Explain Last Copy", "icon": "󰆏", "description": "explain text in most recent copy buffer", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain-copy \"#{pane_id}\"'", "target": "tmux" },
         {
