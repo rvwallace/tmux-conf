@@ -201,7 +201,7 @@
           "popup_width": "80%",
           "popup_height": "80%"
         },
-        { "key": "M", "title": "Show Messages", "icon": "󰍡", "description": "view recent tmux log messages", "action": "show-messages", "target": "tmux" },
+        { "key": "M", "title": "Show Messages", "icon": "󰍡", "description": "view recent tmux log messages", "action": "~/.config/tmux/scripts/tmux-omni --messages", "target": "popup" },
         { "key": "t", "title": "Scratch Terminal Popup", "icon": "󰒉", "description": "open floating scratch terminal popup", "action": "tmux new-session -A -s 'Scratch-Terminal'", "target": "popup", "popup_width": "80%", "popup_height": "80%" }
       ]
     },

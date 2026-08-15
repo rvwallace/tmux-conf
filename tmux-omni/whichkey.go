@@ -9,9 +9,10 @@ import (
 
 // NavFrame represents one level in the Which-Key navigation stack.
 type NavFrame struct {
-	Title string
-	Icon  string
-	Items []MenuItem
+	Title       string
+	Icon        string
+	Items       []MenuItem
+	CursorIndex int
 }
 
 // WhichKeyModel represents the state of the Which-Key menu.
@@ -29,9 +30,10 @@ func NewWhichKeyModel(rootTitle string, rootItems []MenuItem) WhichKeyModel {
 	return WhichKeyModel{
 		NavStack: []NavFrame{
 			{
-				Title: rootTitle,
-				Icon:  "󰍡",
-				Items: rootItems,
+				Title:       rootTitle,
+				Icon:        "󰍡",
+				Items:       rootItems,
+				CursorIndex: 0,
 			},
 		},
 	}
@@ -43,6 +45,41 @@ func (m *WhichKeyModel) CurrentFrame() NavFrame {
 		return NavFrame{}
 	}
 	return m.NavStack[len(m.NavStack)-1]
+}
+
+// SelectedItem returns the currently highlighted item in the active frame.
+func (m *WhichKeyModel) SelectedItem() *MenuItem {
+	frame := m.CurrentFrame()
+	if frame.CursorIndex >= 0 && frame.CursorIndex < len(frame.Items) {
+		return &frame.Items[frame.CursorIndex]
+	}
+	return nil
+}
+
+// CursorDown moves selection to the next item.
+func (m *WhichKeyModel) CursorDown() {
+	frame := m.CurrentFrame()
+	if len(frame.Items) == 0 {
+		return
+	}
+	idx := frame.CursorIndex + 1
+	if idx >= len(frame.Items) {
+		idx = 0
+	}
+	m.NavStack[len(m.NavStack)-1].CursorIndex = idx
+}
+
+// CursorUp moves selection to the previous item.
+func (m *WhichKeyModel) CursorUp() {
+	frame := m.CurrentFrame()
+	if len(frame.Items) == 0 {
+		return
+	}
+	idx := frame.CursorIndex - 1
+	if idx < 0 {
+		idx = len(frame.Items) - 1
+	}
+	m.NavStack[len(m.NavStack)-1].CursorIndex = idx
 }
 
 // RenderBreadcrumbs renders the hierarchical breadcrumb header trail.
@@ -79,8 +116,11 @@ func (m WhichKeyModel) RenderFooter(width int) string {
 	hints := lipgloss.JoinHorizontal(
 		lipgloss.Left,
 		FooterKeyStyle.Render("[/]"), " ", FooterDescStyle.Render("search"), "   ",
-		FooterKeyStyle.Render("[<esc>]"), " ", FooterDescStyle.Render("back"), "   ",
-		FooterKeyStyle.Render("[q]"), " ", FooterDescStyle.Render("quit"),
+		FooterKeyStyle.Render("[<cr>]"), " ", FooterDescStyle.Render("run"), "   ",
+		FooterKeyStyle.Render("[<c-i>]"), " ", FooterDescStyle.Render("send"), "   ",
+		FooterKeyStyle.Render("[<c-w>]"), " ", FooterDescStyle.Render("win"), "   ",
+		FooterKeyStyle.Render("[y]"), " ", FooterDescStyle.Render("copy"), "   ",
+		FooterKeyStyle.Render("[<esc>]"), " ", FooterDescStyle.Render("back"),
 	)
 
 	brand := FooterBrandStyle.Render("󰌌 Tokyo Night")
@@ -95,7 +135,7 @@ func (m WhichKeyModel) RenderFooter(width int) string {
 }
 
 // RenderItemLine renders a single which-key item in column alignment.
-func (m WhichKeyModel) RenderItemLine(item MenuItem, colWidth int) string {
+func (m WhichKeyModel) RenderItemLine(item MenuItem, isSelected bool, colWidth int) string {
 	key := item.Key
 	icon := item.Icon
 	if icon == "" {
@@ -117,15 +157,26 @@ func (m WhichKeyModel) RenderItemLine(item MenuItem, colWidth int) string {
 		if lipgloss.Width(groupLabel) > maxTitleWidth {
 			groupLabel = truncateWithEllipsis(groupLabel, maxTitleWidth)
 		}
-		titleStr = WkGroupTitleStyle.Render(groupLabel)
+		if isSelected {
+			titleStr = lipgloss.NewStyle().Foreground(ColorAccentPurple).Bold(true).Underline(true).Render(groupLabel)
+		} else {
+			titleStr = WkGroupTitleStyle.Render(groupLabel)
+		}
 	} else {
 		if lipgloss.Width(title) > maxTitleWidth {
 			title = truncateWithEllipsis(title, maxTitleWidth)
 		}
-		titleStr = WkLeafTitleStyle.Render(title)
+		if isSelected {
+			titleStr = lipgloss.NewStyle().Foreground(ColorFgEmphasis).Bold(true).Underline(true).Render(title)
+		} else {
+			titleStr = WkLeafTitleStyle.Render(title)
+		}
 	}
 
 	content := lipgloss.JoinHorizontal(lipgloss.Left, keyStr, " ", iconStr, " ", titleStr)
+	if isSelected {
+		return lipgloss.NewStyle().Background(ColorBgHighlight).Width(colWidth).Render(content)
+	}
 	return lipgloss.NewStyle().Width(colWidth).Render(content)
 }
 
@@ -167,7 +218,8 @@ func (m WhichKeyModel) RenderColumns(width, height int) string {
 		for c := 0; c < cols; c++ {
 			idx := c*rowsPerCol + r
 			if idx < numItems {
-				rowCols = append(rowCols, m.RenderItemLine(items[idx], colWidth))
+				isSelected := (idx == frame.CursorIndex)
+				rowCols = append(rowCols, m.RenderItemLine(items[idx], isSelected, colWidth))
 			} else {
 				rowCols = append(rowCols, lipgloss.NewStyle().Width(colWidth).Render(""))
 			}
