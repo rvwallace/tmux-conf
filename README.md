@@ -28,7 +28,8 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 - [`./scripts/tmux-insert-paths.sh`](./scripts/tmux-insert-paths.sh): shared agent-aware formatter and tmux-buffer inserter for both file pickers.
 - [`./scripts/defer-tmux-command.sh`](./scripts/defer-tmux-command.sh): closes popups before starting another tmux popup, picker, prompt, or pane.
 - [`./scripts/tmux-which-key-popup.sh`](./scripts/tmux-which-key-popup.sh): runs inspection-oriented helper popups without fragile nested shell quoting.
-- [`./scripts/tmux-menu.py`](./scripts/tmux-menu.py): unified Textual TUI leader menu and command palette with Tokyo Night theme, dynamic target modifiers, and error guard with clipboard copy.
+- [`./tmux-omni/`](./tmux-omni/): fast Go + Bubble Tea unified leader menu and command palette with LazyVim/NvChad styling, dynamic target modifiers, and error guard with clipboard copy (binary installed to `~/.config/tmux/scripts/tmux-omni`).
+- [`./scripts/tmux-menu.py`](./scripts/tmux-menu.py): legacy Textual TUI leader menu and command palette.
 - [`./tmux-menu/config.json`](./tmux-menu/config.json): unified command and group registry, symlinked through `~/.config/tmux-menu`.
 - [`./tmux-snaglord/config.toml`](./tmux-snaglord/config.toml): prompt parser config for stock `tmux-snaglord`, symlinked through `~/.config/tmux-snaglord`.
 
@@ -77,8 +78,8 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + S`: save the current tmux state with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open a `sesh` session picker in an `fzf-tmux` popup and connect to the selected entry
-- `prefix + Space`: open the mnemonic which-key leader menu (`tmux-menu.py`)
-- `Ctrl-p` / `prefix + P`: open the fuzzy command palette (`tmux-menu.py --search`)
+- `prefix + Space`: open the mnemonic which-key leader menu (`tmux-omni`)
+- `prefix + P` / `prefix + Ctrl-p`: open the fuzzy command palette (`tmux-omni --search`)
 - `prefix + ?`: open live, human-readable help generated from the active prefix key table
 - `prefix + prefix`: send literal `Ctrl-a` to the pane
 - `prefix + c`: new window in current pane path
@@ -121,7 +122,7 @@ Current plugins:
 - `tmux-plugins/tmux-resurrect`
 - `tmux-plugins/tmux-continuum`
 
-`tmux-menu.py` provides both the leader key menu (`prefix + Space`) and the command palette (`Ctrl-p`), replacing external which-key and palette plugins with a single repository-owned Python+Textual tool.
+`tmux-omni` provides both the leader key menu (`prefix + Space`) and the command palette (`prefix + P` / `prefix + Ctrl-p`), replacing external which-key and palette plugins with a single repository-owned Go+Bubble Tea tool with sub-10ms startup.
 
 Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps its prompt parser configuration under `./tmux-snaglord/`; it recognizes this Starship prompt's final `➜` or `✖` line and treats the prompt as three terminal lines so preceding decoration does not leak into adjacent command output. Snaglord's stock command view supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
 
@@ -133,7 +134,7 @@ Notes:
 - `tmux-cowboy` provides `prefix + *` to send `SIGKILL` to the foreground process in the current pane.
 - `tmux-fzf` provides a fuzzy menu for tmux sessions, windows, panes, buffers, and more.
 - `extrakto` provides `prefix + Tab` to fuzzy-find text, paths, URLs, and lines from pane history, then insert or copy a selection. Native copy mode can perform manual selection and search, but extracting structured items from large pane histories is materially more tedious.
-- `tmux-menu.py` reads repo-managed JSON from `~/.config/tmux-menu/config.json` and supports both Which-Key tree navigation and fuzzy Command Palette search.
+- `tmux-omni` reads repo-managed JSON from `~/.config/tmux-menu/config.json` and supports both Which-Key tree navigation and fuzzy Command Palette search.
 - `tmux-fzf-links` provides `prefix + Ctrl-h` to fuzzy-find links, paths, and other supported addresses in pane history. Opening a selected file starts Neovim in a new tmux window at the detected line.
 - `tmux-resurrect` saves and restores tmux sessions, layouts, working directories, and captured pane output.
 - `tmux-continuum` autosaves every 15 minutes and restores the most recent saved state when a new tmux server starts.
@@ -148,9 +149,9 @@ Saved tmux state lives in the `tmux-resurrect` save directory. This config does 
 
 On this machine, saves are currently under `~/.local/share/tmux/resurrect`, with `last` pointing at the most recent save file.
 
-## tmux-menu (Leader Key & Command Palette)
+## tmux-omni (Leader Key & Command Palette)
 
-The unified leader key menu and command palette is implemented as a standalone Textual TUI (`scripts/tmux-menu.py`). It replaces both `tmux-which-key` and `tmux-palette` with a single repository-owned tool using Tokyo Night styling.
+The unified leader key menu and command palette is implemented in Go with Bubble Tea and Lipgloss ([`./tmux-omni/`](./tmux-omni/)), providing instantaneous (<10ms) startup and Tokyo Night styling inspired by LazyVim and NvChad.
 
 The tracked configuration at `./tmux-menu/config.json` is symlinked to:
 
@@ -161,7 +162,7 @@ The tracked configuration at `./tmux-menu/config.json` is symlinked to:
 ### Modes & Navigation
 
 - **Which-Key Mode (`prefix + Space`)**: Mnemonic tree navigation. Root groups are `p` panes, `w` windows, `s` sessions, `b` buffers, `c` clients, `g` Git, `a` AI, `t` tools, `P` plugins, and `o` options. Press a key to drill into a submenu or execute an action. Press `/` to switch into Command Palette search mode, `Esc` or `Backspace` to navigate up one level, and `q` or `Esc` at the root to close.
-- **Command Palette Mode (`Ctrl-p` or `prefix + P`)**: Fuzzy search across all actions, categories, descriptions, and key shortcuts. As you type, results update in real time. Press `Enter` to run the selected action, or `Esc` to step back to Which-Key mode.
+- **Command Palette Mode (`prefix + P` or `prefix + Ctrl-p`)**: Fuzzy search across all actions, categories, descriptions, and key shortcuts. As you type, results update in real time. Press `Enter` to run the selected action, `Esc` (clears input or returns to Which-Key Leader mode), `Backspace` on empty input, or `Ctrl-Space` / `Ctrl-l` to switch back to Leader mode.
 
 ### Execution Targets & Lifecycle
 
@@ -224,7 +225,7 @@ After adding or updating plugins in `.tmux.conf`, manage them with TPM:
 
 Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
 
-The `aichat` actions in the AI category require the `aichat` CLI in `PATH` and `uv` to run the Textual interface (`scripts/aichat-tui.py`). Open the palette with `Ctrl-p` and search for `ai` or `aichat`. Every AI title starts with `AI:`, and each `aichat` helper description names `aichat`. Pane-aware actions capture the current path, foreground command, and recent scrollback (200 lines by default). All analysis actions (Ask, Diagnose Error, Summarize Pane, Explain, Explain Last Copy) open right-side tmux panes with persistent conversation sessions, accepting multi-turn follow-up questions and `/refresh` to update context, with full keyboard navigation (`Tab`, `j`/`k`, `y`/`c`, `Ctrl+L`, `q`, `Esc`, `?`). Summarize Pane supports switching depth directly in the TUI (`1`–`5` for 100/200/500/1000/all lines, `d` to cycle, `r` to reload). Output can be copied via mouse drag selection or `y`/`c` keys to both system clipboard and tmux buffer. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. Generate Command and Suggest Fix use compact, titled popups to show the generated command in a preview card where you can send it to the pane (`Enter` on empty input or `s`), refine it with additional typed instructions, copy it (`y`/`c`), or cancel (`Esc`). Commands are inserted into the original pane via bracketed paste for review and are never executed automatically; empty, multiline, or fenced command output is rejected.
+The `aichat` actions in the AI category require the `aichat` CLI in `PATH` and `uv` to run the Textual interface (`scripts/aichat-tui.py`). Open the palette with `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Every AI title starts with `AI:`, and each `aichat` helper description names `aichat`. Pane-aware actions capture the current path, foreground command, and recent scrollback (200 lines by default). All analysis actions (Ask, Diagnose Error, Summarize Pane, Explain, Explain Last Copy) open right-side tmux panes with persistent conversation sessions, accepting multi-turn follow-up questions and `/refresh` to update context, with full keyboard navigation (`Tab`, `j`/`k`, `y`/`c`, `Ctrl+L`, `q`, `Esc`, `?`). Summarize Pane supports switching depth directly in the TUI (`1`–`5` for 100/200/500/1000/all lines, `d` to cycle, `r` to reload). Output can be copied via mouse drag selection or `y`/`c` keys to both system clipboard and tmux buffer. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. Generate Command and Suggest Fix use compact, titled popups to show the generated command in a preview card where you can send it to the pane (`Enter` on empty input or `s`), refine it with additional typed instructions, copy it (`y`/`c`), or cancel (`Esc`). Commands are inserted into the original pane via bracketed paste for review and are never executed automatically; empty, multiline, or fenced command output is rejected.
 
 The AI category also opens Antigravity and Codex as 45%-wide right-side panes in the active pane directory. Antigravity always starts a new session. Codex can start a new session or open its directory-filtered resume picker. These actions require `agy` or `codex` in `PATH`. They do not add dedicated tmux key bindings. Focus an agent pane and use `prefix + !` to move the running pane into its own window.
 

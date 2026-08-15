@@ -19,6 +19,7 @@ TARGET_YAZI_PICKER_SCRIPT="${SCRIPT_DIR}/tmux-yazi-picker.sh"
 TARGET_DEFER_TMUX_SCRIPT="${SCRIPT_DIR}/defer-tmux-command.sh"
 TARGET_WHICH_KEY_POPUP_SCRIPT="${SCRIPT_DIR}/tmux-which-key-popup.sh"
 TARGET_TMUX_MENU_SCRIPT="${SCRIPT_DIR}/tmux-menu.py"
+TARGET_TMUX_OMNI_SCRIPT="${SCRIPT_DIR}/tmux-omni"
 TARGET_PREFIX_HELP_SCRIPT="${SCRIPT_DIR}/tmux-prefix-help.py"
 TARGET_TMUX_MENU_DIR="${HOME}/.config/tmux-menu"
 TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
@@ -136,6 +137,11 @@ if [ -L "${TARGET_TMUX_MENU_SCRIPT}" ] || [ -e "${TARGET_TMUX_MENU_SCRIPT}" ]; t
 fi
 ln -s "${REPO_DIR}/scripts/tmux-menu.py" "${TARGET_TMUX_MENU_SCRIPT}"
 echo "Linked ${TARGET_TMUX_MENU_SCRIPT} -> ${REPO_DIR}/scripts/tmux-menu.py"
+
+if command -v go >/dev/null 2>&1 && [ -d "${REPO_DIR}/tmux-omni" ]; then
+  (cd "${REPO_DIR}/tmux-omni" && go build -ldflags="-s -w" -o "${TARGET_TMUX_OMNI_SCRIPT}" .)
+  echo "Built and installed ${TARGET_TMUX_OMNI_SCRIPT}"
+fi
 
 if [ -L "${TARGET_PREFIX_HELP_SCRIPT}" ] || [ -e "${TARGET_PREFIX_HELP_SCRIPT}" ]; then
   rm -f "${TARGET_PREFIX_HELP_SCRIPT}"

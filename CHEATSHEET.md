@@ -45,9 +45,9 @@ Ctrl-a
 - `prefix + S`: save tmux state now with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
 - `prefix + T`: open the `sesh` session picker popup
-- `prefix + Space`: open the mnemonic Which-Key leader menu (`tmux-menu.py`)
-- `Ctrl-p` / `prefix + P`: open the fuzzy Command Palette (`tmux-menu.py --search`)
-- `prefix + ?`: open live help for the prefix key table
+- `prefix + Space`: open the mnemonic Which-Key leader menu (`tmux-omni`)
+- `prefix + P` / `prefix + Ctrl-p`: open the fuzzy Command Palette (`tmux-omni --search`)
+- `prefix + ?`: open live help for the prefix key table (`tmux-omni --keys`)
 - `prefix + prefix`: send literal `Ctrl-a` to the current pane
 - `prefix + c`: create a new window in the current pane path
 - `prefix + n`: next window
@@ -72,17 +72,17 @@ Inside the `prefix + T` sesh picker:
 - `Ctrl-f`: find directories with `fd`
 - `Ctrl-d`: kill selected tmux session and refresh
 
-## Leader Menu & Command Palette (`tmux-menu`)
+## Leader Menu & Command Palette (`tmux-omni`)
 
 Triggered via:
 - `prefix + Space`: Which-Key mnemonic tree
-- `Ctrl-p` or `prefix + P`: Fuzzy Command Palette
+- `prefix + P` or `prefix + Ctrl-p`: Fuzzy Command Palette
 
 Inside the TUI:
 - **Which-Key navigation**: press a shortcut key (e.g. `p` panes, `w` windows, `g` git, `a` AI, `t` tools, `P` plugins, `o` options).
-- `/`: jump directly into Command Palette fuzzy search.
-- `Esc` / `Backspace`: go up one group level (or close at root).
-- `q`: quit.
+- **Switch to Palette**: `/` or `Ctrl-p` jumps directly into Command Palette fuzzy search.
+- **Switch to Leader**: `Esc` / `Backspace` (when input is empty) or `Ctrl-Space` / `Ctrl-l` instantly switches back to Which-Key Leader view.
+- **Navigation & Close**: `Esc` / `Backspace` goes up one group level (or close at root), `q` quits.
 
 ### Execution Modifiers & Error Recovery
 
@@ -96,44 +96,37 @@ Inside the TUI:
 
 ## AI Assistant
 
-These palette actions require `aichat` and `uv` in `PATH`. Open `Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Actions open a Textual interface inside a right-side pane or compact popup. Pane-aware actions capture the current path, foreground command, and scrollback lines (default 200). All analysis actions (Ask, Diagnose Error, Summarize Pane, Explain, Explain Last Copy) maintain conversation sessions and accept multi-turn follow-up questions and `/refresh` to update context. Summarize Pane also supports switching depth via `1`–`5` (100, 200, 500, 1000, all), `d` (cycle), or `r` (reload). Generate Command and Suggest Fix display the candidate command in a preview card where you can send it (`Enter` on empty input or `s`), refine it by typing adjustments, copy it (`y`/`c`), or cancel (`Esc`). Commands are inserted via bracketed paste and never run automatically; empty, multiline, or fenced output is rejected. Explain Last Copy reads but does not delete the latest tmux paste buffer and rejects empty buffers or buffers larger than 32 KiB.
+These palette actions require `aichat` and `uv` in `PATH`. Open `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Actions open a Textual interface inside a right-side pane or compact popup. Pane-aware actions capture the current path, foreground command, and scrollback lines (default 200). All analysis actions (Ask, Diagnose Error, Summarize Pane, Explain, Explain Last Copy) maintain conversation sessions and accept multi-turn follow-up questions and `/refresh` to update context. Summarize Pane also supports switching depth via `1`–`5` (100, 200, 500, 1000, all), `d` (cycle), or `r` (reload). Generate Command and Suggest Fix display the candidate command in a preview card where you can send it (`Enter` on empty input or `s`), refine it by typing adjustments, copy it (`y`/`c`), or cancel (`Esc`). Commands are inserted via bracketed paste and never run automatically; empty, multiline, or fenced output is rejected. Explain Last Copy reads but does not delete the latest tmux paste buffer and rejects empty buffers or buffers larger than 32 KiB.
 
 Inside the Textual interface: `Enter` sends prompts (or `Shift+Enter` for multiline), `Tab` toggles focus between input and transcript, `j`/`k` or `↑`/`↓` scrolls transcript, `y`/`c` or mouse drag selection copies text to clipboard and tmux buffer, `Ctrl+L` clears transcript display, `q` quits when input is not active, `Esc` closes, and `?` toggles help.
 
 - `AI: Ask`: ask a question about the current pane
 - `AI: Diagnose Error`: diagnose recent pane output
 - `AI: Suggest Fix`: suggest one corrective command for the latest visible failure
-- `AI: Summarize Pane`: summarize recent pane output and its current state
-- `AI: Generate Command`: suggest one shell command into the prompt
-- `AI: Explain`: explain a command or snippet
-- `AI: Explain Last Copy`: explain the newest tmux copy buffer
+- `AI: Summarize Pane`: summarize recent output; customize depth with `1`–`5`
+- `AI: Generate Command`: create a command from a description
+- `AI: Explain`: explain a command or concept
+- `AI: Explain Last Copy`: explain the latest tmux buffer content
+- `AI: Open Antigravity Agent`: split pane and launch `agy`
+- `AI: Open Codex Agent`: split pane and launch `codex`
+- `AI: Resume Codex Agent`: split pane and resume the latest `codex` session
 
-Agent actions open a 45%-wide right-side pane in the current pane directory. They require the named CLI in `PATH` and do not have dedicated tmux key bindings.
+## Snaglord (Output Browser)
 
-- `AI: Open Antigravity Agent`: start a new `agy` session
-- `AI: Open Codex Agent`: start a new `codex` session
-- `AI: Resume Codex Agent`: open the directory-filtered `codex resume` picker
-- `prefix + !`: move the focused agent pane into its own window without restarting it
-
-## Snaglord Command Blocks
-
-Open the current pane's searchable command/output history with `prefix + Ctrl-y`.
-
-- `j` / `k`: move between commands
-- `/`: search command history
-- `c`: copy only the command text, without prompt artifacts
-- `y` or `Enter`: copy only command output
-- `Y`: copy the final prompt line and command output
-- `Space`: add or remove a command from the multi-selection scratchpad
-- `Tab`: switch between commands, paths, and JSON views
-- `q`: close Snaglord
+- `prefix + Ctrl-y`: open the Snaglord popup for the active pane
+- `c`: copy command text only
+- `y` or `Enter`: copy command output only
+- `Y`: copy final prompt line and command output
+- `j`/`k`, `Ctrl-n`/`Ctrl-p`, `↑`/`↓`: navigate entries
+- `/`: filter entries
+- `q` or `Esc`: close Snaglord
 
 The stock Snaglord CLI intentionally does not include preceding multiline Starship decoration in a command block.
 
 ## File Picker
 
 Open files under the current pane directory with `prefix + Ctrl-f`. For the
-picker menus, use `Ctrl-p` → `File Picker` or `prefix + Space` → `t`;
+picker menus, use `prefix + P` → `File Picker` or `prefix + Space` → `t`;
 choose `y` in which-key for navigable Yazi browsing or `f`, `d`, `r`, and `R`
 for the fzf file, directory, and Zoxide-ranked recent-directory workflows.
 
@@ -147,9 +140,9 @@ for the fzf file, directory, and Zoxide-ranked recent-directory workflows.
 
 ## Plugin Bindings
 
-- `Ctrl-p` / `prefix + P`: open command palette (`tmux-menu.py --search`)
-- `prefix + Space`: open Which-Key leader menu (`tmux-menu.py`)
-- `prefix + ?`: open live prefix keybindings browser (`tmux-prefix-help.py`)
+- `prefix + P` / `prefix + Ctrl-p`: open command palette (`tmux-omni --search`)
+- `prefix + Space`: open Which-Key leader menu (`tmux-omni`)
+- `prefix + ?`: open live prefix keybindings browser (`tmux-omni --keys`)
 - `prefix + *`: kill the foreground process in the current pane with `SIGKILL` via `tmux-cowboy`
 - `prefix + Ctrl-h`: fuzzy-find links, paths, and supported addresses in pane history with `tmux-fzf-links`
 - `prefix + Tab`: open Extrakto to fuzzy-find text from pane history
