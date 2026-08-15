@@ -613,20 +613,20 @@ class AiChatTuiApp(App):
         # Append user message or refinement if applicable
         if prompt_text:
             if self.mode in ("command", "fix") and self.current_candidate_command:
-                transcript.mount(Container(
+                await transcript.mount(Container(
                     Static("Refinement", classes="role-badge user-role"),
                     Static(prompt_text, classes="message-text"),
                     classes="message-card user-card"
                 ))
             else:
                 if prompt_text == "/refresh":
-                    transcript.mount(Container(
+                    await transcript.mount(Container(
                         Static("You", classes="role-badge user-role"),
                         Static("/refresh", classes="message-text"),
                         classes="message-card user-card"
                     ))
                 else:
-                    transcript.mount(Container(
+                    await transcript.mount(Container(
                         Static("You", classes="role-badge user-role"),
                         Static(prompt_text, classes="message-text"),
                         classes="message-card user-card"
@@ -723,7 +723,7 @@ class AiChatTuiApp(App):
                 self.latest_assistant_response = stdout_str
                 
                 # Mount prominent candidate command box
-                transcript.mount(Container(
+                await transcript.mount(Container(
                     Static("Candidate Command (press Enter / s to send to pane, or type to refine):", classes="candidate-title"),
                     Static(stdout_str, classes="candidate-command"),
                     classes="candidate-card"
@@ -743,7 +743,7 @@ class AiChatTuiApp(App):
             elif prompt_text == "/refresh":
                 response_text = stdout_str or "Refreshed context acknowledged."
                 self.latest_assistant_response = response_text
-                transcript.mount(Container(
+                await transcript.mount(Container(
                     Static("System", classes="role-badge system-role"),
                     Static(f"Pane context refreshed.\n{response_text}", classes="message-text"),
                     classes="message-card system-card"
@@ -752,7 +752,7 @@ class AiChatTuiApp(App):
             else:
                 # Normal assistant response
                 self.latest_assistant_response = stdout_str or ""
-                transcript.mount(Container(
+                await transcript.mount(Container(
                     Static("Assistant", classes="role-badge assistant-role"),
                     Markdown(stdout_str or "(No output received)", classes="message-markdown"),
                     classes="message-card assistant-card"

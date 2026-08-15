@@ -78,7 +78,6 @@
         { "key": "w", "title": "Choose Session Tree", "icon": "󰙅", "description": "interactive session and window tree", "action": "choose-tree", "target": "tmux" },
         { "key": "r", "title": "Rename Session", "icon": "󰑕", "description": "prompt to rename current session", "action": "command-prompt -I '#S' 'rename-session -- \"%%\"'", "target": "tmux" },
         { "key": "k", "title": "Kill Session", "icon": "󰅖", "description": "prompt and kill current session", "action": "confirm-before -p 'Kill session? (y/n)' 'kill-session -t #{pane_id}'", "target": "tmux" },
-        { "key": "l", "title": "List Sessions", "icon": "󰅩", "description": "list all running sessions", "action": "list-sessions", "target": "tmux" },
         { "key": "p", "title": "Previous Session", "icon": "󰁍", "description": "switch to previous session", "action": "switch-client -p", "target": "tmux" },
         { "key": "N", "title": "Next Session", "icon": "󰁔", "description": "switch to next session", "action": "switch-client -n", "target": "tmux" }
       ]
@@ -89,11 +88,10 @@
       "icon": "󰅍",
       "description": "tmux paste buffers and history",
       "items": [
-        { "key": "l", "title": "List Buffers", "icon": "󰅩", "description": "view list of all paste buffers", "action": "tmux list-buffers | less", "target": "popup" },
+        { "key": "l", "title": "List Buffers", "icon": "󰅩", "description": "search, preview, paste, or delete paste buffers", "action": "~/.config/tmux/scripts/tmux-omni --buffers", "target": "popup" },
         { "key": "p", "title": "Paste Buffer", "icon": "󰆒", "description": "paste most recent buffer into current pane", "action": "paste-buffer", "target": "tmux" },
         { "key": "c", "title": "Choose Buffer", "icon": "󰍉", "description": "interactively choose paste buffer", "action": "choose-buffer", "target": "tmux" },
         { "key": "d", "title": "Delete Buffer", "icon": "󰅖", "description": "delete top paste buffer", "action": "delete-buffer", "target": "tmux" },
-        { "key": "v", "title": "Show Buffer Content", "icon": "󰈞", "description": "display content of top buffer", "action": "tmux show-buffer | less", "target": "popup" },
         { "key": "y", "title": "Enter Copy Mode", "icon": "󰆏", "description": "enter scrollback copy mode", "action": "copy-mode", "target": "tmux" }
       ]
     },
@@ -103,7 +101,7 @@
       "icon": "󰒍",
       "description": "inspect or detach connected clients",
       "items": [
-        { "key": "s", "title": "Show Attached Clients", "icon": "󰒍", "description": "view client details, terminals, and sizes", "action": "~/.config/tmux/scripts/show-clients.sh", "target": "popup" },
+        { "key": "s", "title": "Show Attached Clients", "icon": "󰒍", "description": "view and switch connected clients", "action": "~/.config/tmux/scripts/tmux-omni --clients", "target": "popup" },
         { "key": "d", "title": "Detach Other Clients", "icon": "󰅖", "description": "detach all clients except the current one", "action": "confirm-before -p 'Detach all other clients? (y/n)' 'detach-client -a'", "target": "tmux" },
         { "key": "c", "title": "Choose Client", "icon": "󰍉", "description": "interactive client selector", "action": "choose-client", "target": "tmux" },
         { "key": "r", "title": "Refresh Client", "icon": "󰑕", "description": "force screen redraw and status refresh", "action": "refresh-client", "target": "tmux" }
@@ -145,9 +143,9 @@
       "items": [
         { "key": "a", "title": "AI: Ask", "icon": "󰧑", "description": "ask a question with pane context", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh ask \"#{pane_id}\"'", "target": "tmux" },
         { "key": "d", "title": "AI: Diagnose Error", "icon": "󰅚", "description": "diagnose most recent error in pane", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh error \"#{pane_id}\"'", "target": "tmux" },
-        { "key": "f", "title": "AI: Suggest Fix", "icon": "󰁨", "description": "suggest shell command fix for error", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh fix \"#{pane_id}\"'", "target": "tmux" },
+        { "key": "f", "title": "AI: Suggest Fix", "icon": "󰁨", "description": "suggest shell command fix for error", "action": "~/.config/tmux/scripts/aichat-tui.py fix \"#{pane_id}\"", "target": "popup", "popup_width": "70%", "popup_height": "65%" },
         { "key": "s", "title": "AI: Summarize Pane", "icon": "󰦪", "description": "summarize recent pane activity and state", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh summarize \"#{pane_id}\"'", "target": "tmux" },
-        { "key": "c", "title": "AI: Generate Command", "icon": "󰘳", "description": "generate single shell command from description", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh command \"#{pane_id}\"'", "target": "tmux" },
+        { "key": "c", "title": "AI: Generate Command", "icon": "󰘳", "description": "generate single shell command from description", "action": "~/.config/tmux/scripts/aichat-tui.py command \"#{pane_id}\"", "target": "popup", "popup_width": "70%", "popup_height": "65%" },
         { "key": "e", "title": "AI: Explain", "icon": "󰛨", "description": "explain command, snippet, or concept", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain \"#{pane_id}\"'", "target": "tmux" },
         { "key": "y", "title": "AI: Explain Last Copy", "icon": "󰆏", "description": "explain text in most recent copy buffer", "action": "run-shell '~/.config/tmux/scripts/ai-prompt.sh explain-copy \"#{pane_id}\"'", "target": "tmux" },
         {
@@ -270,7 +268,7 @@
           "description": "reload config and inspect effective options",
           "items": [
             { "key": "r", "title": "Reload Config", "icon": "󰑕", "description": "reload ~/.tmux.conf configuration", "action": "source-file ~/.tmux.conf ; display-message 'Config reloaded'", "target": "tmux" },
-            { "key": "o", "title": "Show Effective Options", "icon": "󰈞", "description": "inspect effective server and window options", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh effective-options", "target": "popup" }
+            { "key": "o", "title": "Show Effective Options", "icon": "󰈞", "description": "inspect effective server and window options", "action": "~/.config/tmux/scripts/tmux-omni --options", "target": "popup" }
           ]
         },
         {
@@ -307,14 +305,15 @@
       "icon": "󰘳",
       "description": "inspect tmux options, environment, customize mode",
       "items": [
-        { "key": "g", "title": "Show Global Options", "icon": "󰈞", "description": "view global tmux options (tmux show-options -g)", "action": "tmux show-options -g | less", "target": "popup" },
-        { "key": "w", "title": "Show Window Options", "icon": "󰈞", "description": "view window options (tmux show-window-options -g)", "action": "tmux show-window-options -g | less", "target": "popup" },
-        { "key": "e", "title": "Show Environment", "icon": "󰈞", "description": "view global environment variables", "action": "tmux show-environment -g | less", "target": "popup" },
+        { "key": "g", "title": "Show Global Options", "icon": "󰈞", "description": "search and toggle global options", "action": "~/.config/tmux/scripts/tmux-omni --options", "target": "popup" },
+        { "key": "w", "title": "Show Window Options", "icon": "󰈞", "description": "search and toggle window options", "action": "~/.config/tmux/scripts/tmux-omni --options", "target": "popup" },
+        { "key": "e", "title": "Show Environment", "icon": "󰈞", "description": "search global environment variables", "action": "~/.config/tmux/scripts/tmux-omni --env", "target": "popup" },
+        { "key": "C", "title": "Show Commands Reference", "icon": "󰘳", "description": "search and run all 100+ native tmux commands", "action": "~/.config/tmux/scripts/tmux-omni --commands", "target": "popup" },
         { "key": "c", "title": "Customize Mode", "icon": "󰘳", "description": "enter interactive tmux customize-mode", "action": "customize-mode -Z", "target": "tmux" }
       ]
     },
     { "key": "r", "title": "Reload Config", "icon": "󰑕", "description": "reload ~/.tmux.conf configuration", "action": "source-file ~/.tmux.conf ; display-message 'Config reloaded'", "target": "tmux" },
     { "key": ":", "title": "Command Prompt", "icon": "󰘳", "description": "open tmux command prompt", "action": "command-prompt", "target": "tmux" },
-    { "key": "?", "title": "Live Prefix Key Help", "icon": "󰋗", "description": "interactive active prefix keybindings browser", "action": "~/.config/tmux/scripts/tmux-prefix-help.py", "target": "popup" }
+    { "key": "?", "title": "Live Prefix Key Help", "icon": "󰋗", "description": "interactive active prefix keybindings browser", "action": "~/.config/tmux/scripts/tmux-omni --keys", "target": "popup" }
   ]
 }

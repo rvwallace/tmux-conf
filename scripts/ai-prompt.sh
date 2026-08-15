@@ -37,7 +37,7 @@ if [ "$phase" != "run" ]; then
     command|fix)
       popup_title=' AI Command '
       [ "$mode" = "fix" ] && popup_title=' AI Suggest Fix '
-      tmux display-popup -E -h '25%' -w '70%' -T "$popup_title" "~/.config/tmux/scripts/ai-prompt.sh '$mode' '$pane_id' run"
+      tmux display-popup -E -h '65%' -w '70%' -t "$pane_id" -T "$popup_title" "~/.config/tmux/scripts/ai-prompt.sh '$mode' '$pane_id' run"
       ;;
     ask|error|summarize|explain|explain-copy)
       pane_path="$(tmux display-message -p -t "$pane_id" '#{pane_current_path}')"
