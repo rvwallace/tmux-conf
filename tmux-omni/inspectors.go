@@ -189,10 +189,7 @@ func (m InspectModel) RenderRow(item InspectItem, isSelected bool, width int) st
 	if m.Col3Width > 0 {
 		fixedWidth += m.Col3Width + 1
 	}
-	availForLast := width - fixedWidth - 4
-	if availForLast < 10 {
-		availForLast = 10
-	}
+	availForLast := max(width-fixedWidth-4, 10)
 
 	// Col 1
 	c1Text := item.Col1
@@ -339,10 +336,7 @@ func (m InspectModel) View() string {
 	counterStr := fmt.Sprintf("%d/%d", len(m.Filtered), len(m.Items))
 	counter := HeaderCounterStyle.Render(counterStr)
 
-	availForInput := width - lipgloss.Width(titleLabel) - lipgloss.Width(counter) - 8
-	if availForInput < 10 {
-		availForInput = 10
-	}
+	availForInput := max(width-lipgloss.Width(titleLabel)-lipgloss.Width(counter)-8, 10)
 	m.TextInput.Width = availForInput
 
 	inputView := m.TextInput.View()
@@ -390,10 +384,7 @@ func (m InspectModel) View() string {
 	}
 
 	brand := FooterBrandStyle.Render("󰌌 Tokyo Night")
-	availLeft := width - lipgloss.Width(brand) - 4
-	if availLeft < 10 {
-		availLeft = 10
-	}
+	availLeft := max(width-lipgloss.Width(brand)-4, 10)
 	leftBlock := lipgloss.NewStyle().Width(availLeft).Render(legendText)
 	footerBar := lipgloss.JoinHorizontal(lipgloss.Center, leftBlock, brand)
 	footerLine := lipgloss.NewStyle().Padding(0, 1).Render(footerBar)
@@ -401,10 +392,7 @@ func (m InspectModel) View() string {
 
 	headerHeight := lipgloss.Height(topBar) + 1
 	footerHeight := lipgloss.Height(bottomArea)
-	listHeight := height - headerHeight - footerHeight
-	if listHeight < 1 {
-		listHeight = 1
-	}
+	listHeight := max(height-headerHeight-footerHeight, 1)
 
 	// List items
 	var rows []string
@@ -420,10 +408,7 @@ func (m InspectModel) View() string {
 		if start >= len(m.Filtered) {
 			start = 0
 		}
-		end := start + listHeight
-		if end > len(m.Filtered) {
-			end = len(m.Filtered)
-		}
+		end := min(start+listHeight, len(m.Filtered))
 		for i := start; i < end; i++ {
 			isSelected := (i == m.CursorIndex)
 			rows = append(rows, m.RenderRow(m.Filtered[i], isSelected, width))
@@ -753,8 +738,8 @@ func LoadEnvironmentData() []InspectItem {
 			if line == "" {
 				continue
 			}
-			if strings.HasPrefix(line, "-") {
-				varName := strings.TrimPrefix(line, "-")
+			if after, ok := strings.CutPrefix(line, "-"); ok {
+				varName := after
 				items = append(items, InspectItem{
 					Col1:       varName,
 					Col2:       "Unset",
@@ -879,10 +864,7 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		keyStr := msg.String()
-		maxVisible := m.Model.Height - 4
-		if maxVisible < 1 {
-			maxVisible = 1
-		}
+		maxVisible := max(m.Model.Height-4, 1)
 
 		switch keyStr {
 		case "ctrl+c":

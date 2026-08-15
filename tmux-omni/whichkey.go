@@ -85,10 +85,7 @@ func (m WhichKeyModel) RenderFooter(width int) string {
 
 	brand := FooterBrandStyle.Render("󰌌 Tokyo Night")
 
-	availLeft := width - lipgloss.Width(brand) - 4
-	if availLeft < 10 {
-		availLeft = 10
-	}
+	availLeft := max(width-lipgloss.Width(brand)-4, 10)
 	leftBlock := lipgloss.NewStyle().Width(availLeft).Render(hints)
 
 	bar := lipgloss.JoinHorizontal(lipgloss.Center, leftBlock, brand)
@@ -113,10 +110,7 @@ func (m WhichKeyModel) RenderItemLine(item MenuItem, colWidth int) string {
 
 	// Subgroup vs leaf action styling
 	var titleStr string
-	maxTitleWidth := colWidth - 7
-	if maxTitleWidth < 5 {
-		maxTitleWidth = 5
-	}
+	maxTitleWidth := max(colWidth-7, 5)
 
 	if isGroup {
 		groupLabel := fmt.Sprintf("+%s", title)
@@ -160,18 +154,12 @@ func (m WhichKeyModel) RenderColumns(width, height int) string {
 
 	colGutter := 3
 	totalGutter := (cols - 1) * colGutter
-	availWidth := width - 4 - totalGutter
-	if availWidth < cols*15 {
-		availWidth = cols * 15
-	}
+	availWidth := max(width-4-totalGutter, cols*15)
 	colWidth := availWidth / cols
 
 	// Column-major filling for neat alphabetical / visual scanning
 	numItems := len(items)
-	rowsPerCol := (numItems + cols - 1) / cols
-	if rowsPerCol < 1 {
-		rowsPerCol = 1
-	}
+	rowsPerCol := max((numItems+cols-1)/cols, 1)
 
 	var rowLines []string
 	for r := 0; r < rowsPerCol; r++ {
@@ -211,10 +199,7 @@ func (m WhichKeyModel) View() string {
 
 	headerHeight := lipgloss.Height(header)
 	footerHeight := lipgloss.Height(footer)
-	contentHeight := m.Height - headerHeight - footerHeight
-	if contentHeight < 1 {
-		contentHeight = 1
-	}
+	contentHeight := max(m.Height-headerHeight-footerHeight, 1)
 
 	body := m.RenderColumns(m.Width, contentHeight)
 
