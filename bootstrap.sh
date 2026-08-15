@@ -138,9 +138,13 @@ fi
 ln -s "${REPO_DIR}/scripts/tmux-menu.py" "${TARGET_TMUX_MENU_SCRIPT}"
 echo "Linked ${TARGET_TMUX_MENU_SCRIPT} -> ${REPO_DIR}/scripts/tmux-menu.py"
 
-if command -v go >/dev/null 2>&1 && [ -d "${REPO_DIR}/tmux-omni" ]; then
-  (cd "${REPO_DIR}/tmux-omni" && go build -ldflags="-s -w" -o "${TARGET_TMUX_OMNI_SCRIPT}" .)
-  echo "Built and installed ${TARGET_TMUX_OMNI_SCRIPT}"
+if [ -d "${REPO_DIR}/tmux-omni" ]; then
+  if command -v go >/dev/null 2>&1; then
+    (cd "${REPO_DIR}/tmux-omni" && go build -ldflags="-s -w" -o "${TARGET_TMUX_OMNI_SCRIPT}" .)
+    echo "Built and installed ${TARGET_TMUX_OMNI_SCRIPT}"
+  else
+    echo "Warning: 'go' is not installed; skipped building ${TARGET_TMUX_OMNI_SCRIPT}. Run ./scripts/install-deps.sh to install Go." >&2
+  fi
 fi
 
 if [ -L "${TARGET_PREFIX_HELP_SCRIPT}" ] || [ -e "${TARGET_PREFIX_HELP_SCRIPT}" ]; then

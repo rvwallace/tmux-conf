@@ -93,6 +93,7 @@ expect_contains "grep -F 'nerd_fonts = true' \"$TARGET_SNAGLORD_DIR/config.toml\
 "$REPO_DIR/scripts/install-deps.sh" --check || fail "runtime dependencies missing"
 pass "runtime dependencies present"
 expect_contains "grep -F 'brew \"uv\"' \"$REPO_DIR/Brewfile\"" "brew \"uv\"" "uv declared in Brewfile"
+expect_contains "grep -F 'brew \"go\"' \"$REPO_DIR/Brewfile\"" "brew \"go\"" "go declared in Brewfile"
 
 [ -f "$TARGET_TMUX_MENU_DIR/config.json" ] || fail "tmux-menu config.json missing"
 jq empty "$TARGET_TMUX_MENU_DIR/config.json" || fail "tmux-menu config is invalid JSON"
