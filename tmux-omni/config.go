@@ -169,3 +169,73 @@ func FlattenCommands(items []MenuItem, breadcrumbs []string, keyPrefix string) [
 
 	return results
 }
+
+// ValidateConfig performs structural and semantic validation on the configuration.
+func ValidateConfig(cfg *Config) []string {
+	var errs []string
+
+	if cfg.Title == "" {
+		errs = append(errs, "root: 'title' cannot be empty")
+	}
+
+	if len(cfg.Items) == 0 {
+		errs = append(errs, "root: 'items' cannot be empty")
+		return errs
+	}
+
+	validateItems(cfg.Items, "root", &errs)
+	return errs
+}
+
+var validTargets = map[string]bool{
+	"":            true, // defaults to "tmux"
+	"tmux":        true,
+	"popup":       true,
+	"popup-shell": true,
+	"send":        true,
+	"split-v":     true,
+	"split-h":     true,
+	"window":      true,
+}
+
+func validateItems(items []MenuItem, path string, errs *[]string) {
+	seenKeys := make(map[string]bool)
+
+	for i, item := range items {
+		itemPath := fmt.Sprintf("%s.items[%d]", path, i)
+		if item.Title != "" {
+			itemPath = fmt.Sprintf("%s (%s)", itemPath, item.Title)
+		}
+
+		if item.Key == "" {
+			*errs = append(*errs, fmt.Sprintf("%s: missing required field 'key'", itemPath))
+		} else {
+			if seenKeys[item.Key] {
+				*errs = append(*errs, fmt.Sprintf("%s: duplicate key '%s' at same menu level", itemPath, item.Key))
+			}
+			seenKeys[item.Key] = true
+		}
+
+		if item.Title == "" {
+			*errs = append(*errs, fmt.Sprintf("%s: missing required field 'title'", itemPath))
+		}
+
+		if item.Description == "" {
+			*errs = append(*errs, fmt.Sprintf("%s: missing required field 'description'", itemPath))
+		}
+
+		if len(item.Items) > 0 {
+			// Subgroup
+			validateItems(item.Items, itemPath, errs)
+		} else {
+			// Leaf Action
+			if item.Action == "" {
+				*errs = append(*errs, fmt.Sprintf("%s: leaf action missing required field 'action'", itemPath))
+			}
+			if !validTargets[item.Target] {
+				*errs = append(*errs, fmt.Sprintf("%s: invalid target '%s' (expected one of: tmux, popup, popup-shell, send, split-v, split-h, window)", itemPath, item.Target))
+			}
+		}
+	}
+}
+
