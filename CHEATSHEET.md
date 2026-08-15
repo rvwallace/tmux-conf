@@ -101,10 +101,28 @@ Quick editing and customization:
 
 ## AI Assistant
 
-These palette actions require `aichat` in `PATH` and are powered natively by `tmux-omni ai`. Open `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Actions open the Go Bubble Tea interface inside a right-side pane or compact popup. Pane-aware actions capture the current path, foreground command, and scrollback lines (default 200). All analysis actions (Ask, Diagnose Error, Summarize Pane, Explain, Explain Last Copy) maintain conversation sessions and accept multi-turn follow-up questions and `/refresh` to update context. Summarize Pane also supports switching depth via `1`–`5` (100, 200, 500, 1000, all), `d` (cycle), or `r` (reload). Generate Command and Suggest Fix display the candidate command in a preview card where you can send it (`Enter` on empty input or `s`), refine it by typing adjustments, copy it (`y`/`c`), or cancel (`Esc`). Commands are inserted via bracketed paste and never run automatically; empty, multiline, or fenced output is rejected. Explain Last Copy reads but does not delete the latest tmux paste buffer and rejects empty buffers or buffers larger than 32 KiB.
+These palette actions require `aichat` in `PATH` and are powered directly by `tmux-omni ai`. Open `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Actions open the Go Bubble Tea interface directly in a 40% right-side pane. Pane-aware actions capture the current path, foreground command, and scrollback lines (default 200). All analysis and generation actions maintain conversation sessions and accept multi-turn follow-up questions, slash commands (`/git`, `/diff`, `/tree`, `/env`), and `/refresh` to update context. Summarize Pane supports switching depth via `1`–`5` (100, 200, 500, 1000, all), `d` (cycle), or `r` (reload). Generate Command and Suggest Fix allow sending generated commands or extracted code blocks directly into the active pane (`s`, `X`, or `Enter` on empty input) via bracketed paste for review before running. Explain Last Copy reads but does not delete the latest tmux paste buffer and rejects empty buffers or buffers larger than 32 KiB.
 
-Inside the AI interface: `Enter` sends prompts (or `Shift+Enter` for multiline), `Tab` toggles focus between input and transcript, `j`/`k` or `↑`/`↓` scrolls transcript, `y`/`c` copies text to clipboard and tmux buffer, `q` quits when input is not active, `Esc` closes, and `?` toggles help.
+Inside the AI interface (Vim modal):
+- **Navigation**: `Tab` toggles focus between Input (Insert mode) and Transcript (Normal mode); `Esc` exits Insert mode (or closes when empty); `i`/`a` enters Insert mode.
+- **Transcript (Normal Mode)**:
+  - `j`/`k` or `↑`/`↓`: scroll transcript line by line; `Ctrl-d`/`Ctrl-u`: half-page scroll; `g`/`G`: jump to top/bottom
+  - `y`/`c`: copy full response or candidate command to clipboard and tmux buffer
+  - `x`: quick cycle-copy code blocks from response (step 1, 2, 3...)
+  - `X` / `Ctrl-x`: open interactive Code Block Picker menu overlay to select and copy/send any code block
+  - `s`: insert candidate command or selected code block into target pane
+  - `m`: open interactive AI Model picker overlay (`claude-3-5-sonnet`, `gpt-4o`, `deepseek-chat`, `ollama`, etc.)
+  - `S` / `E`: export session transcript to clean Markdown and open in `$EDITOR` (`nvim`) in a new tmux window
+  - `1`–`5` / `d` / `r`: change scrollback depth or reload context
+  - `?`: toggle help dialog; `q` / `Esc`: quit
+- **Input (Insert Mode)**:
+  - `Enter`: submit prompt (or send candidate command if input is empty); `Shift+Enter`: multiline newline
+  - `Ctrl-x`: open interactive Code Block Picker menu overlay
+  - `↑` / `Ctrl-p`: navigate backwards in persistent prompt history (`~/.local/share/tmux/ai_history`)
+  - `↓` / `Ctrl-n`: navigate forwards in persistent prompt history
+  - Slash Commands: type `/git` (injects git status & log), `/diff` (injects uncommitted diff), `/tree` (injects directory tree), `/env` (injects environment variables), or `/refresh` (reloads scrollback)
 
+AI Actions:
 - `AI: Ask`: ask a question about the current pane
 - `AI: Diagnose Error`: diagnose recent pane output
 - `AI: Suggest Fix`: suggest one corrective command for the latest visible failure

@@ -34,23 +34,6 @@ func TestNewAIModel(t *testing.T) {
 	}
 }
 
-func TestAICompactMode(t *testing.T) {
-	mCmd := NewAIModel(AIModeCommand, "%1")
-	if !mCmd.isCompactMode() {
-		t.Errorf("expected command mode to be compact")
-	}
-
-	mFix := NewAIModel(AIModeFix, "%1")
-	if !mFix.isCompactMode() {
-		t.Errorf("expected fix mode to be compact")
-	}
-
-	mAsk := NewAIModel(AIModeAsk, "%1")
-	if mAsk.isCompactMode() {
-		t.Errorf("expected ask mode not to be compact")
-	}
-}
-
 func TestAICardsRendering(t *testing.T) {
 	m := NewAIModel(AIModeAsk, "%1")
 
@@ -104,5 +87,89 @@ func TestAIHelpModal(t *testing.T) {
 	}
 	if !strings.Contains(rendered, "<Enter>") || !strings.Contains(rendered, "<Tab>") {
 		t.Errorf("help modal missing key hints: %s", rendered)
+	}
+}
+
+func TestExtractCodeBlocks(t *testing.T) {
+	markdown := "Here is a step to run:\n\n```bash\ngit status\n```\n\nAnd next:\n```\ngit log -n 5\n```\n"
+	blocks := extractCodeBlocks(markdown)
+	if len(blocks) != 2 {
+		t.Fatalf("expected 2 code blocks, got %d: %v", len(blocks), blocks)
+	}
+	if blocks[0].Content != "git status" || blocks[0].Language != "bash" {
+		t.Errorf("expected 'git status' (bash), got %+v", blocks[0])
+	}
+	if blocks[1].Content != "git log -n 5" || blocks[1].Language != "code" {
+		t.Errorf("expected 'git log -n 5' (code), got %+v", blocks[1])
+	}
+}
+
+func TestBlockPickerModal(t *testing.T) {
+	m := NewAIModel(AIModeAsk, "%1")
+	m.Width = 80
+	m.Height = 24
+	m.CodeBlocks = []CodeBlock{
+		{Index: 1, Language: "bash", Content: "echo 1", Preview: "echo 1"},
+		{Index: 2, Language: "python", Content: "print(2)", Preview: "print(2)"},
+	}
+
+	rendered := m.renderBlockPickerModal("bg")
+	if !strings.Contains(rendered, "Select Code Block") {
+		t.Errorf("missing title in block picker: %s", rendered)
+	}
+	if !strings.Contains(rendered, "[bash]") || !strings.Contains(rendered, "[python]") {
+		t.Errorf("missing language tags in block picker: %s", rendered)
+	}
+}
+
+func TestGatherSlashContext(t *testing.T) {
+	prompt := "Check this /env and /refresh"
+	cleaned, extra := gatherSlashContext(prompt, "/tmp")
+	if strings.Contains(cleaned, "/env") {
+		t.Errorf("expected /env stripped from prompt, got %q", cleaned)
+	}
+	if !strings.Contains(extra, "Environment Info") {
+		t.Errorf("expected extra context to contain Environment Info, got %q", extra)
+	}
+}
+
+func TestModelPickerModal(t *testing.T) {
+	m := NewAIModel(AIModeAsk, "%1")
+	m.Width = 80
+	m.Height = 24
+	m.AvailableModels = []string{"default", "claude-3-5-sonnet", "gpt-4o"}
+
+	rendered := m.renderModelPickerModal("bg")
+	if !strings.Contains(rendered, "Select AI Model") {
+		t.Errorf("missing title in model picker: %s", rendered)
+	}
+	if !strings.Contains(rendered, "claude-3-5-sonnet") {
+		t.Errorf("missing model name in model picker: %s", rendered)
+	}
+}
+
+func TestBuildAIPrompt(t *testing.T) {
+	prompt, err := buildAIPrompt(AIModeAsk, "how to list files", "/tmp", "zsh", "ls output", 0)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(prompt, "how to list files") || !strings.Contains(prompt, "BEGIN PANE CONTEXT") {
+		t.Errorf("prompt missing expected content: %s", prompt)
+	}
+
+	cmdPrompt, err := buildAIPrompt(AIModeCommand, "list git commits", "/tmp", "zsh", "", 0)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(cmdPrompt, "Generate exactly one command") || !strings.Contains(cmdPrompt, "list git commits") {
+		t.Errorf("command prompt missing expected content: %s", cmdPrompt)
+	}
+
+	sumPrompt, err := buildAIPrompt(AIModeSummarize, "", "/tmp", "zsh", "build succeeded", 0)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(sumPrompt, "Summarize the recent pane output") {
+		t.Errorf("summarize prompt missing expected content: %s", sumPrompt)
 	}
 }
