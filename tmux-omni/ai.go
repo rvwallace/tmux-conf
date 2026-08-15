@@ -221,12 +221,12 @@ func (m AIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updateViewportContent()
 
 	case spinner.TickMsg:
+		var cmd tea.Cmd
+		m.Spinner, cmd = m.Spinner.Update(msg)
 		if m.IsBusy {
-			var cmd tea.Cmd
-			m.Spinner, cmd = m.Spinner.Update(msg)
-			cmds = append(cmds, cmd)
 			m.updateViewportContent()
 		}
+		return m, cmd
 
 	case aiResultMsg:
 		m.IsBusy = false
@@ -305,16 +305,16 @@ func (m AIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					idx := int(keyStr[0] - '1')
 					if idx >= 0 && idx < len(scrollbackDepths) && idx != m.DepthIndex {
 						m.DepthIndex = idx
-						return m, m.runQueryCmd("")
+						return m, tea.Batch(m.runQueryCmd(""), m.Spinner.Tick)
 					}
 				}
 			case "d":
 				if m.Mode == AIModeSummarize {
 					m.DepthIndex = (m.DepthIndex + 1) % len(scrollbackDepths)
-					return m, m.runQueryCmd("")
+					return m, tea.Batch(m.runQueryCmd(""), m.Spinner.Tick)
 				}
 			case "r":
-				return m, m.runQueryCmd("")
+				return m, tea.Batch(m.runQueryCmd(""), m.Spinner.Tick)
 			case "?":
 				m.ShowHelp = true
 				return m, nil
@@ -377,14 +377,14 @@ func (m AIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 					if text != "" {
 						m.CmdInput.SetValue("")
-						return m, m.runQueryCmd(text)
+						return m, tea.Batch(m.runQueryCmd(text), m.Spinner.Tick)
 					}
 					return m, nil
 				} else {
 					text := strings.TrimSpace(m.Input.Value())
 					if text != "" {
 						m.Input.SetValue("")
-						return m, m.runQueryCmd(text)
+						return m, tea.Batch(m.runQueryCmd(text), m.Spinner.Tick)
 					}
 					return m, nil
 				}
