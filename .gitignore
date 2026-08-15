@@ -15,3 +15,6 @@ memory/
 # Python
 __pycache__/
 *.py[cod]
+
+# Go binaries
+tmux-omni/tmux-omni
