@@ -94,6 +94,11 @@ Inside the TUI:
 | **`Alt-w`** / `Ctrl-t` | **New Window** | Opens command in a new window. |
 | **`Alt-i`** / `Ctrl-y` | **Insert in Shell** | Inserts command text into active pane prompt without executing. |
 
+Quick editing and customization:
+- `prefix + Space` → `o` → `m`: edit `config.json` in `$EDITOR`
+- `prefix + Space` → `o` → `t`: edit `.tmux.conf` in `$EDITOR`
+- Refer to [`CONFIG_GUIDE.md`](./CONFIG_GUIDE.md) and [`config.schema.json`](./tmux-menu/config.schema.json) for schema rules and target documentation.
+
 ## AI Assistant
 
 These palette actions require `aichat` and `uv` in `PATH`. Open `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Actions open a Textual interface inside a right-side pane or compact popup. Pane-aware actions capture the current path, foreground command, and scrollback lines (default 200). All analysis actions (Ask, Diagnose Error, Summarize Pane, Explain, Explain Last Copy) maintain conversation sessions and accept multi-turn follow-up questions and `/refresh` to update context. Summarize Pane also supports switching depth via `1`–`5` (100, 200, 500, 1000, all), `d` (cycle), or `r` (reload). Generate Command and Suggest Fix display the candidate command in a preview card where you can send it (`Enter` on empty input or `s`), refine it by typing adjustments, copy it (`y`/`c`), or cancel (`Esc`). Commands are inserted via bracketed paste and never run automatically; empty, multiline, or fenced output is rejected. Explain Last Copy reads but does not delete the latest tmux paste buffer and rejects empty buffers or buffers larger than 32 KiB.
