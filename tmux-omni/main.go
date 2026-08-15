@@ -163,10 +163,7 @@ func (m AppModel) updateWhichKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 func (m AppModel) updatePalette(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	keyStr := msg.String()
 
-	maxVisible := m.Palette.Height - 4
-	if maxVisible < 1 {
-		maxVisible = 1
-	}
+	maxVisible := max(m.Palette.Height-4, 1)
 
 	// Target modifiers
 	switch keyStr {

@@ -150,10 +150,7 @@ func (m PaletteModel) RenderSearchBar(width int) string {
 	counterStr := fmt.Sprintf("%d/%d", len(m.Filtered), len(m.AllCommands))
 	counter := HeaderCounterStyle.Render(counterStr)
 
-	availForInput := width - lipgloss.Width(counter) - 4
-	if availForInput < 10 {
-		availForInput = 10
-	}
+	availForInput := max(width-lipgloss.Width(counter)-4, 10)
 	m.TextInput.Width = availForInput
 
 	inputView := m.TextInput.View()
@@ -276,42 +273,27 @@ func (m PaletteModel) RenderList(width, height int) string {
 	}
 
 	rowHeight := 1
-	maxVisible := height / rowHeight
-	if maxVisible < 1 {
-		maxVisible = 1
-	}
+	maxVisible := max(height/rowHeight, 1)
 
 	start := m.ScrollTop
 	if start >= len(m.Filtered) {
 		start = 0
 	}
-	end := start + maxVisible
-	if end > len(m.Filtered) {
-		end = len(m.Filtered)
-	}
+	end := min(start+maxVisible, len(m.Filtered))
 
 	// Calculate deterministic column widths based on available width
 	// Fixed elements: Indicator (2) + Icon (3) + 3 single-space gutters (3) + margins (2) = 10
 	fixedOverhead := 10
-	avail := width - fixedOverhead
-	if avail < 30 {
-		avail = 30
-	}
+	avail := max(width-fixedOverhead, 30)
 
 	// Title column: 30% of available (min 22, max 35)
-	titleWidth := (avail * 30) / 100
-	if titleWidth < 22 {
-		titleWidth = 22
-	}
+	titleWidth := max((avail*30)/100, 22)
 	if titleWidth > 35 {
 		titleWidth = 35
 	}
 
 	// Category column: 22% of available (min 16, max 28)
-	catWidth := (avail * 22) / 100
-	if catWidth < 16 {
-		catWidth = 16
-	}
+	catWidth := max((avail*22)/100, 16)
 	if catWidth > 28 {
 		catWidth = 28
 	}
@@ -320,10 +302,7 @@ func (m PaletteModel) RenderList(width, height int) string {
 	keyWidth := 8
 
 	// Description takes the remaining width
-	descWidth := avail - titleWidth - catWidth - keyWidth
-	if descWidth < 10 {
-		descWidth = 10
-	}
+	descWidth := max(avail-titleWidth-catWidth-keyWidth, 10)
 
 	var rows []string
 	for i := start; i < end; i++ {
@@ -362,10 +341,7 @@ func (m PaletteModel) RenderFooter(width int) string {
 
 	brand := FooterBrandStyle.Render("󰍉 Command Palette")
 
-	availLeft := width - lipgloss.Width(brand) - 4
-	if availLeft < 10 {
-		availLeft = 10
-	}
+	availLeft := max(width-lipgloss.Width(brand)-4, 10)
 	leftBlock := lipgloss.NewStyle().Width(availLeft).Render(modifiers)
 
 	bar := lipgloss.JoinHorizontal(lipgloss.Center, leftBlock, brand)
@@ -388,10 +364,7 @@ func (m PaletteModel) View() string {
 
 	searchHeight := lipgloss.Height(searchBar)
 	footerHeight := lipgloss.Height(footer)
-	listHeight := m.Height - searchHeight - footerHeight
-	if listHeight < 1 {
-		listHeight = 1
-	}
+	listHeight := max(m.Height-searchHeight-footerHeight, 1)
 
 	list := m.RenderList(m.Width, listHeight)
 
