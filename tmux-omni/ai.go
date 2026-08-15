@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -53,7 +54,7 @@ var scrollbackDepths = []string{"100", "200", "500", "1000", "all"}
 // ChatMessage represents a single message in the transcript.
 type ChatMessage struct {
 	Role      string // "user", "assistant", "system", "error", "refinement"
-	Content   string
+	Content   string // Raw markdown or text content
 	Timestamp time.Time
 }
 
@@ -89,6 +90,24 @@ type aiResultMsg struct {
 }
 
 type aiTickMsg time.Time
+
+func renderMarkdown(content string, width int) string {
+	if width <= 0 {
+		width = 80
+	}
+	r, err := glamour.NewTermRenderer(
+		glamour.WithStandardStyle("dark"),
+		glamour.WithWordWrap(width),
+	)
+	if err != nil {
+		return content
+	}
+	out, err := r.Render(content)
+	if err != nil {
+		return content
+	}
+	return strings.TrimSpace(out)
+}
 
 func NewAIModel(mode, paneID string) AIModel {
 	if mode == "" {
@@ -135,6 +154,7 @@ func NewAIModel(mode, paneID string) AIModel {
 	s.Style = lipgloss.NewStyle().Foreground(ColorAccentCyan).Bold(true)
 
 	isCompact := (mode == AIModeCommand || mode == AIModeFix)
+	isAutoRun := (mode == AIModeError || mode == AIModeSummarize || mode == AIModeExplainCopy || mode == AIModeFix)
 
 	m := AIModel{
 		Mode:         mode,
@@ -144,7 +164,8 @@ func NewAIModel(mode, paneID string) AIModel {
 		PaneCommand:  paneCmd,
 		DepthIndex:   1, // "200"
 		Messages:     make([]ChatMessage, 0),
-		FocusOnInput: true,
+		IsBusy:       isAutoRun,
+		FocusOnInput: !isAutoRun,
 		Width:        80,
 		Height:       24,
 		Viewport:     vp,
@@ -154,11 +175,16 @@ func NewAIModel(mode, paneID string) AIModel {
 	}
 
 	if isCompact {
-		m.CmdInput.Focus()
+		if !isAutoRun {
+			m.CmdInput.Focus()
+		}
 	} else {
-		m.Input.Focus()
+		if !isAutoRun {
+			m.Input.Focus()
+		}
 	}
 
+	m.updateViewportContent()
 	return m
 }
 
@@ -199,6 +225,7 @@ func (m AIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			var cmd tea.Cmd
 			m.Spinner, cmd = m.Spinner.Update(msg)
 			cmds = append(cmds, cmd)
+			m.updateViewportContent()
 		}
 
 	case aiResultMsg:
@@ -246,7 +273,7 @@ func (m AIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 
-		// When input is NOT focused, handle global navigation
+		// When input is NOT focused (Vim modal mode)
 		if !m.FocusOnInput {
 			switch keyStr {
 			case "q", "esc":
@@ -311,13 +338,22 @@ func (m AIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 		} else {
-			// Input IS focused
+			// Input IS focused (Insert mode)
 			switch keyStr {
 			case "esc":
 				if m.isCompactMode() {
-					return m, tea.Quit
+					if m.CmdInput.Value() == "" {
+						return m, tea.Quit
+					}
+					m.FocusOnInput = false
+					m.CmdInput.Blur()
+					return m, nil
 				}
-				// Switch focus to viewport
+				if m.Input.Value() == "" {
+					m.FocusOnInput = false
+					m.Input.Blur()
+					return m, nil
+				}
 				m.FocusOnInput = false
 				m.Input.Blur()
 				return m, nil
@@ -479,7 +515,12 @@ func (m AIModel) renderAssistantCard(content string) string {
 	}
 
 	badge := lipgloss.NewStyle().Foreground(ColorAccentPurple).Bold(true).Render("󰧑 Assistant")
-	body := lipgloss.NewStyle().Foreground(ColorFgDefault).Render(content)
+	cardWidth := m.Viewport.Width - 6
+	if cardWidth < 20 {
+		cardWidth = 70
+	}
+	formattedMarkdown := renderMarkdown(content, cardWidth)
+	body := lipgloss.NewStyle().Foreground(ColorFgDefault).Render(formattedMarkdown)
 	card := lipgloss.JoinVertical(lipgloss.Left, badge, body)
 	return lipgloss.NewStyle().
 		Border(lipgloss.Border{Left: "▎"}, false, false, false, true).
@@ -709,21 +750,28 @@ func (m AIModel) View() string {
 
 func (m AIModel) renderHelpModal(background string) string {
 	helpText := `
-  AI Assistant Shortcuts:
+  AI Assistant Shortcuts (Vim Modal):
 
-  <Enter>       Submit prompt / Send candidate command
-  <Shift+Enter> Insert newline in multiline input
-  <Tab>         Toggle focus between input and transcript
-  <j> / <k>     Scroll transcript up / down (when transcript focused)
-  <Ctrl+d/u>    Half-page scroll down / up
-  <g> / <G>     Jump to top / bottom
-  <y> / <c>     Copy latest assistant response or candidate command
-  <1> - <5>     Switch scrollback depth (100, 200, 500, 1000, all)
-  <d>           Cycle scrollback depth
-  <r>           Reload query with current pane context
-  </refresh>    Type /refresh to update pane context in session
-  <?>           Toggle this help dialog
-  <Esc> / <q>   Quit AI assistant
+  <Tab>         Toggle focus between Input (Insert) and Transcript (Normal)
+  <Esc>         Exit Insert mode (focus transcript) / Quit when empty
+  <i> / <a>     Enter Insert mode (from transcript)
+
+  Normal Mode (Transcript focused):
+    <j> / <k>     Scroll line down / up
+    <Ctrl+d/u>    Half-page scroll down / up
+    <g> / <G>     Jump to top / bottom
+    <y> / <c>     Copy raw response or candidate command
+    <1> - <5>     Switch scrollback depth (100, 200, 500, 1000, all)
+    <d>           Cycle scrollback depth
+    <r>           Reload query with current pane context
+    <s>           Send candidate command to pane (fix/command modes)
+    <?>           Toggle this help dialog
+    <q> / <Esc>   Quit AI assistant
+
+  Insert Mode (Input focused):
+    <Enter>       Submit prompt (or send candidate command if input empty)
+    <Shift+Enter> Insert newline in multiline prompt
+    </refresh>    Type /refresh to reload pane context in session
 `
 	dialogBox := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
