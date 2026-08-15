@@ -147,7 +147,8 @@ func NewAIModel(mode, paneID string) AIModel {
 	ti.Placeholder = placeholder
 	ti.Prompt = "❯ "
 	ti.PromptStyle = lipgloss.NewStyle().Foreground(ColorAccentCyan).Bold(true)
-	ti.TextStyle = lipgloss.NewStyle().Foreground(ColorFgDefault)
+	ti.TextStyle = lipgloss.NewStyle().Foreground(ColorFgEmphasis)
+	ti.PlaceholderStyle = lipgloss.NewStyle().Foreground(ColorFgSubtle)
 
 	s := spinner.New()
 	s.Spinner = spinner.Dot
@@ -757,21 +758,24 @@ func (m AIModel) View() string {
 }
 
 func (m AIModel) renderCompactView(headerBox, footerLine string) string {
-	boxWidth := m.Width - 6
+	boxWidth := m.Width - 4
 	if boxWidth < 30 {
 		boxWidth = 30
 	}
 
 	// 1. Top Input / Prompt Box
 	promptTitle := "󰘳 Prompt Description"
+	borderColor := ColorAccentBlue
 	if m.CandidateCommand != "" {
 		promptTitle = "󰑕 Refine Instruction (or press Enter/s to send to pane)"
+		borderColor = ColorAccentCyan
 	} else if m.Mode == AIModeFix {
 		promptTitle = "󰁨 Refine Fix Instruction (or press Enter/s to send to pane)"
+		borderColor = ColorAccentYellow
 	}
 
 	promptBadge := lipgloss.NewStyle().
-		Foreground(ColorAccentBlue).
+		Foreground(borderColor).
 		Bold(true).
 		Render(promptTitle)
 
@@ -779,8 +783,7 @@ func (m AIModel) renderCompactView(headerBox, footerLine string) string {
 	inputCardContent := lipgloss.JoinVertical(lipgloss.Left, promptBadge, inputView)
 	inputCard := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(ColorAccentBlue).
-		Background(ColorBgCard).
+		BorderForeground(borderColor).
 		Padding(0, 1).
 		Width(boxWidth).
 		Render(inputCardContent)
@@ -796,7 +799,6 @@ func (m AIModel) renderCompactView(headerBox, footerLine string) string {
 		middleCard = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(ColorAccentCyan).
-			Background(ColorBgCard).
 			Padding(1, 2).
 			Width(boxWidth).
 			Render(spinnerText)
@@ -813,7 +815,6 @@ func (m AIModel) renderCompactView(headerBox, footerLine string) string {
 		middleCard = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(ColorAccentGreen).
-			Background(ColorBgCard).
 			Padding(0, 1).
 			Width(boxWidth).
 			Render(candContent)
@@ -823,27 +824,38 @@ func (m AIModel) renderCompactView(headerBox, footerLine string) string {
 			Foreground(ColorAccentPurple).
 			Bold(true).
 			Render("󰋗 Examples:")
-		ex1 := lipgloss.NewStyle().Foreground(ColorFgMuted).Render("  • find files modified in last 24h")
-		ex2 := lipgloss.NewStyle().Foreground(ColorFgMuted).Render("  • undo last git commit keeping changes staged")
-		ex3 := lipgloss.NewStyle().Foreground(ColorFgMuted).Render("  • find process on port 8080 and kill it")
+		ex1 := lipgloss.NewStyle().Foreground(ColorFgDefault).Render("  • find files modified in last 24h")
+		ex2 := lipgloss.NewStyle().Foreground(ColorFgDefault).Render("  • undo last git commit keeping changes staged")
+		ex3 := lipgloss.NewStyle().Foreground(ColorFgDefault).Render("  • find process on port 8080 and kill it")
 		exContent := lipgloss.JoinVertical(lipgloss.Left, exBadge, ex1, ex2, ex3)
 		middleCard = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(ColorBorder).
-			Background(ColorBgCard).
 			Padding(0, 1).
 			Width(boxWidth).
 			Render(exContent)
 	}
 
 	body := lipgloss.JoinVertical(lipgloss.Left,
-		lipgloss.NewStyle().Padding(1, 2).Render(inputCard),
-		lipgloss.NewStyle().Padding(0, 2).Render(middleCard),
+		lipgloss.NewStyle().Padding(0, 1).Render(inputCard),
+		lipgloss.NewStyle().Padding(0, 1).Render(middleCard),
 	)
+
+	// Calculate vertical spacing so footer is pinned to the bottom of the popup window
+	headerHeight := lipgloss.Height(headerBox)
+	bodyHeight := lipgloss.Height(body)
+	footerHeight := lipgloss.Height(footerLine)
+
+	spacerHeight := m.Height - headerHeight - bodyHeight - footerHeight
+	spacer := ""
+	if spacerHeight > 0 {
+		spacer = strings.Repeat("\n", spacerHeight)
+	}
 
 	return lipgloss.JoinVertical(lipgloss.Left,
 		headerBox,
 		body,
+		spacer,
 		footerLine,
 	)
 }
