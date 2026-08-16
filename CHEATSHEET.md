@@ -83,6 +83,8 @@ Inside the TUI:
 - **Which-Key navigation**: press a shortcut key (e.g. `p` panes, `w` windows, `g` git, `a` AI, `t` tools, `P` plugins, `o` options), or use `↑`/`↓`/`Tab` to highlight.
 - **Switch to Palette**: `/` or `Ctrl-p` jumps directly into Command Palette fuzzy search.
 - **Switch to Leader**: `Esc` / `Backspace` (when input is empty) or `Ctrl-Space` / `Ctrl-l` instantly switches back to Which-Key Leader view.
+- **Inspectors & Navigation**: Selecting an internal inspector (e.g. Environment, Options, Buffers, Keys, Messages) opens directly inside `tmux-omni`; pressing `<Backspace>` (on empty search), `<Esc>`, or `q` returns directly to the Leader menu or Palette screen. Status messages (e.g. copied to clipboard) auto-dismiss after 2.5s.
+- **Environment Inspector**: Press `<CR>` to edit variable in tmux prompt, `y`/`c` (or `a`) to open the **Action Picker** modal, or use direct single-key shortcuts: `v` (copy value only), `n` (copy variable name), `e` (copy shell export).
 - **Navigation & Close**: `Esc` / `Backspace` goes up one group level (or close at root), `q` quits.
 
 ### Execution Modifiers & Actions

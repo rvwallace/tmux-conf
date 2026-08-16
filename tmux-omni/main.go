@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,6 +16,7 @@ type AppMode int
 const (
 	ModeWhichKey AppMode = iota
 	ModePalette
+	ModeInspector
 )
 
 // PendingExecution records the action to execute after TUI cleanly exits.
@@ -27,40 +30,56 @@ type PendingExecution struct {
 
 // AppModel is the top-level Bubble Tea application model.
 type AppModel struct {
-	Mode         AppMode
-	WhichKey     WhichKeyModel
-	Palette      PaletteModel
-	Config       *Config
-	FlatCommands []FlatCommand
-	StartSearch  bool
-	PaneID       string
-	Width        int
-	Height       int
-	PendingExec  *PendingExecution
+	Mode                  AppMode
+	PreviousMode          AppMode
+	WhichKey              WhichKeyModel
+	Palette               PaletteModel
+	Inspector             InspectModel
+	IsStandaloneInspector bool
+	Config                *Config
+	FlatCommands          []FlatCommand
+	StartSearch           bool
+	PaneID                string
+	Width                 int
+	Height                int
+	PendingExec           *PendingExecution
 }
 
-func InitialModel(cfg *Config, flat []FlatCommand, startSearch bool, paneID string) AppModel {
-	wk := NewWhichKeyModel(cfg.Title, cfg.Items)
+func InitialModel(cfg *Config, flat []FlatCommand, startSearch bool, paneID string, inspectorType string) AppModel {
+	var wk WhichKeyModel
+	if cfg != nil {
+		wk = NewWhichKeyModel(cfg.Title, cfg.Items)
+	}
 	pal := NewPaletteModel(flat)
 
 	initialMode := ModeWhichKey
-	if startSearch {
+	var insp InspectModel
+	isStandalone := false
+
+	if inspectorType != "" {
+		initialMode = ModeInspector
+		insp = CreateInspector(inspectorType)
+		isStandalone = true
+	} else if startSearch {
 		initialMode = ModePalette
 	}
 
 	return AppModel{
-		Mode:         initialMode,
-		WhichKey:     wk,
-		Palette:      pal,
-		Config:       cfg,
-		FlatCommands: flat,
-		StartSearch:  startSearch,
-		PaneID:       paneID,
+		Mode:                  initialMode,
+		PreviousMode:          ModeWhichKey,
+		WhichKey:              wk,
+		Palette:               pal,
+		Inspector:             insp,
+		IsStandaloneInspector: isStandalone,
+		Config:                cfg,
+		FlatCommands:          flat,
+		StartSearch:           startSearch,
+		PaneID:                paneID,
 	}
 }
 
 func (m AppModel) Init() tea.Cmd {
-	if m.Mode == ModePalette {
+	if m.Mode == ModePalette || m.Mode == ModeInspector {
 		return textinput.Blink
 	}
 	return nil
@@ -68,6 +87,12 @@ func (m AppModel) Init() tea.Cmd {
 
 func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case ClearInspectStatusMsg:
+		if msg.ID == m.Inspector.StatusMsgID {
+			m.Inspector.StatusMsg = ""
+		}
+		return m, nil
+
 	case tea.WindowSizeMsg:
 		m.Width = msg.Width
 		m.Height = msg.Height
@@ -75,6 +100,8 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.WhichKey.Height = msg.Height
 		m.Palette.Width = msg.Width
 		m.Palette.Height = msg.Height
+		m.Inspector.Width = msg.Width
+		m.Inspector.Height = msg.Height
 		return m, nil
 
 	case tea.KeyMsg:
@@ -89,13 +116,19 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updateWhichKey(msg)
 		} else if m.Mode == ModePalette {
 			return m.updatePalette(msg)
+		} else if m.Mode == ModeInspector {
+			return m.updateInspector(msg)
 		}
 	}
 
-	// Update textinput ticks if in palette mode
+	// Update textinput ticks if in palette or inspector mode
 	if m.Mode == ModePalette {
 		var cmd tea.Cmd
 		m.Palette.TextInput, cmd = m.Palette.TextInput.Update(msg)
+		return m, cmd
+	} else if m.Mode == ModeInspector {
+		var cmd tea.Cmd
+		m.Inspector.TextInput, cmd = m.Inspector.TextInput.Update(msg)
 		return m, cmd
 	}
 
@@ -146,6 +179,15 @@ func (m AppModel) updateWhichKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				})
 				return m, nil
 			} else if item.Action != "" {
+				if inspType, ok := IsInspectorCommand(item.Action); ok {
+					m.PreviousMode = ModeWhichKey
+					m.Inspector = CreateInspector(inspType)
+					m.Inspector.Width = m.Width
+					m.Inspector.Height = m.Height
+					m.Mode = ModeInspector
+					m.Inspector.TextInput.Focus()
+					return m, tea.Batch(textinput.Blink, m.Inspector.TextInput.Focus())
+				}
 				target := item.Target
 				if target == "" {
 					target = "tmux"
@@ -244,6 +286,15 @@ func (m AppModel) updateWhichKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				})
 				return m, nil
 			} else if item.Action != "" {
+				if inspType, ok := IsInspectorCommand(item.Action); ok {
+					m.PreviousMode = ModeWhichKey
+					m.Inspector = CreateInspector(inspType)
+					m.Inspector.Width = m.Width
+					m.Inspector.Height = m.Height
+					m.Mode = ModeInspector
+					m.Inspector.TextInput.Focus()
+					return m, tea.Batch(textinput.Blink, m.Inspector.TextInput.Focus())
+				}
 				// Leaf action execution
 				target := item.Target
 				if target == "" {
@@ -336,6 +387,18 @@ func (m AppModel) executeSelectedPaletteItem(targetOverride string) (tea.Model, 
 		return m, nil
 	}
 
+	if targetOverride == "" {
+		if inspType, ok := IsInspectorCommand(cmd.Action); ok {
+			m.PreviousMode = ModePalette
+			m.Inspector = CreateInspector(inspType)
+			m.Inspector.Width = m.Width
+			m.Inspector.Height = m.Height
+			m.Mode = ModeInspector
+			m.Inspector.TextInput.Focus()
+			return m, tea.Batch(textinput.Blink, m.Inspector.TextInput.Focus())
+		}
+	}
+
 	target := targetOverride
 	if target == "" {
 		target = cmd.Target
@@ -357,11 +420,341 @@ func (m AppModel) executeSelectedPaletteItem(targetOverride string) (tea.Model, 
 	return m, tea.Quit
 }
 
+func (m AppModel) updateInspector(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	keyStr := msg.String()
+	maxVisible := max(m.Inspector.Height-4, 1)
+
+	// Handle Action Picker modal if open
+	if m.Inspector.ShowActionPicker {
+		switch keyStr {
+		case "ctrl+c":
+			return m, tea.Quit
+		case "esc", "q", "backspace":
+			m.Inspector.CloseActionPicker()
+			return m, nil
+		case "down", "ctrl+n", "ctrl+j", "j":
+			if len(m.Inspector.ActionOptions) > 0 {
+				m.Inspector.ActionPickerCursor = (m.Inspector.ActionPickerCursor + 1) % len(m.Inspector.ActionOptions)
+			}
+			return m, nil
+		case "up", "ctrl+p", "ctrl+k", "k":
+			if len(m.Inspector.ActionOptions) > 0 {
+				m.Inspector.ActionPickerCursor = (m.Inspector.ActionPickerCursor - 1 + len(m.Inspector.ActionOptions)) % len(m.Inspector.ActionOptions)
+			}
+			return m, nil
+		case "enter":
+			if len(m.Inspector.ActionOptions) > 0 {
+				opt := m.Inspector.ActionOptions[m.Inspector.ActionPickerCursor]
+				return m.executeActionOption(opt)
+			}
+			return m, nil
+		}
+
+		// Direct hotkeys inside modal
+		for _, opt := range m.Inspector.ActionOptions {
+			if keyStr == opt.Key || strings.ToLower(keyStr) == opt.Key {
+				return m.executeActionOption(opt)
+			}
+		}
+		return m, nil
+	}
+
+	// Direct single-key shortcuts in Environment inspector
+	if m.Inspector.Title == "Environment" {
+		switch keyStr {
+		case "v":
+			item := m.Inspector.SelectedItem()
+			if item != nil && item.Col3 != "" {
+				CopyToClipboard(item.Col3)
+				disp := item.Col3
+				if len(disp) > 40 {
+					disp = disp[:37] + "..."
+				}
+				cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied value: %s", disp))
+				return m, cmd
+			}
+		case "n":
+			item := m.Inspector.SelectedItem()
+			if item != nil && item.Col1 != "" {
+				CopyToClipboard(item.Col1)
+				cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied name: %s", item.Col1))
+				return m, cmd
+			}
+		case "e":
+			item := m.Inspector.SelectedItem()
+			if item != nil && item.Col1 != "" {
+				exp := fmt.Sprintf("export %s=\"%s\"", item.Col1, item.Col3)
+				CopyToClipboard(exp)
+				disp := exp
+				if len(disp) > 40 {
+					disp = disp[:37] + "..."
+				}
+				cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied export: %s", disp))
+				return m, cmd
+			}
+		case "y", "c", "a":
+			if m.Inspector.OpenActionPicker() {
+				return m, nil
+			}
+		}
+	}
+
+	switch keyStr {
+	case "ctrl+space", "ctrl+l", "alt+m":
+		m.Mode = ModeWhichKey
+		m.Inspector.TextInput.Blur()
+		return m, nil
+
+	case "ctrl+f", "ctrl+p":
+		m.Mode = ModePalette
+		m.Inspector.TextInput.Blur()
+		m.Palette.TextInput.Focus()
+		m.Palette.FilterCommands()
+		return m, textinput.Blink
+
+	case "backspace":
+		if m.Inspector.TextInput.Value() == "" {
+			if m.IsStandaloneInspector {
+				return m, tea.Quit
+			}
+			m.Mode = m.PreviousMode
+			m.Inspector.TextInput.Blur()
+			if m.Mode == ModePalette {
+				m.Palette.TextInput.Focus()
+				m.Palette.FilterCommands()
+				return m, textinput.Blink
+			}
+			return m, nil
+		}
+
+	case "esc", "q":
+		if m.Inspector.TextInput.Value() != "" {
+			m.Inspector.TextInput.SetValue("")
+			m.Inspector.Filter()
+			return m, nil
+		}
+		if m.IsStandaloneInspector {
+			return m, tea.Quit
+		}
+		m.Mode = m.PreviousMode
+		m.Inspector.TextInput.Blur()
+		if m.Mode == ModePalette {
+			m.Palette.TextInput.Focus()
+			m.Palette.FilterCommands()
+			return m, textinput.Blink
+		}
+		return m, nil
+
+	case "down", "ctrl+n", "ctrl+j":
+		m.Inspector.CursorDown(maxVisible)
+		return m, nil
+
+	case "up", "ctrl+k":
+		m.Inspector.CursorUp(maxVisible)
+		return m, nil
+
+	case "enter":
+		item := m.Inspector.SelectedItem()
+		if item == nil {
+			return m, nil
+		}
+		if m.Inspector.AllowExecute && item.ActionCmd != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.ActionCmd,
+				Target:         "tmux",
+				Title:          item.Col1,
+				PersistShell:   false,
+				OriginalTarget: "tmux",
+			}
+			return m, tea.Quit
+		} else if m.Inspector.AllowCopy && item.RawCopy != "" {
+			CopyToClipboard(item.RawCopy)
+			disp := item.RawCopy
+			if len(disp) > 40 {
+				disp = disp[:37] + "..."
+			}
+			cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
+			return m, cmd
+		}
+		return m, nil
+
+	case "alt+i", "ctrl+i", "ctrl+y", "tab", "shift+tab", "ˆ", "^":
+		if !m.Inspector.AllowSendKeys {
+			return m, nil
+		}
+		item := m.Inspector.SelectedItem()
+		if item != nil && item.ActionCmd != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.ActionCmd,
+				Target:         "send_keys",
+				Title:          item.Col1,
+				PersistShell:   false,
+				OriginalTarget: "tmux",
+			}
+			return m, tea.Quit
+		}
+		return m, nil
+
+	case "alt+w", "ctrl+w", "ctrl+t", "alt+t", "∑":
+		if !m.Inspector.AllowWindow {
+			return m, nil
+		}
+		item := m.Inspector.SelectedItem()
+		if item != nil && item.ActionCmd != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.ActionCmd,
+				Target:         "window",
+				Title:          item.Col1,
+				PersistShell:   true,
+				OriginalTarget: "tmux",
+			}
+			return m, tea.Quit
+		}
+		return m, nil
+
+	case "alt+v", "ctrl+v", "alt+h", "ctrl+h", "√":
+		if !m.Inspector.AllowSplit {
+			return m, nil
+		}
+		item := m.Inspector.SelectedItem()
+		if item != nil && item.ActionCmd != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.ActionCmd,
+				Target:         "split_h",
+				Title:          item.Col1,
+				PersistShell:   true,
+				OriginalTarget: "tmux",
+			}
+			return m, tea.Quit
+		}
+		return m, nil
+
+	case "alt+s", "ctrl+s", "alt+x", "ctrl+x", "ß":
+		if !m.Inspector.AllowSplit {
+			return m, nil
+		}
+		item := m.Inspector.SelectedItem()
+		if item != nil && item.ActionCmd != "" {
+			m.PendingExec = &PendingExecution{
+				Action:         item.ActionCmd,
+				Target:         "split_v",
+				Title:          item.Col1,
+				PersistShell:   true,
+				OriginalTarget: "tmux",
+			}
+			return m, tea.Quit
+		}
+		return m, nil
+
+	case "d", "x":
+		if m.Inspector.AllowDelete && m.Inspector.Title == "Paste Buffers" {
+			item := m.Inspector.SelectedItem()
+			if item != nil && item.Col1 != "" {
+				_ = exec.Command("tmux", "delete-buffer", "-b", item.Col1).Run()
+				m.Inspector.Items = LoadBuffersData()
+				m.Inspector.Filter()
+				cmd := m.Inspector.SetStatus(fmt.Sprintf("Deleted buffer: %s", item.Col1))
+				return m, cmd
+			}
+		}
+
+	case "y", "c":
+		if !m.Inspector.AllowCopy {
+			return m, nil
+		}
+		item := m.Inspector.SelectedItem()
+		if item != nil && item.RawCopy != "" {
+			CopyToClipboard(item.RawCopy)
+			disp := item.RawCopy
+			if len(disp) > 40 {
+				disp = disp[:37] + "..."
+			}
+			cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
+			return m, cmd
+		}
+
+	case "Y", "C":
+		if !m.Inspector.AllowCopy {
+			return m, nil
+		}
+		item := m.Inspector.SelectedItem()
+		if item != nil && item.RawCopy != "" {
+			formatted := FormatForShell(item.RawCopy, "tmux")
+			CopyToClipboard(formatted)
+			disp := formatted
+			if len(disp) > 40 {
+				disp = disp[:37] + "..."
+			}
+			cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied shell cmd: %s", disp))
+			return m, cmd
+		}
+	}
+
+	// Forward / to palette if search input is empty
+	if keyStr == "/" && m.Inspector.TextInput.Value() == "" {
+		m.Mode = ModePalette
+		m.Inspector.TextInput.Blur()
+		m.Palette.TextInput.Focus()
+		m.Palette.FilterCommands()
+		return m, textinput.Blink
+	}
+
+	// Update text input
+	oldVal := m.Inspector.TextInput.Value()
+	var cmd tea.Cmd
+	m.Inspector.TextInput, cmd = m.Inspector.TextInput.Update(msg)
+	if m.Inspector.TextInput.Value() != oldVal {
+		m.Inspector.Filter()
+		m.Inspector.StatusMsg = ""
+	}
+
+	return m, cmd
+}
+
+func (m AppModel) executeActionOption(opt ActionOption) (tea.Model, tea.Cmd) {
+	m.Inspector.CloseActionPicker()
+
+	switch opt.ActionType {
+	case "copy":
+		CopyToClipboard(opt.Payload)
+		disp := opt.Payload
+		if len(disp) > 40 {
+			disp = disp[:37] + "..."
+		}
+		cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied %s: %s", strings.ToLower(opt.Title), disp))
+		return m, cmd
+
+	case "exec":
+		m.PendingExec = &PendingExecution{
+			Action:         opt.Payload,
+			Target:         "tmux",
+			Title:          opt.Title,
+			PersistShell:   false,
+			OriginalTarget: "tmux",
+		}
+		return m, tea.Quit
+
+	case "send":
+		m.PendingExec = &PendingExecution{
+			Action:         opt.Payload,
+			Target:         "send_keys",
+			Title:          opt.Title,
+			PersistShell:   false,
+			OriginalTarget: "tmux",
+		}
+		return m, tea.Quit
+	}
+
+	return m, nil
+}
+
 func (m AppModel) View() string {
 	if m.Mode == ModeWhichKey {
 		return WindowStyle.Render(m.WhichKey.View())
+	} else if m.Mode == ModePalette {
+		return WindowStyle.Render(m.Palette.View())
 	}
-	return WindowStyle.Render(m.Palette.View())
+	return m.Inspector.View()
 }
 
 func runInspector(inspModel InspectModel, paneID string) {
@@ -506,107 +899,37 @@ func main() {
 		return
 	}
 
-	// Mode 1: Keybindings Inspector
+	inspectorType := ""
 	if *keysFlag || *keysLong {
-		items := LoadKeybindingsData()
-		insp := NewInspectModel("Keybindings", "󰋗", "Key", "Category", "Description", "Command", items, 15, 12, 32)
-		insp.AllowExecute = true
-		insp.ExecuteLabel = "Execute"
-		insp.AllowSendKeys = true
-		insp.AllowWindow = true
-		insp.AllowSplit = true
-		insp.AllowCopy = true
-		runInspector(insp, paneID)
-		return
+		inspectorType = "keys"
+	} else if *cmdsFlag || *cmdsLong {
+		inspectorType = "commands"
+	} else if *optsFlag || *optsLong {
+		inspectorType = "options"
+	} else if *envFlag || *envLong {
+		inspectorType = "env"
+	} else if *buffersFlag || *buffersLong {
+		inspectorType = "buffers"
+	} else if *messagesFlag || *messagesLong || *logsFlag {
+		inspectorType = "messages"
+	} else if *clientsFlag {
+		inspectorType = "clients"
 	}
 
-	// Mode 2: Commands Inspector
-	if *cmdsFlag || *cmdsLong {
-		items := LoadCommandsData()
-		insp := NewInspectModel("Tmux Commands", "󰘳", "Command", "Alias", "Syntax / Usage", "", items, 24, 10, 0)
-		insp.AllowExecute = true
-		insp.ExecuteLabel = "Prompt"
-		insp.AllowSendKeys = true
-		insp.AllowWindow = true
-		insp.AllowSplit = true
-		insp.AllowCopy = true
-		runInspector(insp, paneID)
-		return
-	}
-
-	// Mode 3: Options Inspector
-	if *optsFlag || *optsLong {
-		items := LoadOptionsData()
-		insp := NewInspectModel("Tmux Options", "󰘳", "Option Name", "Scope", "Current Value", "", items, 32, 10, 0)
-		insp.AllowExecute = true
-		insp.ExecuteLabel = "Toggle/Edit"
-		insp.AllowCopy = true
-		runInspector(insp, paneID)
-		return
-	}
-
-	// Mode 4: Environment Inspector
-	if *envFlag || *envLong {
-		items := LoadEnvironmentData()
-		insp := NewInspectModel("Environment", "󰈞", "Variable", "Scope", "Value", "", items, 28, 10, 0)
-		insp.AllowExecute = true
-		insp.ExecuteLabel = "Set/Prompt"
-		insp.AllowCopy = true
-		runInspector(insp, paneID)
-		return
-	}
-
-	// Mode 5: Paste Buffers Inspector
-	if *buffersFlag || *buffersLong {
-		items := LoadBuffersData()
-		insp := NewInspectModel("Paste Buffers", "󰅍", "Buffer Name", "Size", "Sample Content", "", items, 16, 12, 0)
-		insp.AllowExecute = true
-		insp.ExecuteLabel = "Paste"
-		insp.AllowSendKeys = true
-		insp.AllowDelete = true
-		insp.AllowCopy = true
-		runInspector(insp, paneID)
-		return
-	}
-
-	// Mode 5.5: Messages Inspector
-	if *messagesFlag || *messagesLong || *logsFlag {
-		items := LoadMessagesData()
-		insp := NewInspectModel("Tmux Messages", "󰍡", "Time", "Source", "Log Message", "", items, 8, 16, 0)
-		insp.AllowCopy = true
-		runInspector(insp, paneID)
-		return
-	}
-
-	// Mode 6: Clients Inspector
-	if *clientsFlag {
-		items := LoadClientsData()
-		insp := NewInspectModel("Connected Clients", "󰒍", "Client", "Session", "Dimensions (TTY)", "PID", items, 18, 14, 22)
-		insp.AllowExecute = true
-		insp.ExecuteLabel = "Switch"
-		insp.AllowCopy = true
-		runInspector(insp, paneID)
-		return
-	}
-
-	// Mode 6: Which-Key Menu & Command Palette (Default)
 	startSearch := *searchFlag || *searchLong
 
+	var cfg *Config
+	var flatCommands []FlatCommand
+
 	configPath, err := FindConfigFile(*configFlag)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+	if err == nil {
+		cfg, err = LoadConfig(configPath)
+		if err == nil {
+			flatCommands = FlattenCommands(cfg.Items, nil, "")
+		}
 	}
 
-	cfg, err := LoadConfig(configPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-
-	flatCommands := FlattenCommands(cfg.Items, nil, "")
-
-	model := InitialModel(cfg, flatCommands, startSearch, paneID)
+	model := InitialModel(cfg, flatCommands, startSearch, paneID, inspectorType)
 	p := tea.NewProgram(model, tea.WithAltScreen())
 
 	finalModel, err := p.Run()

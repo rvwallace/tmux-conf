@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,36 +28,87 @@ type InspectItem struct {
 	ToggleScope string // "global" or "window"
 }
 
+// ActionOption represents a specific copy or execution action for an inspector item.
+type ActionOption struct {
+	Key         string // e.g. "v", "n", "e", "s", "p", "i"
+	Title       string // e.g. "Copy Value Only", "Copy Variable Name", "Copy Shell Export", "Copy Tmux Set", "Edit in Tmux Prompt", "Insert into Pane"
+	Description string // e.g. preview of value or command
+	ActionType  string // "copy", "exec", "send"
+	Payload     string
+}
+
+// ClearInspectStatusMsg is emitted when a status message auto-dismiss timeout expires.
+type ClearInspectStatusMsg struct {
+	ID int
+}
+
 // InspectModel is a unified, searchable table model for all tmux list inspectors.
 type InspectModel struct {
-	Title             string
-	Icon              string
-	Col1Header        string
-	Col2Header        string
-	Col3Header        string
-	Col4Header        string
-	Items             []InspectItem
-	Filtered          []InspectItem
-	CursorIndex       int
-	ScrollTop         int
-	TextInput         textinput.Model
-	Width             int
-	Height            int
-	Col1Width         int
-	Col2Width         int
-	Col3Width         int
-	StatusMsg         string
-	PendingExec       string
-	PendingExecTarget string
-	PendingExecTitle  string
-	NeedsRefresh      bool
-	AllowExecute      bool
-	AllowSendKeys     bool
-	AllowWindow       bool
-	AllowSplit        bool
-	AllowCopy         bool
-	AllowDelete       bool
-	ExecuteLabel      string
+	Title              string
+	Icon               string
+	Col1Header         string
+	Col2Header         string
+	Col3Header         string
+	Col4Header         string
+	Items              []InspectItem
+	Filtered           []InspectItem
+	CursorIndex        int
+	ScrollTop          int
+	TextInput          textinput.Model
+	Width              int
+	Height             int
+	Col1Width          int
+	Col2Width          int
+	Col3Width          int
+	StatusMsg          string
+	StatusMsgID        int
+	PendingExec        string
+	PendingExecTarget  string
+	PendingExecTitle   string
+	NeedsRefresh       bool
+	AllowExecute       bool
+	AllowSendKeys      bool
+	AllowWindow        bool
+	AllowSplit         bool
+	AllowCopy          bool
+	AllowDelete        bool
+	ExecuteLabel       string
+	ShowActionPicker   bool
+	ActionPickerCursor int
+	ActionOptions      []ActionOption
+}
+
+// SetStatus sets a temporary status message in the footer and returns a command to auto-dismiss it after 2.5 seconds.
+func (m *InspectModel) SetStatus(msg string) tea.Cmd {
+	m.StatusMsgID++
+	m.StatusMsg = msg
+	id := m.StatusMsgID
+	return tea.Tick(2500*time.Millisecond, func(t time.Time) tea.Msg {
+		return ClearInspectStatusMsg{ID: id}
+	})
+}
+
+// OpenActionPicker initializes and displays the action picker modal for the selected item.
+func (m *InspectModel) OpenActionPicker() bool {
+	item := m.SelectedItem()
+	if item == nil {
+		return false
+	}
+	opts := GetItemActionOptions(*item, m.Title)
+	if len(opts) == 0 {
+		return false
+	}
+	m.ActionOptions = opts
+	m.ActionPickerCursor = 0
+	m.ShowActionPicker = true
+	return true
+}
+
+// CloseActionPicker dismisses the action picker modal.
+func (m *InspectModel) CloseActionPicker() {
+	m.ShowActionPicker = false
+	m.ActionOptions = nil
+	m.ActionPickerCursor = 0
 }
 
 func NewInspectModel(title, icon, col1H, col2H, col3H, col4H string, items []InspectItem, col1W, col2W, col3W int) InspectModel {
@@ -359,25 +411,34 @@ func (m InspectModel) View() string {
 		legendText = lipgloss.NewStyle().Foreground(ColorAccentGreen).Bold(true).Render(m.StatusMsg)
 	} else {
 		var parts []string
-		if m.AllowExecute && m.ExecuteLabel != "" {
-			parts = append(parts, FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render(m.ExecuteLabel), "   ")
+		if m.Title == "Environment" {
+			parts = append(parts, FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render("Edit"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Actions"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<v>"), " ", FooterDescStyle.Render("Val"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<n>"), " ", FooterDescStyle.Render("Name"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<e>"), " ", FooterDescStyle.Render("Export"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Back"))
+		} else {
+			if m.AllowExecute && m.ExecuteLabel != "" {
+				parts = append(parts, FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render(m.ExecuteLabel), "   ")
+			}
+			if m.AllowSendKeys {
+				parts = append(parts, FooterKeyStyle.Render("<C-i>"), " ", FooterDescStyle.Render("Send"), "   ")
+			}
+			if m.AllowWindow {
+				parts = append(parts, FooterKeyStyle.Render("<C-w>"), " ", FooterDescStyle.Render("Win"), "   ")
+			}
+			if m.AllowSplit {
+				parts = append(parts, FooterKeyStyle.Render("<C-v>/<C-s>"), " ", FooterDescStyle.Render("Split"), "   ")
+			}
+			if m.AllowCopy {
+				parts = append(parts, FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Copy"), "   ")
+			}
+			if m.AllowDelete {
+				parts = append(parts, FooterKeyStyle.Render("<d/x>"), " ", FooterDescStyle.Render("Delete"), "   ")
+			}
+			parts = append(parts, FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Close"))
 		}
-		if m.AllowSendKeys {
-			parts = append(parts, FooterKeyStyle.Render("<C-i>"), " ", FooterDescStyle.Render("Send"), "   ")
-		}
-		if m.AllowWindow {
-			parts = append(parts, FooterKeyStyle.Render("<C-w>"), " ", FooterDescStyle.Render("Win"), "   ")
-		}
-		if m.AllowSplit {
-			parts = append(parts, FooterKeyStyle.Render("<C-v>/<C-s>"), " ", FooterDescStyle.Render("Split"), "   ")
-		}
-		if m.AllowCopy {
-			parts = append(parts, FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Copy"), "   ")
-		}
-		if m.AllowDelete {
-			parts = append(parts, FooterKeyStyle.Render("<d/x>"), " ", FooterDescStyle.Render("Delete"), "   ")
-		}
-		parts = append(parts, FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Close"))
 		legendText = lipgloss.JoinHorizontal(lipgloss.Left, parts...)
 	}
 
@@ -418,7 +479,182 @@ func (m InspectModel) View() string {
 		Width(width).
 		Render(lipgloss.JoinVertical(lipgloss.Left, rows...))
 
-	return WindowStyle.Render(lipgloss.JoinVertical(lipgloss.Left, topBar, divider, listContent, bottomArea))
+	baseView := WindowStyle.Render(lipgloss.JoinVertical(lipgloss.Left, topBar, divider, listContent, bottomArea))
+	if m.ShowActionPicker {
+		return m.RenderActionPickerModal()
+	}
+	return baseView
+}
+
+// RenderActionPickerModal renders the centered action picker modal.
+func (m InspectModel) RenderActionPickerModal() string {
+	if len(m.ActionOptions) == 0 {
+		return ""
+	}
+
+	var b strings.Builder
+	item := m.SelectedItem()
+	varItemName := ""
+	if item != nil {
+		varItemName = item.Col1
+	}
+
+	header := lipgloss.NewStyle().Foreground(ColorAccentBlue).Bold(true).Render(fmt.Sprintf("󰘳 Actions: %s", varItemName))
+	b.WriteString("  " + header + "\n\n")
+
+	modalWidth := min(max(m.Width-10, 50), 76)
+	availDesc := max(modalWidth-28, 15)
+
+	for i, opt := range m.ActionOptions {
+		prefix := "  "
+		cursor := " "
+		keyBadge := lipgloss.NewStyle().Foreground(ColorAccentOrange).Bold(true).Render(fmt.Sprintf("[%s]", opt.Key))
+		titleStyle := lipgloss.NewStyle().Foreground(ColorFgEmphasis).Bold(true)
+		descStyle := lipgloss.NewStyle().Foreground(ColorFgMuted)
+
+		if i == m.ActionPickerCursor {
+			prefix = "❯ "
+			cursor = "●"
+			keyBadge = lipgloss.NewStyle().Foreground(ColorBgBase).Background(ColorAccentOrange).Bold(true).Render(fmt.Sprintf(" %s ", opt.Key))
+			titleStyle = lipgloss.NewStyle().Foreground(ColorAccentCyan).Bold(true)
+			descStyle = lipgloss.NewStyle().Foreground(ColorFgDefault)
+		}
+
+		dispDesc := opt.Description
+		if lipgloss.Width(dispDesc) > availDesc {
+			dispDesc = truncateWithEllipsis(dispDesc, availDesc)
+		}
+
+		optTitle := fmt.Sprintf("%-18s", opt.Title)
+		line := fmt.Sprintf("%s%s %s %s %s", prefix, cursor, keyBadge, titleStyle.Render(optTitle), descStyle.Render(dispDesc))
+		b.WriteString(line + "\n")
+	}
+
+	b.WriteString("\n  " + lipgloss.NewStyle().Foreground(ColorFgMuted).Render("<Enter> Select   <direct key> Quick run   <Esc/q> Cancel"))
+
+	dialogBox := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(ColorAccentBlue).
+		Background(ColorBgCard).
+		Foreground(ColorFgDefault).
+		Padding(1, 2).
+		Width(modalWidth).
+		Render(b.String())
+
+	return lipgloss.Place(m.Width, m.Height, lipgloss.Center, lipgloss.Center, dialogBox)
+}
+
+// GetItemActionOptions returns the available actions for an inspector item based on its category.
+func GetItemActionOptions(item InspectItem, title string) []ActionOption {
+	var opts []ActionOption
+
+	switch title {
+	case "Environment":
+		if item.Col2 == "Unset" {
+			opts = append(opts, ActionOption{
+				Key:         "n",
+				Title:       "Copy Variable Name",
+				Description: item.Col1,
+				ActionType:  "copy",
+				Payload:     item.Col1,
+			})
+			opts = append(opts, ActionOption{
+				Key:         "u",
+				Title:       "Copy Shell Unset",
+				Description: fmt.Sprintf("unset %s", item.Col1),
+				ActionType:  "copy",
+				Payload:     fmt.Sprintf("unset %s", item.Col1),
+			})
+			opts = append(opts, ActionOption{
+				Key:         "p",
+				Title:       "Set in Tmux Prompt",
+				Description: fmt.Sprintf("set-environment -g %s ...", item.Col1),
+				ActionType:  "exec",
+				Payload:     item.ActionCmd,
+			})
+		} else {
+			opts = append(opts, ActionOption{
+				Key:         "v",
+				Title:       "Copy Value Only",
+				Description: item.Col3,
+				ActionType:  "copy",
+				Payload:     item.Col3,
+			})
+			opts = append(opts, ActionOption{
+				Key:         "n",
+				Title:       "Copy Variable Name",
+				Description: item.Col1,
+				ActionType:  "copy",
+				Payload:     item.Col1,
+			})
+			opts = append(opts, ActionOption{
+				Key:         "e",
+				Title:       "Copy Shell Export",
+				Description: fmt.Sprintf("export %s=\"%s\"", item.Col1, item.Col3),
+				ActionType:  "copy",
+				Payload:     fmt.Sprintf("export %s=\"%s\"", item.Col1, item.Col3),
+			})
+			opts = append(opts, ActionOption{
+				Key:         "s",
+				Title:       "Copy Tmux Set",
+				Description: fmt.Sprintf("set-environment -g %s \"%s\"", item.Col1, item.Col3),
+				ActionType:  "copy",
+				Payload:     fmt.Sprintf("set-environment -g %s \"%s\"", item.Col1, item.Col3),
+			})
+			opts = append(opts, ActionOption{
+				Key:         "p",
+				Title:       "Edit in Tmux Prompt",
+				Description: fmt.Sprintf("command-prompt -I 'set-environment -g %s ...'", item.Col1),
+				ActionType:  "exec",
+				Payload:     item.ActionCmd,
+			})
+			opts = append(opts, ActionOption{
+				Key:         "i",
+				Title:       "Insert Export to Pane",
+				Description: fmt.Sprintf("export %s=\"%s\"", item.Col1, item.Col3),
+				ActionType:  "send",
+				Payload:     fmt.Sprintf("export %s=\"%s\"", item.Col1, item.Col3),
+			})
+		}
+
+	case "Tmux Options":
+		opts = append(opts, ActionOption{
+			Key:         "v",
+			Title:       "Copy Value Only",
+			Description: item.Col3,
+			ActionType:  "copy",
+			Payload:     item.Col3,
+		})
+		opts = append(opts, ActionOption{
+			Key:         "n",
+			Title:       "Copy Option Name",
+			Description: item.Col1,
+			ActionType:  "copy",
+			Payload:     item.Col1,
+		})
+		opts = append(opts, ActionOption{
+			Key:         "s",
+			Title:       "Copy Tmux Set",
+			Description: item.RawCopy,
+			ActionType:  "copy",
+			Payload:     item.RawCopy,
+		})
+		if item.ActionCmd != "" {
+			actionLabel := "Edit Option in Tmux"
+			if item.IsToggle {
+				actionLabel = "Toggle Option"
+			}
+			opts = append(opts, ActionOption{
+				Key:         "p",
+				Title:       actionLabel,
+				Description: item.ActionCmd,
+				ActionType:  "exec",
+				Payload:     item.ActionCmd,
+			})
+		}
+	}
+
+	return opts
 }
 
 // Data Loaders for Tmux Introspection
@@ -744,6 +980,7 @@ func LoadEnvironmentData() []InspectItem {
 					Col3:       "(not set in global env)",
 					SearchText: strings.ToLower(varName),
 					RawCopy:    fmt.Sprintf("unset %s", varName),
+					ActionCmd:  fmt.Sprintf("command-prompt -I 'set-environment -g %s '", varName),
 				})
 			} else {
 				parts := strings.SplitN(line, "=", 2)
@@ -752,12 +989,14 @@ func LoadEnvironmentData() []InspectItem {
 				if len(parts) == 2 {
 					varVal = parts[1]
 				}
+				escapedVal := strings.ReplaceAll(varVal, "'", "\\'")
 				items = append(items, InspectItem{
 					Col1:       varName,
 					Col2:       "Global",
 					Col3:       varVal,
 					SearchText: strings.ToLower(fmt.Sprintf("%s %s", varName, varVal)),
 					RawCopy:    fmt.Sprintf("export %s=\"%s\"", varName, varVal),
+					ActionCmd:  fmt.Sprintf("command-prompt -I 'set-environment -g %s %s'", varName, escapedVal),
 				})
 			}
 		}
@@ -885,6 +1124,117 @@ func LoadMessagesData() []InspectItem {
 	return items
 }
 
+// CreateInspector builds an initialized InspectModel for the given inspector type.
+func CreateInspector(inspType string) InspectModel {
+	clean := strings.ToLower(strings.TrimSpace(inspType))
+	clean = strings.TrimPrefix(clean, "--")
+	clean = strings.TrimPrefix(clean, "-")
+
+	switch clean {
+	case "k", "keys", "keybindings", "help":
+		items := LoadKeybindingsData()
+		insp := NewInspectModel("Keybindings", "󰋗", "Key", "Category", "Description", "Command", items, 15, 12, 32)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Execute"
+		insp.AllowSendKeys = true
+		insp.AllowWindow = true
+		insp.AllowSplit = true
+		insp.AllowCopy = true
+		return insp
+
+	case "c", "cmds", "commands":
+		items := LoadCommandsData()
+		insp := NewInspectModel("Tmux Commands", "󰘳", "Command", "Alias", "Syntax / Usage", "", items, 24, 10, 0)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Prompt"
+		insp.AllowSendKeys = true
+		insp.AllowWindow = true
+		insp.AllowSplit = true
+		insp.AllowCopy = true
+		return insp
+
+	case "o", "opts", "options":
+		items := LoadOptionsData()
+		insp := NewInspectModel("Tmux Options", "󰘳", "Option Name", "Scope", "Current Value", "", items, 32, 10, 0)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Toggle/Edit"
+		insp.AllowCopy = true
+		return insp
+
+	case "e", "env", "environment":
+		items := LoadEnvironmentData()
+		insp := NewInspectModel("Environment", "󰈞", "Variable", "Scope", "Value", "", items, 28, 10, 0)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Edit"
+		insp.AllowCopy = true
+		return insp
+
+	case "b", "buffers", "buffer":
+		items := LoadBuffersData()
+		insp := NewInspectModel("Paste Buffers", "󰅍", "Buffer Name", "Size", "Sample Content", "", items, 16, 12, 0)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Paste"
+		insp.AllowSendKeys = true
+		insp.AllowDelete = true
+		insp.AllowCopy = true
+		return insp
+
+	case "m", "messages", "msg", "logs", "log":
+		items := LoadMessagesData()
+		insp := NewInspectModel("Tmux Messages", "󰍡", "Time", "Source", "Log Message", "", items, 8, 16, 0)
+		insp.AllowCopy = true
+		return insp
+
+	case "clients":
+		items := LoadClientsData()
+		insp := NewInspectModel("Connected Clients", "󰒍", "Client", "Session", "Dimensions (TTY)", "PID", items, 18, 14, 22)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Switch"
+		insp.AllowCopy = true
+		return insp
+
+	default:
+		return InspectModel{}
+	}
+}
+
+// IsInspectorCommand checks if an action string invokes an internal tmux-omni inspector.
+// Returns the inspector type and true if matched.
+func IsInspectorCommand(action string) (string, bool) {
+	trimmed := strings.TrimSpace(action)
+	if !strings.Contains(trimmed, "tmux-omni") {
+		return "", false
+	}
+	// Avoid matching AI modes or search/palette flags
+	if strings.Contains(trimmed, " ai ") || strings.Contains(trimmed, " ai") {
+		return "", false
+	}
+	if strings.Contains(trimmed, "--search") || strings.Contains(trimmed, " -s") || strings.Contains(trimmed, " palette") || strings.Contains(trimmed, " search") {
+		return "", false
+	}
+
+	fields := strings.Fields(trimmed)
+	for _, f := range fields {
+		switch f {
+		case "--keys", "-k", "-keys", "keys", "keybindings", "help":
+			return "keys", true
+		case "--commands", "-C", "-commands", "commands", "cmds":
+			return "commands", true
+		case "--options", "-O", "-options", "options", "opts":
+			return "options", true
+		case "--env", "-E", "-env", "env", "environment":
+			return "env", true
+		case "--buffers", "-B", "-buffers", "buffers", "buffer":
+			return "buffers", true
+		case "--messages", "-M", "-messages", "messages", "msg", "logs", "log":
+			return "messages", true
+		case "--clients", "-clients", "clients":
+			return "clients", true
+		}
+	}
+	return "", false
+}
+
 // InspectorAppModel wraps InspectModel into a Bubble Tea interactive app.
 type InspectorAppModel struct {
 	Model InspectModel
@@ -896,6 +1246,12 @@ func (m InspectorAppModel) Init() tea.Cmd {
 
 func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case ClearInspectStatusMsg:
+		if msg.ID == m.Model.StatusMsgID {
+			m.Model.StatusMsg = ""
+		}
+		return m, nil
+
 	case tea.WindowSizeMsg:
 		m.Model.Width = msg.Width
 		m.Model.Height = msg.Height
@@ -905,9 +1261,89 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		keyStr := msg.String()
 		maxVisible := max(m.Model.Height-4, 1)
 
+		// Handle Action Picker modal if open
+		if m.Model.ShowActionPicker {
+			switch keyStr {
+			case "ctrl+c":
+				return m, tea.Quit
+			case "esc", "q", "backspace":
+				m.Model.CloseActionPicker()
+				return m, nil
+			case "down", "ctrl+n", "ctrl+j", "j":
+				if len(m.Model.ActionOptions) > 0 {
+					m.Model.ActionPickerCursor = (m.Model.ActionPickerCursor + 1) % len(m.Model.ActionOptions)
+				}
+				return m, nil
+			case "up", "ctrl+p", "ctrl+k", "k":
+				if len(m.Model.ActionOptions) > 0 {
+					m.Model.ActionPickerCursor = (m.Model.ActionPickerCursor - 1 + len(m.Model.ActionOptions)) % len(m.Model.ActionOptions)
+				}
+				return m, nil
+			case "enter":
+				if len(m.Model.ActionOptions) > 0 {
+					opt := m.Model.ActionOptions[m.Model.ActionPickerCursor]
+					return m.executeActionOption(opt)
+				}
+				return m, nil
+			}
+
+			// Direct hotkeys inside modal
+			for _, opt := range m.Model.ActionOptions {
+				if keyStr == opt.Key || strings.ToLower(keyStr) == opt.Key {
+					return m.executeActionOption(opt)
+				}
+			}
+			return m, nil
+		}
+
+		// Direct single-key shortcuts in Environment inspector
+		if m.Model.Title == "Environment" {
+			switch keyStr {
+			case "v":
+				item := m.Model.SelectedItem()
+				if item != nil && item.Col3 != "" {
+					CopyToClipboard(item.Col3)
+					disp := item.Col3
+					if len(disp) > 40 {
+						disp = disp[:37] + "..."
+					}
+					cmd := m.Model.SetStatus(fmt.Sprintf("Copied value: %s", disp))
+					return m, cmd
+				}
+			case "n":
+				item := m.Model.SelectedItem()
+				if item != nil && item.Col1 != "" {
+					CopyToClipboard(item.Col1)
+					cmd := m.Model.SetStatus(fmt.Sprintf("Copied name: %s", item.Col1))
+					return m, cmd
+				}
+			case "e":
+				item := m.Model.SelectedItem()
+				if item != nil && item.Col1 != "" {
+					exp := fmt.Sprintf("export %s=\"%s\"", item.Col1, item.Col3)
+					CopyToClipboard(exp)
+					disp := exp
+					if len(disp) > 40 {
+						disp = disp[:37] + "..."
+					}
+					cmd := m.Model.SetStatus(fmt.Sprintf("Copied export: %s", disp))
+					return m, cmd
+				}
+			case "y", "c", "a":
+				if m.Model.OpenActionPicker() {
+					return m, nil
+				}
+			}
+		}
+
 		switch keyStr {
 		case "ctrl+c":
 			return m, tea.Quit
+
+		case "backspace":
+			if m.Model.TextInput.Value() == "" {
+				return m, tea.Quit
+			}
 
 		case "esc", "q":
 			if m.Model.TextInput.Value() != "" {
@@ -941,8 +1377,8 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if len(disp) > 40 {
 					disp = disp[:37] + "..."
 				}
-				m.Model.StatusMsg = fmt.Sprintf("Copied to clipboard: %s", disp)
-				return m, nil
+				cmd := m.Model.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
+				return m, cmd
 			}
 			return m, nil
 
@@ -1005,8 +1441,8 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					_ = exec.Command("tmux", "delete-buffer", "-b", item.Col1).Run()
 					m.Model.Items = LoadBuffersData()
 					m.Model.Filter()
-					m.Model.StatusMsg = fmt.Sprintf("Deleted buffer: %s", item.Col1)
-					return m, nil
+					cmd := m.Model.SetStatus(fmt.Sprintf("Deleted buffer: %s", item.Col1))
+					return m, cmd
 				}
 			}
 
@@ -1021,8 +1457,8 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if len(disp) > 40 {
 					disp = disp[:37] + "..."
 				}
-				m.Model.StatusMsg = fmt.Sprintf("Copied to clipboard: %s", disp)
-				return m, nil
+				cmd := m.Model.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
+				return m, cmd
 			}
 
 		case "Y", "C":
@@ -1037,8 +1473,8 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if len(disp) > 40 {
 					disp = disp[:37] + "..."
 				}
-				m.Model.StatusMsg = fmt.Sprintf("Copied shell cmd: %s", disp)
-				return m, nil
+				cmd := m.Model.SetStatus(fmt.Sprintf("Copied shell cmd: %s", disp))
+				return m, cmd
 			}
 		}
 	}
@@ -1053,6 +1489,35 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, cmd
+}
+
+func (m InspectorAppModel) executeActionOption(opt ActionOption) (tea.Model, tea.Cmd) {
+	m.Model.CloseActionPicker()
+
+	switch opt.ActionType {
+	case "copy":
+		CopyToClipboard(opt.Payload)
+		disp := opt.Payload
+		if len(disp) > 40 {
+			disp = disp[:37] + "..."
+		}
+		cmd := m.Model.SetStatus(fmt.Sprintf("Copied %s: %s", strings.ToLower(opt.Title), disp))
+		return m, cmd
+
+	case "exec":
+		m.Model.PendingExec = opt.Payload
+		m.Model.PendingExecTarget = "tmux"
+		m.Model.PendingExecTitle = opt.Title
+		return m, tea.Quit
+
+	case "send":
+		m.Model.PendingExec = opt.Payload
+		m.Model.PendingExecTarget = "send_keys"
+		m.Model.PendingExecTitle = opt.Title
+		return m, tea.Quit
+	}
+
+	return m, nil
 }
 
 func (m InspectorAppModel) View() string {
