@@ -433,6 +433,10 @@ func (m AIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updateLayout()
 		m.updateViewportContent()
 
+	case aiTickMsg:
+		m.ToastMsg = ""
+		return m, nil
+
 	case spinner.TickMsg:
 		var cmd tea.Cmd
 		m.Spinner, cmd = m.Spinner.Update(msg)

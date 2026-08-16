@@ -172,6 +172,8 @@ The tracked configuration at `./tmux-menu/config.json` is symlinked to:
   - `prefix + ?` (`tmux-omni --keys`): Active prefix keybindings browser with search, execution, and copy.
   - `tmux-omni --messages` (`prefix + Space` → `t` → `M`): Searchable, scrollable log viewer for `tmux show-messages` with copy support.
   - `tmux-omni --commands` / `--options` / `--env` / `--buffers` / `--clients`: Dedicated introspection tables.
+  - **Environment Actions & Quick Keys**: In the Environment inspector, press `<CR>` to edit/set the variable in tmux, `y`/`c` (or `a`) to open the **Action Picker** modal to choose between Value, Name, Shell Export, Tmux Set, or Edit prompt, or use direct keys: `v` (Value only), `n` (Variable name), `e` (Export command).
+  - **Seamless Screen Navigation**: Opening any inspector from Leader or Palette keeps you inside `tmux-omni`; pressing `<Backspace>` (when search query is empty), `<Esc>`, or `q` returns to the previous screen. Action & clipboard status messages auto-fade after 2.5 seconds.
 
 ### Execution Targets & Modifiers
 
