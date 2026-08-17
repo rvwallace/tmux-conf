@@ -98,6 +98,13 @@ pass "CONFIG_GUIDE.md present"
 
 expect_contains "$TARGET_TMUX_OMNI_SCRIPT --validate" "Config validation PASSED" "tmux-omni native config validation"
 
+if command -v go >/dev/null 2>&1; then
+  (cd "$REPO_DIR/tmux-omni" && GOCACHE="${TMPDIR:-/tmp}/tmux-omni-go-build" go test ./... >/dev/null) || fail "tmux-omni test suite failed"
+  pass "tmux-omni test suite passed"
+  (cd "$REPO_DIR/tmux-omni" && GOCACHE="${TMPDIR:-/tmp}/tmux-omni-go-build" go vet ./... >/dev/null) || fail "tmux-omni go vet failed"
+  pass "tmux-omni go vet passed"
+fi
+
 jq -e '
   def valid_item:
     (type == "object")

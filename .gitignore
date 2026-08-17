@@ -7,10 +7,14 @@
 .gemini/
 memory/
 
-# IDEs
+# IDEs & editors
 .vscode/
 .cursor/
 .antigravity/
+*.swp
+*.swo
+.swp
+*.log
 
 # Python
 __pycache__/

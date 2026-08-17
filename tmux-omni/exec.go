@@ -140,10 +140,12 @@ exit "$_status"
 `, cmdStr, quotedTitle)
 }
 
-// SplitTmuxCommands splits a chained tmux command string by unescaped semicolons.
+// SplitTmuxCommands splits a chained tmux command string by unescaped semicolons outside of quotes.
 func SplitTmuxCommands(s string) []string {
 	var parts []string
 	var current strings.Builder
+	inSingle := false
+	inDouble := false
 	escaped := false
 
 	for i := 0; i < len(s); i++ {
@@ -165,7 +167,19 @@ func SplitTmuxCommands(s string) []string {
 			continue
 		}
 
-		if c == ';' {
+		if c == '\'' && !inDouble {
+			inSingle = !inSingle
+			current.WriteByte('\'')
+			continue
+		}
+
+		if c == '"' && !inSingle {
+			inDouble = !inDouble
+			current.WriteByte('"')
+			continue
+		}
+
+		if c == ';' && !inSingle && !inDouble {
 			trimmed := strings.TrimSpace(current.String())
 			if trimmed != "" {
 				parts = append(parts, trimmed)
@@ -253,14 +267,23 @@ func RunTmuxTarget(
 
 		// Use a temporary tmux paste buffer for atomic paste to avoid dropped characters from pty redraw
 		bufName := fmt.Sprintf("omni-send-%d", time.Now().UnixNano())
-		_ = exec.Command("tmux", "set-buffer", "-b", bufName, "--", textToSend).Run()
+		if out, err := exec.Command("tmux", "set-buffer", "-b", bufName, "--", textToSend).CombinedOutput(); err != nil {
+			errMsg := fmt.Sprintf("✖ Failed to set buffer: %s (%v)", strings.TrimSpace(string(out)), err)
+			_ = exec.Command("tmux", "display-message", errMsg).Run()
+			return fmt.Errorf("set-buffer failed: %s (%w)", strings.TrimSpace(string(out)), err)
+		}
 
 		var pasteArgs []string
 		pasteArgs = append(pasteArgs, "paste-buffer", "-d", "-b", bufName)
 		if cleanPaneID != "" {
 			pasteArgs = append(pasteArgs, "-t", cleanPaneID)
 		}
-		_ = exec.Command("tmux", pasteArgs...).Run()
+		if out, err := exec.Command("tmux", pasteArgs...).CombinedOutput(); err != nil {
+			_ = exec.Command("tmux", "delete-buffer", "-b", bufName).Run()
+			errMsg := fmt.Sprintf("✖ Failed to paste buffer into %s: %s (%v)", cleanPaneID, strings.TrimSpace(string(out)), err)
+			_ = exec.Command("tmux", "display-message", errMsg).Run()
+			return fmt.Errorf("paste-buffer failed: %s (%w)", strings.TrimSpace(string(out)), err)
+		}
 
 		_ = exec.Command("tmux", "display-message", fmt.Sprintf("󰍡 Inserted into %s: %s", cleanPaneID, textToSend)).Run()
 		return nil
