@@ -459,61 +459,48 @@ func (m AppModel) updateInspector(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	// Direct single-key shortcuts in Environment inspector
-	if m.Inspector.Title == "Environment" {
+		// Action Picker modal trigger
 		switch keyStr {
-		case "v":
-			item := m.Inspector.SelectedItem()
-			if item != nil && item.Col3 != "" {
-				CopyToClipboard(item.Col3)
-				disp := item.Col3
-				if len(disp) > 40 {
-					disp = disp[:37] + "..."
-				}
-				cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied value: %s", disp))
-				return m, cmd
-			}
-		case "n":
-			item := m.Inspector.SelectedItem()
-			if item != nil && item.Col1 != "" {
-				CopyToClipboard(item.Col1)
-				cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied name: %s", item.Col1))
-				return m, cmd
-			}
-		case "e":
-			item := m.Inspector.SelectedItem()
-			if item != nil && item.Col1 != "" {
-				exp := fmt.Sprintf("export %s=\"%s\"", item.Col1, item.Col3)
-				CopyToClipboard(exp)
-				disp := exp
-				if len(disp) > 40 {
-					disp = disp[:37] + "..."
-				}
-				cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied export: %s", disp))
-				return m, cmd
-			}
-		case "y", "c", "a":
+		case "ctrl+a", "alt+a", "ctrl+o", "alt+o", "å", "ø":
 			if m.Inspector.OpenActionPicker() {
 				return m, nil
 			}
 		}
-	}
 
-	switch keyStr {
-	case "ctrl+space", "ctrl+l", "alt+m":
-		m.Mode = ModeWhichKey
-		m.Inspector.TextInput.Blur()
-		return m, nil
+		switch keyStr {
+		case "ctrl+space", "ctrl+l", "alt+m":
+			m.Mode = ModeWhichKey
+			m.Inspector.TextInput.Blur()
+			return m, nil
 
-	case "ctrl+f", "ctrl+p":
-		m.Mode = ModePalette
-		m.Inspector.TextInput.Blur()
-		m.Palette.TextInput.Focus()
-		m.Palette.FilterCommands()
-		return m, textinput.Blink
+		case "ctrl+f":
+			m.Mode = ModePalette
+			m.Inspector.TextInput.Blur()
+			m.Palette.TextInput.Focus()
+			m.Palette.FilterCommands()
+			return m, textinput.Blink
 
-	case "backspace":
-		if m.Inspector.TextInput.Value() == "" {
+		case "backspace":
+			if m.Inspector.TextInput.Value() == "" {
+				if m.IsStandaloneInspector {
+					return m, tea.Quit
+				}
+				m.Mode = m.PreviousMode
+				m.Inspector.TextInput.Blur()
+				if m.Mode == ModePalette {
+					m.Palette.TextInput.Focus()
+					m.Palette.FilterCommands()
+					return m, textinput.Blink
+				}
+				return m, nil
+			}
+
+		case "esc":
+			if m.Inspector.TextInput.Value() != "" {
+				m.Inspector.TextInput.SetValue("")
+				m.Inspector.Filter()
+				return m, nil
+			}
 			if m.IsStandaloneInspector {
 				return m, tea.Quit
 			}
@@ -525,179 +512,143 @@ func (m AppModel) updateInspector(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 				return m, textinput.Blink
 			}
 			return m, nil
-		}
 
-	case "esc", "q":
-		if m.Inspector.TextInput.Value() != "" {
-			m.Inspector.TextInput.SetValue("")
-			m.Inspector.Filter()
+		case "down", "ctrl+n", "ctrl+j":
+			m.Inspector.CursorDown(maxVisible)
 			return m, nil
-		}
-		if m.IsStandaloneInspector {
-			return m, tea.Quit
-		}
-		m.Mode = m.PreviousMode
-		m.Inspector.TextInput.Blur()
-		if m.Mode == ModePalette {
-			m.Palette.TextInput.Focus()
-			m.Palette.FilterCommands()
-			return m, textinput.Blink
-		}
-		return m, nil
 
-	case "down", "ctrl+n", "ctrl+j":
-		m.Inspector.CursorDown(maxVisible)
-		return m, nil
-
-	case "up", "ctrl+k":
-		m.Inspector.CursorUp(maxVisible)
-		return m, nil
-
-	case "enter":
-		item := m.Inspector.SelectedItem()
-		if item == nil {
+		case "up", "ctrl+p", "ctrl+k":
+			m.Inspector.CursorUp(maxVisible)
 			return m, nil
-		}
-		if m.Inspector.AllowExecute && item.ActionCmd != "" {
-			m.PendingExec = &PendingExecution{
-				Action:         item.ActionCmd,
-				Target:         "tmux",
-				Title:          item.Col1,
-				PersistShell:   false,
-				OriginalTarget: "tmux",
-			}
-			return m, tea.Quit
-		} else if m.Inspector.AllowCopy && item.RawCopy != "" {
-			CopyToClipboard(item.RawCopy)
-			disp := item.RawCopy
-			if len(disp) > 40 {
-				disp = disp[:37] + "..."
-			}
-			cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
-			return m, cmd
-		}
-		return m, nil
 
-	case "alt+i", "ctrl+i", "ctrl+y", "tab", "shift+tab", "ˆ", "^":
-		if !m.Inspector.AllowSendKeys {
-			return m, nil
-		}
-		item := m.Inspector.SelectedItem()
-		if item != nil && item.ActionCmd != "" {
-			m.PendingExec = &PendingExecution{
-				Action:         item.ActionCmd,
-				Target:         "send_keys",
-				Title:          item.Col1,
-				PersistShell:   false,
-				OriginalTarget: "tmux",
-			}
-			return m, tea.Quit
-		}
-		return m, nil
-
-	case "alt+w", "ctrl+w", "ctrl+t", "alt+t", "∑":
-		if !m.Inspector.AllowWindow {
-			return m, nil
-		}
-		item := m.Inspector.SelectedItem()
-		if item != nil && item.ActionCmd != "" {
-			m.PendingExec = &PendingExecution{
-				Action:         item.ActionCmd,
-				Target:         "window",
-				Title:          item.Col1,
-				PersistShell:   true,
-				OriginalTarget: "tmux",
-			}
-			return m, tea.Quit
-		}
-		return m, nil
-
-	case "alt+v", "ctrl+v", "alt+h", "ctrl+h", "√":
-		if !m.Inspector.AllowSplit {
-			return m, nil
-		}
-		item := m.Inspector.SelectedItem()
-		if item != nil && item.ActionCmd != "" {
-			m.PendingExec = &PendingExecution{
-				Action:         item.ActionCmd,
-				Target:         "split_h",
-				Title:          item.Col1,
-				PersistShell:   true,
-				OriginalTarget: "tmux",
-			}
-			return m, tea.Quit
-		}
-		return m, nil
-
-	case "alt+s", "ctrl+s", "alt+x", "ctrl+x", "ß":
-		if !m.Inspector.AllowSplit {
-			return m, nil
-		}
-		item := m.Inspector.SelectedItem()
-		if item != nil && item.ActionCmd != "" {
-			m.PendingExec = &PendingExecution{
-				Action:         item.ActionCmd,
-				Target:         "split_v",
-				Title:          item.Col1,
-				PersistShell:   true,
-				OriginalTarget: "tmux",
-			}
-			return m, tea.Quit
-		}
-		return m, nil
-
-	case "d", "x":
-		if m.Inspector.AllowDelete && m.Inspector.Title == "Paste Buffers" {
+		case "enter":
 			item := m.Inspector.SelectedItem()
-			if item != nil && item.Col1 != "" {
-				_ = exec.Command("tmux", "delete-buffer", "-b", item.Col1).Run()
-				m.Inspector.Items = LoadBuffersData()
-				m.Inspector.Filter()
-				cmd := m.Inspector.SetStatus(fmt.Sprintf("Deleted buffer: %s", item.Col1))
+			if item == nil {
+				return m, nil
+			}
+			if m.Inspector.AllowExecute && item.ActionCmd != "" {
+				m.PendingExec = &PendingExecution{
+					Action:         item.ActionCmd,
+					Target:         "tmux",
+					Title:          item.Col1,
+					PersistShell:   false,
+					OriginalTarget: "tmux",
+				}
+				return m, tea.Quit
+			} else if m.Inspector.AllowCopy && item.RawCopy != "" {
+				CopyToClipboard(item.RawCopy)
+				disp := item.RawCopy
+				if len(disp) > 40 {
+					disp = disp[:37] + "..."
+				}
+				cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
 				return m, cmd
 			}
-		}
-
-	case "y", "c":
-		if !m.Inspector.AllowCopy {
 			return m, nil
-		}
-		item := m.Inspector.SelectedItem()
-		if item != nil && item.RawCopy != "" {
-			CopyToClipboard(item.RawCopy)
-			disp := item.RawCopy
-			if len(disp) > 40 {
-				disp = disp[:37] + "..."
-			}
-			cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
-			return m, cmd
-		}
 
-	case "Y", "C":
-		if !m.Inspector.AllowCopy {
+		case "alt+i", "ctrl+i", "tab", "shift+tab", "ˆ", "^":
+			if !m.Inspector.AllowSendKeys {
+				return m, nil
+			}
+			item := m.Inspector.SelectedItem()
+			if item != nil && item.ActionCmd != "" {
+				m.PendingExec = &PendingExecution{
+					Action:         item.ActionCmd,
+					Target:         "send_keys",
+					Title:          item.Col1,
+					PersistShell:   false,
+					OriginalTarget: "tmux",
+				}
+				return m, tea.Quit
+			}
 			return m, nil
-		}
-		item := m.Inspector.SelectedItem()
-		if item != nil && item.RawCopy != "" {
-			formatted := FormatForShell(item.RawCopy, "tmux")
-			CopyToClipboard(formatted)
-			disp := formatted
-			if len(disp) > 40 {
-				disp = disp[:37] + "..."
-			}
-			cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied shell cmd: %s", disp))
-			return m, cmd
-		}
-	}
 
-	// Forward / to palette if search input is empty
-	if keyStr == "/" && m.Inspector.TextInput.Value() == "" {
-		m.Mode = ModePalette
-		m.Inspector.TextInput.Blur()
-		m.Palette.TextInput.Focus()
-		m.Palette.FilterCommands()
-		return m, textinput.Blink
-	}
+		case "alt+w", "ctrl+w", "ctrl+t", "alt+t", "∑":
+			if !m.Inspector.AllowWindow {
+				return m, nil
+			}
+			item := m.Inspector.SelectedItem()
+			if item != nil && item.ActionCmd != "" {
+				m.PendingExec = &PendingExecution{
+					Action:         item.ActionCmd,
+					Target:         "window",
+					Title:          item.Col1,
+					PersistShell:   true,
+					OriginalTarget: "tmux",
+				}
+				return m, tea.Quit
+			}
+			return m, nil
+
+		case "alt+v", "ctrl+v", "alt+h", "ctrl+h", "√":
+			if !m.Inspector.AllowSplit {
+				return m, nil
+			}
+			item := m.Inspector.SelectedItem()
+			if item != nil && item.ActionCmd != "" {
+				m.PendingExec = &PendingExecution{
+					Action:         item.ActionCmd,
+					Target:         "split_h",
+					Title:          item.Col1,
+					PersistShell:   true,
+					OriginalTarget: "tmux",
+				}
+				return m, tea.Quit
+			}
+			return m, nil
+
+		case "alt+s", "ctrl+s", "alt+x", "ctrl+x", "ß":
+			if !m.Inspector.AllowSplit {
+				return m, nil
+			}
+			item := m.Inspector.SelectedItem()
+			if item != nil && item.ActionCmd != "" {
+				m.PendingExec = &PendingExecution{
+					Action:         item.ActionCmd,
+					Target:         "split_v",
+					Title:          item.Col1,
+					PersistShell:   true,
+					OriginalTarget: "tmux",
+				}
+				return m, tea.Quit
+			}
+			return m, nil
+
+		case "ctrl+d", "alt+d", "∂":
+			if m.Inspector.AllowDelete && m.Inspector.Title == "Paste Buffers" {
+				item := m.Inspector.SelectedItem()
+				if item != nil && item.Col1 != "" {
+					_ = exec.Command("tmux", "delete-buffer", "-b", item.Col1).Run()
+					m.Inspector.Items = LoadBuffersData()
+					m.Inspector.Filter()
+					cmd := m.Inspector.SetStatus(fmt.Sprintf("Deleted buffer: %s", item.Col1))
+					return m, cmd
+				}
+			}
+
+		case "ctrl+y", "alt+y", "¥":
+			if !m.Inspector.AllowCopy {
+				return m, nil
+			}
+			item := m.Inspector.SelectedItem()
+			if item != nil {
+				copyText := item.RawCopy
+				if copyText == "" && item.Col3 != "" {
+					copyText = item.Col3
+				} else if copyText == "" && item.Col1 != "" {
+					copyText = item.Col1
+				}
+				if copyText != "" {
+					CopyToClipboard(copyText)
+					disp := copyText
+					if len(disp) > 40 {
+						disp = disp[:37] + "..."
+					}
+					cmd := m.Inspector.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
+					return m, cmd
+				}
+			}
+		}
 
 	// Update text input
 	oldVal := m.Inspector.TextInput.Value()

@@ -83,9 +83,9 @@ Inside the TUI:
 - **Which-Key navigation**: press a shortcut key (e.g. `p` panes, `w` windows, `g` git, `a` AI, `t` tools, `P` plugins, `o` options), or use `↑`/`↓`/`Tab` to highlight.
 - **Switch to Palette**: `/` or `Ctrl-p` jumps directly into Command Palette fuzzy search.
 - **Switch to Leader**: `Esc` / `Backspace` (when input is empty) or `Ctrl-Space` / `Ctrl-l` instantly switches back to Which-Key Leader view.
-- **Inspectors & Navigation**: Selecting an internal inspector (e.g. Environment, Options, Buffers, Keys, Messages) opens directly inside `tmux-omni`; pressing `<Backspace>` (on empty search), `<Esc>`, or `q` returns directly to the Leader menu or Palette screen. Status messages (e.g. copied to clipboard) auto-dismiss after 2.5s.
-- **Environment Inspector**: Press `<CR>` to edit variable in tmux prompt, `y`/`c` (or `a`) to open the **Action Picker** modal, or use direct single-key shortcuts: `v` (copy value only), `n` (copy variable name), `e` (copy shell export).
-- **Navigation & Close**: `Esc` / `Backspace` goes up one group level (or close at root), `q` quits.
+- **Inspectors & Navigation**: Selecting an internal inspector (e.g. Environment, Options, Buffers, Keys, Messages) opens directly inside `tmux-omni`; type any character to filter live with full query support, press `<Backspace>` (on empty search) or `<Esc>` to return to the Leader menu or Palette screen. Status messages (e.g. copied to clipboard) auto-dismiss after 2.5s.
+- **Inspector Actions & Action Picker**: Press `<CR>` to edit/run the selected item. In Environment and Options, press `<Ctrl-a>` (or `<Ctrl-o>`) to open the **Action Picker** modal, `<Ctrl-y>` to copy to clipboard, or `<Ctrl-d>` to delete buffer (in Buffers). Inside the Action Picker modal, use direct keys: `v` (copy value), `n` (copy variable name), `e` (copy shell export), `s` (copy tmux set), `p` (edit in prompt), `i` (insert export into pane).
+- **Navigation & Close**: `Esc` / `Backspace` goes up one group level (or close at root), `q` quits (in Which-Key mode).
 
 ### Execution Modifiers & Actions
 
@@ -96,7 +96,9 @@ Inside the TUI:
 | **`Ctrl-w`** / `Alt-w` / `Ctrl-t` | **New Window** | Opens command in a new window with a persistent shell. |
 | **`Ctrl-v`** / `Alt-v` | **Horizontal Split** | Opens command in a side split pane with a persistent shell. |
 | **`Ctrl-s`** / `Alt-s` | **Vertical Split** | Opens command in a bottom split pane with a persistent shell. |
-| **`y`** / `c` | **Copy to Clipboard** | Copies the command to system clipboard. |
+| **`Ctrl-y`** / `Alt-y` (`y` in Leader) | **Copy to Clipboard** | Copies the command or inspector item to system clipboard. |
+| **`Ctrl-a`** / `Alt-a` / `Ctrl-o` | **Actions Menu** | In Environment & Options inspectors, opens the Action Picker modal. |
+| **`Ctrl-d`** / `Alt-d` | **Delete Buffer** | In Paste Buffers inspector, deletes the highlighted paste buffer. |
 
 Quick editing and customization:
 - `prefix + Space` → `o` → `m`: edit `config.json` in `$EDITOR`
