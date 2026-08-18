@@ -413,11 +413,14 @@ func (m InspectModel) View() string {
 		var parts []string
 		if m.Title == "Environment" {
 			parts = append(parts, FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render("Edit"), "   ")
-			parts = append(parts, FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Actions"), "   ")
-			parts = append(parts, FooterKeyStyle.Render("<v>"), " ", FooterDescStyle.Render("Val"), "   ")
-			parts = append(parts, FooterKeyStyle.Render("<n>"), " ", FooterDescStyle.Render("Name"), "   ")
-			parts = append(parts, FooterKeyStyle.Render("<e>"), " ", FooterDescStyle.Render("Export"), "   ")
-			parts = append(parts, FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Back"))
+			parts = append(parts, FooterKeyStyle.Render("<C-a>"), " ", FooterDescStyle.Render("Actions"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<C-y>"), " ", FooterDescStyle.Render("Copy"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<Esc>"), " ", FooterDescStyle.Render("Back"))
+		} else if m.Title == "Tmux Options" {
+			parts = append(parts, FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render("Toggle/Edit"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<C-a>"), " ", FooterDescStyle.Render("Actions"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<C-y>"), " ", FooterDescStyle.Render("Copy"), "   ")
+			parts = append(parts, FooterKeyStyle.Render("<Esc>"), " ", FooterDescStyle.Render("Close"))
 		} else {
 			if m.AllowExecute && m.ExecuteLabel != "" {
 				parts = append(parts, FooterKeyStyle.Render("<CR>"), " ", FooterDescStyle.Render(m.ExecuteLabel), "   ")
@@ -431,13 +434,13 @@ func (m InspectModel) View() string {
 			if m.AllowSplit {
 				parts = append(parts, FooterKeyStyle.Render("<C-v>/<C-s>"), " ", FooterDescStyle.Render("Split"), "   ")
 			}
-			if m.AllowCopy {
-				parts = append(parts, FooterKeyStyle.Render("<y/c>"), " ", FooterDescStyle.Render("Copy"), "   ")
-			}
 			if m.AllowDelete {
-				parts = append(parts, FooterKeyStyle.Render("<d/x>"), " ", FooterDescStyle.Render("Delete"), "   ")
+				parts = append(parts, FooterKeyStyle.Render("<C-d>"), " ", FooterDescStyle.Render("Delete"), "   ")
 			}
-			parts = append(parts, FooterKeyStyle.Render("<Esc/q>"), " ", FooterDescStyle.Render("Close"))
+			if m.AllowCopy {
+				parts = append(parts, FooterKeyStyle.Render("<C-y>"), " ", FooterDescStyle.Render("Copy"), "   ")
+			}
+			parts = append(parts, FooterKeyStyle.Render("<Esc>"), " ", FooterDescStyle.Render("Close"))
 		}
 		legendText = lipgloss.JoinHorizontal(lipgloss.Left, parts...)
 	}
@@ -1296,43 +1299,11 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		// Direct single-key shortcuts in Environment inspector
-		if m.Model.Title == "Environment" {
-			switch keyStr {
-			case "v":
-				item := m.Model.SelectedItem()
-				if item != nil && item.Col3 != "" {
-					CopyToClipboard(item.Col3)
-					disp := item.Col3
-					if len(disp) > 40 {
-						disp = disp[:37] + "..."
-					}
-					cmd := m.Model.SetStatus(fmt.Sprintf("Copied value: %s", disp))
-					return m, cmd
-				}
-			case "n":
-				item := m.Model.SelectedItem()
-				if item != nil && item.Col1 != "" {
-					CopyToClipboard(item.Col1)
-					cmd := m.Model.SetStatus(fmt.Sprintf("Copied name: %s", item.Col1))
-					return m, cmd
-				}
-			case "e":
-				item := m.Model.SelectedItem()
-				if item != nil && item.Col1 != "" {
-					exp := fmt.Sprintf("export %s=\"%s\"", item.Col1, item.Col3)
-					CopyToClipboard(exp)
-					disp := exp
-					if len(disp) > 40 {
-						disp = disp[:37] + "..."
-					}
-					cmd := m.Model.SetStatus(fmt.Sprintf("Copied export: %s", disp))
-					return m, cmd
-				}
-			case "y", "c", "a":
-				if m.Model.OpenActionPicker() {
-					return m, nil
-				}
+		// Action Picker modal trigger
+		switch keyStr {
+		case "ctrl+a", "alt+a", "ctrl+o", "alt+o", "å", "ø":
+			if m.Model.OpenActionPicker() {
+				return m, nil
 			}
 		}
 
@@ -1345,7 +1316,7 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 
-		case "esc", "q":
+		case "esc":
 			if m.Model.TextInput.Value() != "" {
 				m.Model.TextInput.SetValue("")
 				m.Model.Filter()
@@ -1382,7 +1353,7 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "alt+i", "ctrl+i", "ctrl+y", "tab", "shift+tab", "ˆ", "^":
+		case "alt+i", "ctrl+i", "tab", "shift+tab", "ˆ", "^":
 			if !m.Model.AllowSendKeys {
 				return m, nil
 			}
@@ -1434,7 +1405,7 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "d", "x":
+		case "ctrl+d", "alt+d", "∂":
 			if m.Model.AllowDelete && m.Model.Title == "Paste Buffers" {
 				item := m.Model.SelectedItem()
 				if item != nil && item.Col1 != "" {
@@ -1446,35 +1417,27 @@ func (m InspectorAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 
-		case "y", "c":
+		case "ctrl+y", "alt+y", "¥":
 			if !m.Model.AllowCopy {
 				return m, nil
 			}
 			item := m.Model.SelectedItem()
-			if item != nil && item.RawCopy != "" {
-				CopyToClipboard(item.RawCopy)
-				disp := item.RawCopy
-				if len(disp) > 40 {
-					disp = disp[:37] + "..."
+			if item != nil {
+				copyText := item.RawCopy
+				if copyText == "" && item.Col3 != "" {
+					copyText = item.Col3
+				} else if copyText == "" && item.Col1 != "" {
+					copyText = item.Col1
 				}
-				cmd := m.Model.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
-				return m, cmd
-			}
-
-		case "Y", "C":
-			if !m.Model.AllowCopy {
-				return m, nil
-			}
-			item := m.Model.SelectedItem()
-			if item != nil && item.RawCopy != "" {
-				formatted := FormatForShell(item.RawCopy, "tmux")
-				CopyToClipboard(formatted)
-				disp := formatted
-				if len(disp) > 40 {
-					disp = disp[:37] + "..."
+				if copyText != "" {
+					CopyToClipboard(copyText)
+					disp := copyText
+					if len(disp) > 40 {
+						disp = disp[:37] + "..."
+					}
+					cmd := m.Model.SetStatus(fmt.Sprintf("Copied to clipboard: %s", disp))
+					return m, cmd
 				}
-				cmd := m.Model.SetStatus(fmt.Sprintf("Copied shell cmd: %s", disp))
-				return m, cmd
 			}
 		}
 	}

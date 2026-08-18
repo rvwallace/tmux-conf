@@ -171,9 +171,9 @@ The tracked configuration at `./tmux-menu/config.json` is symlinked to:
 - **Interactive Inspectors**:
   - `prefix + ?` (`tmux-omni --keys`): Active prefix keybindings browser with search, execution, and copy.
   - `tmux-omni --messages` (`prefix + Space` → `t` → `M`): Searchable, scrollable log viewer for `tmux show-messages` with copy support.
-  - `tmux-omni --commands` / `--options` / `--env` / `--buffers` / `--clients`: Dedicated introspection tables.
-  - **Environment Actions & Quick Keys**: In the Environment inspector, press `<CR>` to edit/set the variable in tmux, `y`/`c` (or `a`) to open the **Action Picker** modal to choose between Value, Name, Shell Export, Tmux Set, or Edit prompt, or use direct keys: `v` (Value only), `n` (Variable name), `e` (Export command).
-  - **Seamless Screen Navigation**: Opening any inspector from Leader or Palette keeps you inside `tmux-omni`; pressing `<Backspace>` (when search query is empty), `<Esc>`, or `q` returns to the previous screen. Action & clipboard status messages auto-fade after 2.5 seconds.
+  - `tmux-omni --commands` / `--options` / `--env` / `--buffers` / `--clients`: Dedicated introspection tables with full real-time text filtering.
+  - **Environment & Options Actions**: In inspectors, press `<CR>` to edit/toggle/execute, `<Ctrl-a>` (or `<Ctrl-o>`) to open the **Action Picker** modal to choose between Value, Name, Shell Export, Tmux Set, or Edit prompt, `<Ctrl-y>` to copy to clipboard, or `<Ctrl-d>` to delete buffer (in Buffers). Inside the Action Picker modal, quick keys `v` (Value), `n` (Name), `e` (Export), `s` (Set), `p` (Prompt), `i` (Insert) run immediately.
+  - **Seamless Screen Navigation**: Opening any inspector from Leader or Palette keeps you inside `tmux-omni`; pressing `<Backspace>` (when search query is empty) or `<Esc>` returns to the previous screen. Action & clipboard status messages auto-fade after 2.5 seconds.
 
 ### Execution Targets & Modifiers
 
@@ -186,7 +186,9 @@ When selecting any command in Which-Key, Command Palette, or Inspectors, you can
 | **`Ctrl-w`** / `Alt-w` / `Ctrl-t` | **New Window** | Runs `tmux <command>` in a new window with a persistent shell. |
 | **`Ctrl-v`** / `Alt-v` | **Horizontal Split** | Runs `tmux <command>` in a side split pane. |
 | **`Ctrl-s`** / `Alt-s` | **Vertical Split** | Runs `tmux <command>` in a bottom split pane. |
-| **`y`** / `c` | **Copy to Clipboard** | Copies the command string to system clipboard. |
+| **`Ctrl-y`** / `Alt-y` (`y` in Leader) | **Copy to Clipboard** | Copies the command string or inspector item to system clipboard. |
+| **`Ctrl-a`** / `Alt-a` / `Ctrl-o` | **Actions Menu** | In Environment & Options inspectors, opens the Action Picker modal. |
+| **`Ctrl-d`** / `Alt-d` | **Delete Buffer** | In Paste Buffers inspector, deletes the highlighted paste buffer. |
 
 ### Configuration & Schema Tooling
 

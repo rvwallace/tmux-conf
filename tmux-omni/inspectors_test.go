@@ -235,14 +235,23 @@ func TestGetItemActionOptions(t *testing.T) {
 	}
 }
 
-func TestEnvironmentInspectorDirectShortcuts(t *testing.T) {
+func TestEnvironmentInspectorFilteringAndShortcuts(t *testing.T) {
 	items := []InspectItem{
+		{
+			Col1:      "ANTHROPIC_API_KEY",
+			Col2:      "Global",
+			Col3:      "sk-ant-12345",
+			RawCopy:   "export ANTHROPIC_API_KEY=\"sk-ant-12345\"",
+			ActionCmd: "command-prompt -I 'set-environment -g ANTHROPIC_API_KEY sk-ant-12345'",
+			SearchText: "anthropic_api_key global sk-ant-12345",
+		},
 		{
 			Col1:      "CLOUDFLARE_API_TOKEN",
 			Col2:      "Global",
 			Col3:      "token-xyz-789",
 			RawCopy:   "export CLOUDFLARE_API_TOKEN=\"token-xyz-789\"",
 			ActionCmd: "command-prompt -I 'set-environment -g CLOUDFLARE_API_TOKEN token-xyz-789'",
+			SearchText: "cloudflare_api_token global token-xyz-789",
 		},
 	}
 	insp := NewInspectModel("Environment", "󰈞", "Variable", "Scope", "Value", "", items, 28, 10, 0)
@@ -252,27 +261,36 @@ func TestEnvironmentInspectorDirectShortcuts(t *testing.T) {
 
 	app := InspectorAppModel{Model: insp}
 
-	// 1. Direct 'v' key copies value
-	m, cmd := app.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'v'}})
+	// 1. Typing 'a' filters for anthropic and does NOT open action modal
+	m, _ := app.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'a'}})
 	app = m.(InspectorAppModel)
-	if cmd == nil {
-		t.Errorf("Expected status timer cmd on 'v' key")
+	if app.Model.ShowActionPicker {
+		t.Fatalf("Typing 'a' should not trigger Action Picker modal")
 	}
-	if app.Model.StatusMsg != "Copied value: token-xyz-789" {
-		t.Errorf("Expected 'Copied value: token-xyz-789', got %q", app.Model.StatusMsg)
+	if app.Model.TextInput.Value() != "a" {
+		t.Fatalf("Expected textinput value 'a', got %q", app.Model.TextInput.Value())
+	}
+	if len(app.Model.Filtered) != 2 {
+		t.Fatalf("Expected 2 matches for 'a', got %d", len(app.Model.Filtered))
 	}
 
-	// 2. Direct 'n' key copies name
+	// Type 'n' -> "an"
 	m, _ = app.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'n'}})
 	app = m.(InspectorAppModel)
-	if app.Model.StatusMsg != "Copied name: CLOUDFLARE_API_TOKEN" {
-		t.Errorf("Expected 'Copied name: CLOUDFLARE_API_TOKEN', got %q", app.Model.StatusMsg)
+	if app.Model.TextInput.Value() != "an" {
+		t.Fatalf("Expected textinput value 'an', got %q", app.Model.TextInput.Value())
+	}
+	if len(app.Model.Filtered) != 1 || app.Model.Filtered[0].Col1 != "ANTHROPIC_API_KEY" {
+		t.Fatalf("Expected only ANTHROPIC_API_KEY to match 'an'")
 	}
 
-	// 3. Direct 'e' key copies export
-	m, _ = app.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}})
+	// 2. Ctrl+y copies the selected item's export to clipboard
+	m, cmd := app.Update(tea.KeyMsg{Type: tea.KeyCtrlY})
 	app = m.(InspectorAppModel)
-	if !strings.HasPrefix(app.Model.StatusMsg, "Copied export: export CLOUDFLARE_API_TOKEN=") {
+	if cmd == nil {
+		t.Errorf("Expected status timer cmd on Ctrl+y")
+	}
+	if !strings.HasPrefix(app.Model.StatusMsg, "Copied to clipboard: export ANTHROPIC_API_KEY=") {
 		t.Errorf("Expected export copy message, got %q", app.Model.StatusMsg)
 	}
 }
@@ -285,6 +303,7 @@ func TestActionPickerModal(t *testing.T) {
 			Col3:      "8080",
 			RawCopy:   "export PORT=\"8080\"",
 			ActionCmd: "command-prompt -I 'set-environment -g PORT 8080'",
+			SearchText: "port global 8080",
 		},
 	}
 	insp := NewInspectModel("Environment", "󰈞", "Variable", "Scope", "Value", "", items, 28, 10, 0)
@@ -293,11 +312,11 @@ func TestActionPickerModal(t *testing.T) {
 
 	app := InspectorAppModel{Model: insp}
 
-	// Press 'y' to open Action Picker modal
-	m, _ := app.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'y'}})
+	// Press Ctrl+a (or Ctrl+o) to open Action Picker modal
+	m, _ := app.Update(tea.KeyMsg{Type: tea.KeyCtrlA})
 	app = m.(InspectorAppModel)
 	if !app.Model.ShowActionPicker {
-		t.Fatalf("Expected ShowActionPicker = true after pressing 'y'")
+		t.Fatalf("Expected ShowActionPicker = true after pressing Ctrl+a")
 	}
 	if len(app.Model.ActionOptions) == 0 {
 		t.Fatalf("Expected ActionOptions to be populated")
@@ -322,11 +341,11 @@ func TestActionPickerModal(t *testing.T) {
 		t.Errorf("Expected 'Copied copy value only: 8080', got %q", app.Model.StatusMsg)
 	}
 
-	// Reopen and test Esc to cancel
-	m, _ = app.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'c'}})
+	// Reopen with Ctrl+a and test Esc to cancel
+	m, _ = app.Update(tea.KeyMsg{Type: tea.KeyCtrlA})
 	app = m.(InspectorAppModel)
 	if !app.Model.ShowActionPicker {
-		t.Fatalf("Expected ShowActionPicker = true after pressing 'c'")
+		t.Fatalf("Expected ShowActionPicker = true after pressing Ctrl+a")
 	}
 
 	m, _ = app.Update(tea.KeyMsg{Type: tea.KeyEsc})
