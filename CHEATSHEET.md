@@ -140,6 +140,11 @@ AI Actions:
 - `AI: Open Antigravity Agent`: split pane and launch `agy`
 - `AI: Open Codex Agent`: split pane and launch `codex`
 - `AI: Resume Codex Agent`: split pane and resume the latest `codex` session
+- `AI: Open fx Agent`: split pane and launch `fx`
+- `AI: Resume fx Agent`: split pane and resume the latest `fx` session
+- `AI: Open Pi Agent`: split pane and launch `pi`
+- `AI: Continue Pi Agent`: split pane and continue previous `pi` session (`pi --continue`)
+- `AI: Resume Pi Agent`: split pane and choose `pi` session to resume (`pi --resume`)
 
 ## Snaglord (Output Browser)
 
@@ -165,7 +170,7 @@ for the fzf file, directory, and Zoxide-ranked recent-directory workflows.
 - Yazi `s` (fd) and `S` (ripgrep) search results are converted back to filesystem paths
 - accepted paths are pasted through a temporary tmux buffer at the active pane's cursor without executing them
 - `Esc`: cancel without inserting anything
-- inside Claude, Gemini, Codex, Cursor `agent`, or `cursor-agent`, selected paths are prefixed with `@`
+- inside Claude, Gemini, Codex, fx, Pi, Cursor `agent`, or `cursor-agent`, selected paths are prefixed with `@`
 - in other foreground programs, selected paths are shell-escaped
 
 ## Plugin Bindings

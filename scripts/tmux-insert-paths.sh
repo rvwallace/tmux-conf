@@ -20,9 +20,9 @@ is_agent_process() {
   args="$(ps -p "$pid" -o args= 2>/dev/null || true)"
 
   case "$command_name" in
-    claude | codex | cursor-agent | agent) return 0 ;;
+    claude | codex | cursor-agent | agent | fx | pi) return 0 ;;
     node | bun)
-      [[ "$args" =~ (^|[[:space:]/])gemini([[:space:]]|$) ]] && return 0
+      [[ "$args" =~ (^|[[:space:]/])(gemini|pi)([[:space:]]|$) ]] && return 0
       ;;
   esac
 

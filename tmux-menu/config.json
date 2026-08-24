@@ -153,11 +153,16 @@
           "key": "g",
           "title": "AI Agents",
           "icon": "󰚩",
-          "description": "launch Antigravity or Codex agent side pane",
+          "description": "launch Antigravity, Codex, fx, or Pi agent side pane",
           "items": [
             { "key": "a", "title": "AI: Open Antigravity Agent", "icon": "󰚩", "description": "split pane and run Antigravity (agy)", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh antigravity \"#{pane_id}\"'", "target": "tmux" },
             { "key": "c", "title": "AI: Open Codex Agent", "icon": "󰚩", "description": "split pane and run Codex", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex \"#{pane_id}\"'", "target": "tmux" },
-            { "key": "r", "title": "AI: Resume Codex Agent", "icon": "󰚩", "description": "split pane and resume last Codex session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex-resume \"#{pane_id}\"'", "target": "tmux" }
+            { "key": "r", "title": "AI: Resume Codex Agent", "icon": "󰚩", "description": "split pane and resume last Codex session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex-resume \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "f", "title": "AI: Open fx Agent", "icon": "󰚩", "description": "split pane and run fx", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh fx \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "x", "title": "AI: Resume fx Agent", "icon": "󰚩", "description": "split pane and resume last fx session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh fx-resume \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "p", "title": "AI: Open Pi Agent", "icon": "󰚩", "description": "split pane and run Pi", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh pi \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "i", "title": "AI: Continue Pi Agent", "icon": "󰚩", "description": "split pane and continue last Pi session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh pi-continue \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "P", "title": "AI: Resume Pi Agent", "icon": "󰚩", "description": "split pane and select Pi session to resume", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh pi-resume \"#{pane_id}\"'", "target": "tmux" }
           ]
         }
       ]
