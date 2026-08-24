@@ -5,6 +5,8 @@
 .codex
 .claude/
 .gemini/
+.fx/
+.pi/
 memory/
 
 # IDEs & editors

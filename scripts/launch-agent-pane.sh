@@ -3,7 +3,7 @@
 set -euo pipefail
 
 usage() {
-  printf 'usage: %s {antigravity|codex|codex-resume} pane-id\n' "$0" >&2
+  printf 'usage: %s {antigravity|codex|codex-resume|fx|fx-resume|pi|pi-continue|pi-resume} pane-id\n' "$0" >&2
   exit 2
 }
 
@@ -29,6 +29,26 @@ case "$agent" in
   codex-resume)
     executable="codex"
     agent_command="codex resume"
+    ;;
+  fx)
+    executable="fx"
+    agent_command="fx"
+    ;;
+  fx-resume)
+    executable="fx"
+    agent_command="fx session resume last"
+    ;;
+  pi)
+    executable="pi"
+    agent_command="pi"
+    ;;
+  pi-continue)
+    executable="pi"
+    agent_command="pi --continue"
+    ;;
+  pi-resume)
+    executable="pi"
+    agent_command="pi --resume"
     ;;
   *)
     usage
