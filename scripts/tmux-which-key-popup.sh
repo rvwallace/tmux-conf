@@ -3,6 +3,7 @@
 set -euo pipefail
 
 mode="${1-}"
+snapshot="${2-}"
 
 pause() {
   printf '\nPress Enter to close\n'
@@ -105,8 +106,18 @@ case "$mode" in
     tmux show-options -g status
     pause
     ;;
+  restore-snapshot)
+    dir="$(resurrect_dir)"
+    case "$snapshot" in
+      tmux_resurrect_[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]T[0-9][0-9][0-9][0-9][0-9][0-9].txt) ;;
+      *) printf 'Invalid resurrect snapshot: %s\n' "$snapshot" >&2; exit 2 ;;
+    esac
+    [ -f "$dir/$snapshot" ] || { printf 'Snapshot not found: %s\n' "$dir/$snapshot" >&2; exit 1; }
+    ln -sfn "$snapshot" "$dir/last"
+    exec "$HOME/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh"
+    ;;
   *)
-    printf 'usage: %s {repository-overview|extrakto-help|effective-options|resurrect-files|resurrect-latest|resurrect-options|continuum-status|continuum-options|continuum-files}\n' "$0" >&2
+    printf 'usage: %s {repository-overview|extrakto-help|effective-options|resurrect-files|resurrect-latest|resurrect-options|continuum-status|continuum-options|continuum-files|restore-snapshot FILE}\n' "$0" >&2
     exit 2
     ;;
 esac

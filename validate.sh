@@ -209,6 +209,7 @@ expect_contains "grep -F 'select-layout' \"$REPO_DIR/tmux-menu/config.json\" | g
 expect_contains "grep -F '\"title\": \"Clients\"' \"$REPO_DIR/tmux-menu/config.json\"" "Clients" "clients menu group"
 expect_contains "grep -F 'tmux-omni --clients' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-omni --clients" "attached clients helper command"
 expect_contains "grep -F 'tmux-omni --messages' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-omni --messages" "messages inspector menu command"
+expect_contains "grep -F 'tmux-omni --states' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-omni --states" "saved states inspector menu command"
 expect_contains "grep -F 'detach-client -a' \"$REPO_DIR/tmux-menu/config.json\"" "detach-client -a" "detach other clients command"
 expect_contains "tmux list-keys -T prefix" "extrakto/scripts/open.sh" "extrakto binding"
 expect_contains "tmux list-keys -T prefix" "bind-key    -T prefix n       next-window" "next window binding"
@@ -274,5 +275,6 @@ expect_contains "grep -F 'show-buffer' \"$REPO_DIR/tmux-omni/ai.go\"" "show-buff
 expect_contains "grep -F 'exceeds 32 KiB' \"$REPO_DIR/tmux-omni/ai.go\"" "exceeds 32 KiB" "AI latest-copy size limit"
 expect_contains "grep -F 'tmux-resurrect/scripts/save.sh' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-resurrect/scripts/save.sh" "tmux-resurrect save command"
 expect_contains "grep -F 'tmux-continuum/scripts/continuum_save.sh' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-continuum/scripts/continuum_save.sh" "tmux-continuum save command"
+expect_contains "grep -F 'restore-snapshot' \"$REPO_DIR/scripts/tmux-which-key-popup.sh\"" "restore-snapshot" "selected snapshot restore helper"
 
 printf '\nValidation completed successfully.\n'

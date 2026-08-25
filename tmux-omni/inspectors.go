@@ -3,9 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -1127,6 +1130,116 @@ func LoadMessagesData() []InspectItem {
 	return items
 }
 
+var resurrectFilenamePattern = regexp.MustCompile(`^tmux_resurrect_(\d{8})T(\d{6})\.txt$`)
+
+// resurrectDir follows tmux-resurrect's own directory selection rules.
+func resurrectDir() string {
+	if out, err := exec.Command("tmux", "show-option", "-gqv", "@resurrect-dir").Output(); err == nil {
+		if configured := strings.TrimSpace(string(out)); configured != "" {
+			configured = os.ExpandEnv(configured)
+			if strings.HasPrefix(configured, "~/") {
+				if home, err := os.UserHomeDir(); err == nil {
+					configured = filepath.Join(home, strings.TrimPrefix(configured, "~/"))
+				}
+			}
+			return configured
+		}
+	}
+	home, _ := os.UserHomeDir()
+	legacy := filepath.Join(home, ".tmux", "resurrect")
+	if info, err := os.Stat(legacy); err == nil && info.IsDir() {
+		return legacy
+	}
+	dataHome := os.Getenv("XDG_DATA_HOME")
+	if dataHome == "" {
+		dataHome = filepath.Join(home, ".local", "share")
+	}
+	return filepath.Join(dataHome, "tmux", "resurrect")
+}
+
+// LoadResurrectData reads snapshot metadata without requiring the plugin scripts.
+// Continuum uses the same files as Resurrect, so this is intentionally one list.
+func LoadResurrectData() []InspectItem {
+	dir := resurrectDir()
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+	latest, _ := os.Readlink(filepath.Join(dir, "last"))
+	latest = filepath.Base(latest)
+	var items []InspectItem
+	for _, entry := range entries {
+		match := resurrectFilenamePattern.FindStringSubmatch(entry.Name())
+		if entry.IsDir() || match == nil {
+			continue
+		}
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+		stamp, err := time.ParseInLocation("20060102 150405", match[1]+" "+match[2], time.Local)
+		if err != nil {
+			stamp = info.ModTime()
+		}
+		contents, _ := os.ReadFile(filepath.Join(dir, entry.Name()))
+		sessions := map[string]bool{}
+		windows, panes := 0, 0
+		scanner := bufio.NewScanner(strings.NewReader(string(contents)))
+		for scanner.Scan() {
+			fields := strings.Split(scanner.Text(), "\t")
+			if len(fields) < 2 {
+				continue
+			}
+			switch fields[0] {
+			case "pane":
+				panes++
+				sessions[fields[1]] = true
+			case "window":
+				windows++
+				sessions[fields[1]] = true
+			}
+		}
+		names := make([]string, 0, len(sessions))
+		for name := range sessions {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		kind := "Snapshot"
+		if entry.Name() == latest {
+			kind = "Latest"
+		}
+		age := time.Since(stamp).Round(time.Minute)
+		if age < 0 {
+			age = 0
+		}
+		summary := fmt.Sprintf("%d sessions · %d windows · %d panes", len(names), windows, panes)
+		sessionList := strings.Join(names, ", ")
+		items = append(items, InspectItem{
+			Col1:       stamp.Format("2006-01-02 15:04"),
+			Col2:       kind + " · " + formatSnapshotAge(age),
+			Col3:       summary,
+			Col4:       sessionList,
+			SearchText: strings.ToLower(strings.Join([]string{entry.Name(), kind, summary, sessionList, string(contents)}, " ")),
+			RawCopy:    string(contents),
+			ActionCmd:  fmt.Sprintf("run-shell %s", QuoteShellSingle("~/.config/tmux/scripts/tmux-which-key-popup.sh restore-snapshot "+entry.Name())),
+		})
+	}
+	sort.Slice(items, func(i, j int) bool { return items[i].Col1 > items[j].Col1 })
+	return items
+}
+
+func formatSnapshotAge(age time.Duration) string {
+	minutes := int(age.Minutes())
+	if minutes < 60 {
+		return strconv.Itoa(minutes) + "m ago"
+	}
+	hours := minutes / 60
+	if hours < 48 {
+		return strconv.Itoa(hours) + "h ago"
+	}
+	return strconv.Itoa(hours/24) + "d ago"
+}
+
 // CreateInspector builds an initialized InspectModel for the given inspector type.
 func CreateInspector(inspType string) InspectModel {
 	clean := strings.ToLower(strings.TrimSpace(inspType))
@@ -1196,6 +1309,14 @@ func CreateInspector(inspType string) InspectModel {
 		insp.AllowCopy = true
 		return insp
 
+	case "states", "state", "saves", "snapshots", "autosaves":
+		items := LoadResurrectData()
+		insp := NewInspectModel("Saved Tmux States", "󰆓", "Saved", "Status / Age", "Contents", "Sessions", items, 18, 20, 34)
+		insp.AllowExecute = true
+		insp.ExecuteLabel = "Restore"
+		insp.AllowCopy = true
+		return insp
+
 	default:
 		return InspectModel{}
 	}
@@ -1233,6 +1354,8 @@ func IsInspectorCommand(action string) (string, bool) {
 			return "messages", true
 		case "--clients", "-clients", "clients":
 			return "clients", true
+		case "--states", "-states", "states", "saves", "snapshots", "autosaves":
+			return "states", true
 		}
 	}
 	return "", false

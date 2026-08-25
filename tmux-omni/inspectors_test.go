@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 	"testing"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -20,6 +21,7 @@ func TestIsInspectorCommand(t *testing.T) {
 		{"~/.config/tmux/scripts/tmux-omni --commands", "commands", true},
 		{"~/.config/tmux/scripts/tmux-omni --keys", "keys", true},
 		{"~/.config/tmux/scripts/tmux-omni --clients", "clients", true},
+		{"~/.config/tmux/scripts/tmux-omni --states", "states", true},
 		{"tmux-omni -k", "keys", true},
 		{"tmux-omni -E", "env", true},
 		{"tmux-omni -O", "options", true},
@@ -47,7 +49,7 @@ func TestIsInspectorCommand(t *testing.T) {
 }
 
 func TestCreateInspector(t *testing.T) {
-	types := []string{"keys", "commands", "options", "env", "buffers", "messages", "clients"}
+	types := []string{"keys", "commands", "options", "env", "buffers", "messages", "clients", "states"}
 	for _, itype := range types {
 		insp := CreateInspector(itype)
 		if insp.Title == "" {
@@ -55,6 +57,22 @@ func TestCreateInspector(t *testing.T) {
 		}
 		if insp.TextInput.Prompt == "" {
 			t.Errorf("CreateInspector(%q) text input uninitialized", itype)
+		}
+	}
+}
+
+func TestFormatSnapshotAge(t *testing.T) {
+	tests := []struct {
+		age  time.Duration
+		want string
+	}{
+		{12 * time.Minute, "12m ago"},
+		{3 * time.Hour, "3h ago"},
+		{72 * time.Hour, "3d ago"},
+	}
+	for _, tt := range tests {
+		if got := formatSnapshotAge(tt.age); got != tt.want {
+			t.Errorf("formatSnapshotAge(%s) = %q, want %q", tt.age, got, tt.want)
 		}
 	}
 }
@@ -238,19 +256,19 @@ func TestGetItemActionOptions(t *testing.T) {
 func TestEnvironmentInspectorFilteringAndShortcuts(t *testing.T) {
 	items := []InspectItem{
 		{
-			Col1:      "ANTHROPIC_API_KEY",
-			Col2:      "Global",
-			Col3:      "sk-ant-12345",
-			RawCopy:   "export ANTHROPIC_API_KEY=\"sk-ant-12345\"",
-			ActionCmd: "command-prompt -I 'set-environment -g ANTHROPIC_API_KEY sk-ant-12345'",
+			Col1:       "ANTHROPIC_API_KEY",
+			Col2:       "Global",
+			Col3:       "sk-ant-12345",
+			RawCopy:    "export ANTHROPIC_API_KEY=\"sk-ant-12345\"",
+			ActionCmd:  "command-prompt -I 'set-environment -g ANTHROPIC_API_KEY sk-ant-12345'",
 			SearchText: "anthropic_api_key global sk-ant-12345",
 		},
 		{
-			Col1:      "CLOUDFLARE_API_TOKEN",
-			Col2:      "Global",
-			Col3:      "token-xyz-789",
-			RawCopy:   "export CLOUDFLARE_API_TOKEN=\"token-xyz-789\"",
-			ActionCmd: "command-prompt -I 'set-environment -g CLOUDFLARE_API_TOKEN token-xyz-789'",
+			Col1:       "CLOUDFLARE_API_TOKEN",
+			Col2:       "Global",
+			Col3:       "token-xyz-789",
+			RawCopy:    "export CLOUDFLARE_API_TOKEN=\"token-xyz-789\"",
+			ActionCmd:  "command-prompt -I 'set-environment -g CLOUDFLARE_API_TOKEN token-xyz-789'",
 			SearchText: "cloudflare_api_token global token-xyz-789",
 		},
 	}
@@ -298,11 +316,11 @@ func TestEnvironmentInspectorFilteringAndShortcuts(t *testing.T) {
 func TestActionPickerModal(t *testing.T) {
 	items := []InspectItem{
 		{
-			Col1:      "PORT",
-			Col2:      "Global",
-			Col3:      "8080",
-			RawCopy:   "export PORT=\"8080\"",
-			ActionCmd: "command-prompt -I 'set-environment -g PORT 8080'",
+			Col1:       "PORT",
+			Col2:       "Global",
+			Col3:       "8080",
+			RawCopy:    "export PORT=\"8080\"",
+			ActionCmd:  "command-prompt -I 'set-environment -g PORT 8080'",
 			SearchText: "port global 8080",
 		},
 	}
@@ -354,4 +372,3 @@ func TestActionPickerModal(t *testing.T) {
 		t.Errorf("Expected Esc to dismiss action picker modal")
 	}
 }
-
