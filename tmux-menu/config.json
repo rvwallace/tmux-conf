@@ -295,7 +295,7 @@
           "items": [
             { "key": "s", "title": "Save Tmux State", "icon": "󰆓", "description": "manually save current session state", "action": "run-shell ~/.config/tmux/plugins/tmux-resurrect/scripts/save.sh", "target": "tmux" },
             { "key": "r", "title": "Restore Tmux State", "icon": "󰁯", "description": "restore previously saved session state", "action": "run-shell ~/.config/tmux/plugins/tmux-resurrect/scripts/restore.sh", "target": "tmux" },
-            { "key": "l", "title": "List Saved States", "icon": "󰅩", "description": "view list of saved resurrect snapshot files", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh resurrect-files", "target": "popup" },
+            { "key": "l", "title": "Inspect Saved States", "icon": "󰅩", "description": "search, preview, and restore resurrect snapshots", "action": "~/.config/tmux/scripts/tmux-omni --states", "target": "popup" },
             { "key": "L", "title": "Show Latest Save", "icon": "󰈞", "description": "view details of latest save symlink", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh resurrect-latest", "target": "popup" },
             { "key": "o", "title": "Show Resurrect Options", "icon": "󰈞", "description": "inspect active @resurrect tmux options", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh resurrect-options", "target": "popup" }
           ]
@@ -310,7 +310,7 @@
             { "key": "r", "title": "Run Continuum Restore", "icon": "󰁯", "description": "trigger manual continuum restore", "action": "run-shell ~/.config/tmux/plugins/tmux-continuum/scripts/continuum_restore.sh", "target": "tmux" },
             { "key": "S", "title": "Show Continuum Status", "icon": "󰈞", "description": "view status and time since last save", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh continuum-status", "target": "popup" },
             { "key": "o", "title": "Show Continuum Options", "icon": "󰈞", "description": "inspect active @continuum tmux options", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh continuum-options", "target": "popup" },
-            { "key": "l", "title": "List Autosave Files", "icon": "󰅩", "description": "view list of saved continuum snapshot files", "action": "~/.config/tmux/scripts/tmux-which-key-popup.sh continuum-files", "target": "popup" }
+            { "key": "l", "title": "Inspect Autosaves", "icon": "󰅩", "description": "search, preview, and restore shared resurrect snapshots", "action": "~/.config/tmux/scripts/tmux-omni --states", "target": "popup" }
           ]
         }
       ]

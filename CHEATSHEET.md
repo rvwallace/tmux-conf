@@ -104,6 +104,7 @@ Quick editing and customization:
 - `prefix + Space` → `o` → `m`: edit `config.json` in `$EDITOR`
 - `prefix + Space` → `o` → `t`: edit `.tmux.conf` in `$EDITOR`
 - `prefix + Space` → `t` → `M`: open Tmux Messages log inspector (`tmux-omni --messages`)
+- `prefix + Space` → Plugins → Resurrect → `l`, or Continuum → `l`: open the shared saved-state inspector. Search by session, command, path, or snapshot text; `<CR>` restores the selected state and `<Ctrl-y>` copies its raw snapshot preview. Continuum and manual Resurrect saves use the same file format and do not retain save-source metadata.
 - Refer to [`CONFIG_GUIDE.md`](./CONFIG_GUIDE.md) and [`config.schema.json`](./tmux-menu/config.schema.json) for schema rules and target documentation.
 
 ## AI Assistant

@@ -171,7 +171,8 @@ The tracked configuration at `./tmux-menu/config.json` is symlinked to:
 - **Interactive Inspectors**:
   - `prefix + ?` (`tmux-omni --keys`): Active prefix keybindings browser with search, execution, and copy.
   - `tmux-omni --messages` (`prefix + Space` → `t` → `M`): Searchable, scrollable log viewer for `tmux show-messages` with copy support.
-  - `tmux-omni --commands` / `--options` / `--env` / `--buffers` / `--clients`: Dedicated introspection tables with full real-time text filtering.
+  - `tmux-omni --commands` / `--options` / `--env` / `--buffers` / `--clients` / `--states`: Dedicated introspection tables with full real-time text filtering.
+  - **Saved-state inspector**: `tmux-omni --states` lists Resurrect and Continuum's shared snapshot history newest-first. It shows age, latest status, session/window/pane counts, and session names; search includes the complete snapshot text. Press `<CR>` to make the selected snapshot `last` and restore it, or `<Ctrl-y>` to copy its raw preview. Resurrect snapshot files do not record whether a save was manual or made by Continuum, so the two menu entries intentionally open the same authoritative list.
   - **Environment & Options Actions**: In inspectors, press `<CR>` to edit/toggle/execute, `<Ctrl-a>` (or `<Ctrl-o>`) to open the **Action Picker** modal to choose between Value, Name, Shell Export, Tmux Set, or Edit prompt, `<Ctrl-y>` to copy to clipboard, or `<Ctrl-d>` to delete buffer (in Buffers). Inside the Action Picker modal, quick keys `v` (Value), `n` (Name), `e` (Export), `s` (Set), `p` (Prompt), `i` (Insert) run immediately.
   - **Seamless Screen Navigation**: Opening any inspector from Leader or Palette keeps you inside `tmux-omni`; pressing `<Backspace>` (when search query is empty) or `<Esc>` returns to the previous screen. Action & clipboard status messages auto-fade after 2.5 seconds.
 
