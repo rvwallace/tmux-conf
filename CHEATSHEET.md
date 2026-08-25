@@ -108,7 +108,7 @@ Quick editing and customization:
 
 ## AI Assistant
 
-These palette actions require `aichat` in `PATH` and are powered directly by `tmux-omni ai`. Open `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat` (or `prefix + Space` → `a`). Actions open the Go Bubble Tea interface directly in a 40% right-side pane. Pane-aware actions capture the current path, foreground command, and scrollback lines (default 200). All analysis and generation actions maintain conversation sessions and accept multi-turn follow-up questions, slash commands (`/git`, `/diff`, `/tree`, `/env`), and `/refresh` to update context. Summarize Pane supports switching depth via `1`–`5` (100, 200, 500, 1000, all), `d` (cycle), or `r` (reload). Generate Command and Suggest Fix allow sending generated commands or extracted code blocks directly into the active pane (`s`, `X`, or `Enter` on empty input) via bracketed paste for review before running. Explain Last Copy reads but does not delete the latest tmux paste buffer and rejects empty buffers or buffers larger than 32 KiB.
+These palette actions require `aichat` in `PATH` and are powered directly by `tmux-omni ai`. Open `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat`, or use `prefix + Space` → `a` → `a` for the `aichat Actions` submenu. Actions open the Go Bubble Tea interface directly in a 40% right-side pane. Pane-aware actions capture the current path, foreground command, and scrollback lines (default 200). All analysis and generation actions maintain conversation sessions and accept multi-turn follow-up questions, slash commands (`/git`, `/diff`, `/tree`, `/env`), and `/refresh` to update context. Summarize Pane supports switching depth via `1`–`5` (100, 200, 500, 1000, all), `d` (cycle), or `r` (reload). Generate Command and Suggest Fix allow sending generated commands or extracted code blocks directly into the active pane (`s`, `X`, or `Enter` on empty input) via bracketed paste for review before running. Explain Last Copy reads but does not delete the latest tmux paste buffer and rejects empty buffers or buffers larger than 32 KiB.
 
 Inside the AI interface (Vim modal):
 - **Navigation**: `Tab` toggles focus between Input (Insert mode) and Transcript (Normal mode); `Esc` exits Insert mode (or closes when empty); `i`/`a` enters Insert mode.
@@ -137,14 +137,16 @@ AI Actions:
 - `AI: Generate Command`: create a command from a description
 - `AI: Explain`: explain a command or concept
 - `AI: Explain Last Copy`: explain the latest tmux buffer content
-- `AI: Open Antigravity Agent`: split pane and launch `agy`
-- `AI: Open Codex Agent`: split pane and launch `codex`
-- `AI: Resume Codex Agent`: split pane and resume the latest `codex` session
-- `AI: Open fx Agent`: split pane and launch `fx`
-- `AI: Resume fx Agent`: split pane and resume the latest `fx` session
-- `AI: Open Pi Agent`: split pane and launch `pi`
-- `AI: Continue Pi Agent`: split pane and continue previous `pi` session (`pi --continue`)
-- `AI: Resume Pi Agent`: split pane and choose `pi` session to resume (`pi --resume`)
+- `Antigravity - Open`: split pane and launch `agy`
+- `Antigravity - Resume`: split pane and resume the latest conversation (`agy --continue`)
+- `Claude - Open`: split pane and launch `claude`
+- `Codex - Open`: split pane and launch `codex`
+- `Codex - Resume`: split pane and open the `codex` resume picker
+- `Cursor - Open`: split pane and launch `cursor-agent`
+- `fx - Open`: split pane and launch `fx`
+- `fx - Resume`: split pane and resume the latest `fx` workspace session
+- `Pi - Open`: split pane and launch `pi`
+- `Pi - Resume`: split pane and resume the latest `pi` session (`pi --continue`)
 
 ## Snaglord (Output Browser)
 

@@ -140,29 +140,39 @@
       "key": "a",
       "title": "AI Assistants",
       "icon": "󰧑",
-      "description": "aichat Q&A, diagnosis, summarize, agents",
+      "description": "aichat helpers and interactive coding agents",
       "items": [
-        { "key": "a", "title": "AI: Ask", "icon": "󰧑", "description": "ask a question with pane context", "action": "~/.config/tmux/scripts/tmux-omni ai ask \"#{pane_id}\"", "target": "split-h" },
-        { "key": "d", "title": "AI: Diagnose Error", "icon": "󰅚", "description": "diagnose most recent error in pane", "action": "~/.config/tmux/scripts/tmux-omni ai error \"#{pane_id}\"", "target": "split-h" },
-        { "key": "f", "title": "AI: Suggest Fix", "icon": "󰁨", "description": "suggest shell command fix for error", "action": "~/.config/tmux/scripts/tmux-omni ai fix \"#{pane_id}\"", "target": "split-h" },
-        { "key": "s", "title": "AI: Summarize Pane", "icon": "󰦪", "description": "summarize recent pane activity and state", "action": "~/.config/tmux/scripts/tmux-omni ai summarize \"#{pane_id}\"", "target": "split-h" },
-        { "key": "c", "title": "AI: Generate Command", "icon": "󰘳", "description": "generate single shell command from description", "action": "~/.config/tmux/scripts/tmux-omni ai command \"#{pane_id}\"", "target": "split-h" },
-        { "key": "e", "title": "AI: Explain", "icon": "󰛨", "description": "explain command, snippet, or concept", "action": "~/.config/tmux/scripts/tmux-omni ai explain \"#{pane_id}\"", "target": "split-h" },
-        { "key": "y", "title": "AI: Explain Last Copy", "icon": "󰆏", "description": "explain text in most recent copy buffer", "action": "~/.config/tmux/scripts/tmux-omni ai explain-copy \"#{pane_id}\"", "target": "split-h" },
+        {
+          "key": "a",
+          "title": "aichat Actions",
+          "icon": "󰧑",
+          "description": "ask, diagnose, summarize, generate, or explain with aichat",
+          "items": [
+            { "key": "a", "title": "AI: Ask", "icon": "󰧑", "description": "ask a question with pane context using aichat", "action": "~/.config/tmux/scripts/tmux-omni ai ask \"#{pane_id}\"", "target": "split-h" },
+            { "key": "d", "title": "AI: Diagnose Error", "icon": "󰅚", "description": "diagnose most recent pane error using aichat", "action": "~/.config/tmux/scripts/tmux-omni ai error \"#{pane_id}\"", "target": "split-h" },
+            { "key": "f", "title": "AI: Suggest Fix", "icon": "󰁨", "description": "suggest a shell command fix using aichat", "action": "~/.config/tmux/scripts/tmux-omni ai fix \"#{pane_id}\"", "target": "split-h" },
+            { "key": "s", "title": "AI: Summarize Pane", "icon": "󰦪", "description": "summarize recent pane activity using aichat", "action": "~/.config/tmux/scripts/tmux-omni ai summarize \"#{pane_id}\"", "target": "split-h" },
+            { "key": "c", "title": "AI: Generate Command", "icon": "󰘳", "description": "generate a shell command using aichat", "action": "~/.config/tmux/scripts/tmux-omni ai command \"#{pane_id}\"", "target": "split-h" },
+            { "key": "e", "title": "AI: Explain", "icon": "󰛨", "description": "explain a command, snippet, or concept using aichat", "action": "~/.config/tmux/scripts/tmux-omni ai explain \"#{pane_id}\"", "target": "split-h" },
+            { "key": "y", "title": "AI: Explain Last Copy", "icon": "󰆏", "description": "explain the latest copy buffer using aichat", "action": "~/.config/tmux/scripts/tmux-omni ai explain-copy \"#{pane_id}\"", "target": "split-h" }
+          ]
+        },
         {
           "key": "g",
           "title": "AI Agents",
           "icon": "󰚩",
-          "description": "launch Antigravity, Codex, fx, or Pi agent side pane",
+          "description": "launch an interactive coding agent in a side pane",
           "items": [
-            { "key": "a", "title": "AI: Open Antigravity Agent", "icon": "󰚩", "description": "split pane and run Antigravity (agy)", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh antigravity \"#{pane_id}\"'", "target": "tmux" },
-            { "key": "c", "title": "AI: Open Codex Agent", "icon": "󰚩", "description": "split pane and run Codex", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex \"#{pane_id}\"'", "target": "tmux" },
-            { "key": "r", "title": "AI: Resume Codex Agent", "icon": "󰚩", "description": "split pane and resume last Codex session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex-resume \"#{pane_id}\"'", "target": "tmux" },
-            { "key": "f", "title": "AI: Open fx Agent", "icon": "󰚩", "description": "split pane and run fx", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh fx \"#{pane_id}\"'", "target": "tmux" },
-            { "key": "x", "title": "AI: Resume fx Agent", "icon": "󰚩", "description": "split pane and resume last fx session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh fx-resume \"#{pane_id}\"'", "target": "tmux" },
-            { "key": "p", "title": "AI: Open Pi Agent", "icon": "󰚩", "description": "split pane and run Pi", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh pi \"#{pane_id}\"'", "target": "tmux" },
-            { "key": "i", "title": "AI: Continue Pi Agent", "icon": "󰚩", "description": "split pane and continue last Pi session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh pi-continue \"#{pane_id}\"'", "target": "tmux" },
-            { "key": "P", "title": "AI: Resume Pi Agent", "icon": "󰚩", "description": "split pane and select Pi session to resume", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh pi-resume \"#{pane_id}\"'", "target": "tmux" }
+            { "key": "a", "title": "Antigravity - Open", "icon": "󰚩", "description": "start a new Antigravity session (agy)", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh antigravity \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "A", "title": "Antigravity - Resume", "icon": "󰚩", "description": "resume the latest Antigravity conversation", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh antigravity-resume \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "l", "title": "Claude - Open", "icon": "󰚩", "description": "start a new Claude Code session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh claude \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "c", "title": "Codex - Open", "icon": "󰚩", "description": "start a new Codex session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "r", "title": "Codex - Resume", "icon": "󰚩", "description": "open the Codex resume picker", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh codex-resume \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "u", "title": "Cursor - Open", "icon": "󰚩", "description": "start a new Cursor Agent session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh cursor-agent \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "f", "title": "fx - Open", "icon": "󰚩", "description": "start a new fx session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh fx \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "x", "title": "fx - Resume", "icon": "󰚩", "description": "resume the latest fx workspace session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh fx-resume \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "p", "title": "Pi - Open", "icon": "󰚩", "description": "start a new Pi session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh pi \"#{pane_id}\"'", "target": "tmux" },
+            { "key": "i", "title": "Pi - Resume", "icon": "󰚩", "description": "resume the latest Pi session", "action": "run-shell '~/.config/tmux/scripts/launch-agent-pane.sh pi-resume \"#{pane_id}\"'", "target": "tmux" }
           ]
         }
       ]
