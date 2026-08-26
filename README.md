@@ -12,6 +12,7 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 - [`./Brewfile`](./Brewfile): macOS runtime dependencies used by the configuration and palette utilities.
 - [`./validate.sh`](./validate.sh): checks symlinks, TPM, tmux reloadability, and expected live settings.
 - [`./CHEATSHEET.md`](./CHEATSHEET.md): commonly used key bindings and commands.
+- [`./CHANGELOG.md`](./CHANGELOG.md): project change history following Keep a Changelog.
 - [`./AGENTS.md`](./AGENTS.md): maintenance rules for future edits.
 - [`./LICENSE`](./LICENSE): MIT license for using, modifying, and distributing this configuration.
 - [`./scripts/edit-scrollback.sh`](./scripts/edit-scrollback.sh): captures pane output and opens it in `$VISUAL` or `$EDITOR`.
