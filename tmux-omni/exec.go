@@ -33,6 +33,13 @@ func CopyToClipboard(text string) bool {
 			return true
 		}
 	}
+	if _, err := exec.LookPath("xsel"); err == nil {
+		cmd := exec.Command("xsel", "--clipboard", "--input")
+		cmd.Stdin = strings.NewReader(text)
+		if err := cmd.Run(); err == nil {
+			return true
+		}
+	}
 	if _, err := exec.LookPath("tmux"); err == nil {
 		cmd := exec.Command("tmux", "set-buffer", "--", text)
 		if err := cmd.Run(); err == nil {
