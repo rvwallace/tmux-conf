@@ -15,6 +15,8 @@ elif command -v wl-copy >/dev/null 2>&1; then
   printf '%s' "${pane_path}" | wl-copy
 elif command -v xclip >/dev/null 2>&1; then
   printf '%s' "${pane_path}" | xclip -selection clipboard
+elif command -v xsel >/dev/null 2>&1; then
+  printf '%s' "${pane_path}" | xsel --clipboard --input
 else
   tmux set-buffer -- "${pane_path}"
   tmux display-message "Copied pane directory to tmux buffer (no system clipboard tool found)"

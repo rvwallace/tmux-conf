@@ -7,7 +7,7 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 ## Files
 
 - [`./.tmux.conf`](./.tmux.conf): authoritative entry point, organized into core behavior, terminal capabilities, window and pane defaults, bindings, context menus, theme loading, plugins, and post-plugin overrides.
-- [`./themes/tokyo-night.conf`](./themes/tokyo-night.conf): Tokyo Night status bar, pane borders, messages, copy mode, and which-key popup surface; exposed to tmux through the `~/.config/tmux/themes` symlink.
+- [`./themes/tokyo-night.conf`](./themes/tokyo-night.conf): Tokyo Night status bar, pane borders, messages, copy mode, and which-key popup surface. This file is exposed to tmux through the `~/.config/tmux/themes` symlink.
 - [`./bootstrap.sh`](./bootstrap.sh): refreshes repo-managed symlinks and sets up the TPM path on a machine.
 - [`./Brewfile`](./Brewfile): macOS runtime dependencies used by the configuration and palette utilities.
 - [`./validate.sh`](./validate.sh): checks symlinks, TPM, tmux reloadability, and expected live settings.
@@ -52,14 +52,14 @@ This config intentionally stays small:
 - the session is a left-anchored purple segment with a pointed transition, so it is distinct from the window tabs
 - transient tmux messages appear as compact yellow segments with a rounded right edge instead of full-width blocks
 - pressing the prefix shows a rounded yellow `PREFIX` indicator in the right-side state group
-- window tabs have rounded caps on both sides; the active window is highlighted in blue, inactive windows use a muted raised surface, and zoomed windows are marked
+- window tabs have rounded caps on both sides. The active window is highlighted in blue, inactive windows use a muted raised surface, and zoomed windows are marked.
 - the right side can show prefix, copy mode, marked-pane, mouse, and synchronized-pane state indicators
 - the right side shows icon-labeled local date/time, UTC time, and hostname
 - sessions, windows, panes, working directories, and captured pane output can be saved and restored with `tmux-resurrect`
 - sessions are autosaved every 15 minutes while tmux is running and the status line is enabled
 - saved sessions are restored automatically when a new tmux server starts
 - command history can be browsed as searchable command/output blocks in a Snaglord popup
-- files and directories can be fuzzy-selected in a popup and inserted at the active pane's cursor
+- files and directories can be fuzzy-selected in a popup and inserted at the cursor in the active pane
 
 ## Key Bindings Added Here
 
@@ -67,7 +67,7 @@ These are the bindings this repo adds or overrides directly:
 
 - `prefix + r`: reload `~/.tmux.conf`
 - `prefix + m`: toggle mouse mode
-- `prefix + M`: mark or unmark the current pane for later swap/join operations; the `MARK` indicator updates immediately
+- `prefix + M`: mark or unmark the current pane for later swap/join operations. The `MARK` indicator updates immediately.
 - `prefix + Ctrl-e`: capture the current pane plus scrollback into `$VISUAL` or `$EDITOR` in a new tmux window
 - `prefix + Ctrl-f`: fuzzy-find files under the current pane directory and insert one or more selected paths
 - `prefix + Ctrl-y`: open the Snaglord command/output browser for the current pane
@@ -101,7 +101,7 @@ This config explicitly clears several bindings before plugins initialize, preven
 - `prefix + ?`
 - `prefix + F`
 
-Right-click context menus for panes, window tabs, and the session block open on button release with tmux's persistent-menu mode, so mouse movement does not dismiss them. They remain available until an item is chosen by mouse or shortcut, or the menu is explicitly dismissed.
+Right-click context menus for panes, window tabs, and the session block open on button release with persistent-menu mode in tmux, so mouse movement does not dismiss them. They remain available until an item is chosen by mouse or shortcut, or the menu is explicitly dismissed.
 
 ## Plugins
 
@@ -119,20 +119,20 @@ Current plugins:
 - `tmux-plugins/tmux-resurrect`
 - `tmux-plugins/tmux-continuum`
 
-`tmux-omni` provides both the leader key menu (`prefix + Space`) and the command palette (`prefix + P` / `prefix + Ctrl-p`), replacing external which-key and palette plugins with a single repository-owned Go+Bubble Tea tool with sub-10ms startup.
+`tmux-omni` gives both the leader key menu (`prefix + Space`) and the command palette (`prefix + P` / `prefix + Ctrl-p`). It replaces external which-key and palette plugins with a single repository-owned Go and Bubble Tea tool that starts in under 10ms.
 
-Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps its prompt parser configuration under `./tmux-snaglord/`; it recognizes this Starship prompt's final `➜` or `✖` line and treats the prompt as three terminal lines so preceding decoration does not leak into adjacent command output. Snaglord's stock command view supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
+Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps the prompt parser configuration in `./tmux-snaglord/`. It recognizes the final `➜` or `✖` line in Starship prompts and treats the prompt as three terminal lines. As a result, preceding decoration does not leak into adjacent command output. The stock command view in Snaglord supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
 
-`tmux-file-picker` is also a standalone CLI rather than a TPM plugin. Its upstream script is vendored under `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`, with a small local integration patch. It uses `fd` and `fzf` to select files or directories. Yazi is available alongside it from both TMUX Tools menus as a navigable, multi-file chooser; its fd (`s`) and ripgrep (`S`) virtual search results are normalized back to filesystem paths. Both pickers pass their selections through a temporary named tmux buffer and delete that buffer after pasting; selected paths are inserted without being executed. When a pane runs Claude, Gemini, Codex, fx, Pi, Cursor `agent`, or `cursor-agent`, paths are prefixed with `@`; otherwise they are shell-escaped.
+`tmux-file-picker` is a standalone CLI rather than a TPM plugin. The upstream script is vendored in `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`, with a small local patch. It uses `fd` and `fzf` to select files or directories. Yazi is available alongside it from both TMUX Tools menus as a multi-file chooser. The virtual search results from fd (`s`) and ripgrep (`S`) in Yazi are normalized to filesystem paths. Both pickers pass selections through a temporary named tmux buffer and delete that buffer after pasting. Selected paths are inserted without being executed. When a pane runs Claude, Gemini, Codex, fx, Pi, Cursor `agent`, or `cursor-agent`, paths are prefixed with `@`. Otherwise, paths are shell-escaped.
 
 Notes:
 
-- `tmux-sensible` provides sane defaults and a few standard bindings.
-- `tmux-cowboy` provides `prefix + *` to send `SIGKILL` to the foreground process in the current pane.
-- `tmux-fzf` provides a fuzzy menu for tmux sessions, windows, panes, buffers, and more.
-- `extrakto` provides `prefix + Tab` to fuzzy-find text, paths, URLs, and lines from pane history, then insert or copy a selection. Native copy mode can perform manual selection and search, but extracting structured items from large pane histories is materially more tedious.
+- `tmux-sensible` sets reasonable defaults and standard bindings.
+- `tmux-cowboy` adds `prefix + *` to send `SIGKILL` to the foreground process in the current pane.
+- `tmux-fzf` adds a fuzzy menu for tmux sessions, windows, panes, buffers, and commands.
+- `extrakto` adds `prefix + Tab` to fuzzy-find text, paths, URLs, and lines from pane history, then insert or copy a selection. Native copy mode can perform manual selection and search, but extracting structured items from large pane histories is materially more tedious.
 - `tmux-omni` reads repo-managed JSON from `~/.config/tmux-menu/config.json` and supports both Which-Key tree navigation and fuzzy Command Palette search.
-- `tmux-fzf-links` provides `prefix + Ctrl-h` to fuzzy-find links, paths, and other supported addresses in pane history. Opening a selected file starts Neovim in a new tmux window at the detected line.
+- `tmux-fzf-links` adds `prefix + Ctrl-h` to fuzzy-find links, paths, and other supported addresses in pane history. Opening a selected file starts Neovim in a new tmux window at the detected line.
 - `tmux-resurrect` saves and restores tmux sessions, layouts, working directories, and captured pane output.
 - `tmux-continuum` autosaves every 15 minutes and restores the most recent saved state when a new tmux server starts.
 - `tmux-continuum` must stay last in `.tmux.conf` because it hooks through `status-right`.
@@ -148,7 +148,7 @@ On this machine, saves are currently under `~/.local/share/tmux/resurrect`, with
 
 ## tmux-omni (Leader Key & Command Palette)
 
-The unified leader key menu and command palette is implemented in Go with Bubble Tea and Lipgloss ([`./tmux-omni/`](./tmux-omni/)), providing instantaneous (<10ms) startup and Tokyo Night styling inspired by LazyVim and NvChad.
+The unified leader key menu and command palette is built in Go with Bubble Tea and Lipgloss ([`./tmux-omni/`](./tmux-omni/)). It starts in under 10ms with Tokyo Night styling inspired by LazyVim and NvChad.
 
 The tracked configuration at `./tmux-menu/config.json` is symlinked to:
 
@@ -164,18 +164,18 @@ The tracked configuration at `./tmux-menu/config.json` is symlinked to:
   - **`<Enter>`**: Executes the highlighted action or enters the highlighted subgroup (or switches into Command Palette search if at root).
   - **`y`**: Copies the highlighted action to clipboard.
   - **`/` or `Ctrl-p`**: Switch into Command Palette fuzzy search mode.
-  - **`Esc` or `Backspace`**: Navigate up one level; `q` or `Esc` at root to close.
+  - **`Esc` or `Backspace`**: Navigate up one level. Press `q` or `Esc` at root to close.
 - **Command Palette Mode (`prefix + P` or `prefix + Ctrl-p`)**: Fuzzy search across all actions, categories, descriptions, and key shortcuts. As you type, results update in real time.
   - **`<Enter>`**: Run the selected action.
   - **`Ctrl-y` / `Alt-y`**: Copy the selected action to clipboard.
-  - **`Esc`**: Clears search input or returns to Which-Key Leader mode; `Backspace` on empty input or `Ctrl-Space` / `Ctrl-l` returns to Leader mode.
+  - **`Esc`**: Clears search input or returns to Which-Key Leader mode. Press `Backspace` on empty input or `Ctrl-Space` / `Ctrl-l` to return to Leader mode.
 - **Interactive Inspectors**:
   - `prefix + ?` (`tmux-omni --keys`): Active prefix keybindings browser with search, execution, and copy.
   - `tmux-omni --messages` (`prefix + Space` → `t` → `M`): Searchable, scrollable log viewer for `tmux show-messages` with copy support.
   - `tmux-omni --commands` / `--options` / `--env` / `--buffers` / `--clients` / `--states`: Dedicated introspection tables with full real-time text filtering.
-  - **Saved-state inspector**: `tmux-omni --states` lists Resurrect and Continuum's shared snapshot history newest-first. It shows age, latest status, session/window/pane counts, and session names; search includes the complete snapshot text. Press `<CR>` to make the selected snapshot `last` and restore it, or `<Ctrl-y>` to copy its raw preview. Resurrect snapshot files do not record whether a save was manual or made by Continuum, so the two menu entries intentionally open the same authoritative list.
+  - **Saved-state inspector**: `tmux-omni --states` lists the shared snapshot history of Resurrect and Continuum newest-first. It shows age, latest status, session/window/pane counts, and session names. Search includes the complete snapshot text. Press `<CR>` to make the selected snapshot `last` and restore it, or `<Ctrl-y>` to copy its raw preview. Resurrect snapshot files do not record whether a save was manual or made by Continuum. Both menu entries open the same authoritative list.
   - **Environment & Options Actions**: In inspectors, press `<CR>` to edit/toggle/execute, `<Ctrl-a>` (or `<Ctrl-o>`) to open the **Action Picker** modal to choose between Value, Name, Shell Export, Tmux Set, or Edit prompt, `<Ctrl-y>` to copy to clipboard, or `<Ctrl-d>` to delete buffer (in Buffers). Inside the Action Picker modal, quick keys `v` (Value), `n` (Name), `e` (Export), `s` (Set), `p` (Prompt), `i` (Insert) run immediately.
-  - **Seamless Screen Navigation**: Opening any inspector from Leader or Palette keeps you inside `tmux-omni`; pressing `<Backspace>` (when search query is empty) or `<Esc>` returns to the previous screen. Action & clipboard status messages auto-fade after 2.5 seconds.
+  - **Screen Navigation**: Opening an inspector from Leader or Palette keeps you inside `tmux-omni`. Press `<Backspace>` (when the search query is empty) or `<Esc>` to return to the previous screen. Action and clipboard status messages fade after 2.5 seconds.
 
 ### Execution Targets & Modifiers
 
@@ -195,7 +195,7 @@ When selecting any command in Which-Key, Command Palette, or Inspectors, you can
 ### Configuration & Schema Tooling
 
 - **Configuration Guide**: See [`./CONFIG_GUIDE.md`](./CONFIG_GUIDE.md) for full documentation on menu structure, targets, custom scripts, and icon reference.
-- **JSON Schema**: [`./tmux-menu/config.schema.json`](./tmux-menu/config.schema.json) provides autocompletion, hover docs, and type validation in Neovim, VSCode, and Cursor.
+- **JSON Schema**: [`./tmux-menu/config.schema.json`](./tmux-menu/config.schema.json) adds autocompletion, hover docs, and type validation in Neovim, VSCode, and Cursor.
 - **Linter & Validation**: Run `tmux-omni --validate` or `./validate.sh` to check for missing fields, invalid targets, or duplicate keybindings.
 - **Quick Edit**: Use `prefix + Space` → `o` → `m` to edit `config.json` directly in `$EDITOR`.
 
@@ -203,7 +203,7 @@ When selecting any command in Which-Key, Command Palette, or Inspectors, you can
 
 `tmux-omni` includes a native, interactive AI assistant powered by `aichat` (requires `aichat` in `PATH`). Open `prefix + Space` → `a` → `a` for the `aichat Actions` submenu. AI actions open in a 40% horizontal split pane with Tokyo Night styling and Vim modal editing:
 
-- **Modal Navigation**: `Tab` toggles between Input (Insert mode) and Transcript (Normal mode); `Esc` exits Insert mode; `i`/`a` enters Insert mode.
+- **Modal Navigation**: `Tab` toggles between Input (Insert mode) and Transcript (Normal mode). `Esc` exits Insert mode. `i` or `a` enters Insert mode.
 - **Normal Mode**:
   - `j`/`k`, `Ctrl-d`/`Ctrl-u`, `g`/`G`: Viewport navigation
   - `y`/`c`: Copy full response or candidate command to clipboard and tmux buffer
@@ -212,9 +212,9 @@ When selecting any command in Which-Key, Command Palette, or Inspectors, you can
   - `s`: Insert candidate command or selected code block into target pane via bracketed paste
   - `m`: Model switcher overlay (`claude-3-5-sonnet`, `gpt-4o`, `deepseek-chat`, `ollama`, etc.)
   - `S` / `E`: Export session transcript to clean Markdown and open in `$EDITOR` in a new tmux window
-  - `1`–`5` / `d` / `r`: Scrollback depth control (100, 200, 500, 1000, all) and context reload
+  - `1`-`5` / `d` / `r`: Scrollback depth control (100, 200, 500, 1000, all) and context reload
 - **Insert Mode**:
-  - `Enter`: Submit prompt (or send candidate command if input empty); `Shift+Enter`: multiline newline
+  - `Enter`: Submit prompt (or send candidate command if input is empty). `Shift+Enter`: multiline newline.
   - `Ctrl-x`: Open Code Block Picker modal
   - `↑`/`↓` (`Ctrl-p`/`Ctrl-n`): Persistent prompt history (`~/.local/share/tmux/ai_history`)
   - Slash Commands: `/git`, `/diff`, `/tree`, `/env`, `/refresh` to inject live context
@@ -267,7 +267,11 @@ After adding or updating plugins in `.tmux.conf`, manage them with TPM:
 
 Before a planned reboot, use `prefix + S` to save immediately instead of waiting for the next autosave interval.
 
-The `aichat` actions in the AI category require the `aichat` CLI in `PATH` and are powered directly by the native Go Bubble Tea TUI (`tmux-omni ai <mode>`). Open the palette with `prefix + P` / `prefix + Ctrl-p` and search for `ai` or `aichat`, or use `prefix + Space` → `a` → `a`. Every AI title starts with `AI:`, and each `aichat` helper description names `aichat`. Pane-aware actions capture the current path, foreground command, and recent scrollback (200 lines by default). All AI actions (Ask, Diagnose Error, Suggest Fix, Summarize Pane, Generate Command, Explain, Explain Last Copy) open right-side tmux panes with persistent conversation sessions, accepting multi-turn follow-up questions, slash commands (`/git`, `/diff`, `/tree`, `/env`), and `/refresh` to update context, with full Vim modal keyboard navigation (`Tab`, `j`/`k`, `y`/`c`, `x`/`b` code block extraction, `X`/`s` command insertion, `m` model switcher, `S`/`E` transcript export, `q`, `Esc`, `?`). Summarize Pane supports switching depth directly in the TUI (`1`–`5` for 100/200/500/1000/all lines, `d` to cycle, `r` to reload). Output can be copied via `y`/`c` keys to both system clipboard and tmux buffer. Explain Last Copy reads the newest tmux paste buffer without deleting it and rejects empty buffers or buffers larger than 32 KiB. In Generate Command and Suggest Fix, candidate commands or extracted code blocks can be inserted directly into the original pane via bracketed paste (`s`, `X`, or `Enter` on empty input) for review and are never executed automatically. Prompt history is persisted across sessions in `~/.local/share/tmux/ai_history` and navigable via `↑`/`↓` (`Ctrl-p`/`Ctrl-n`).
+The `aichat` actions in the AI category require the `aichat` CLI in `PATH`. They run in the native Go Bubble Tea TUI (`tmux-omni ai <mode>`). Open the palette with `prefix + P` or `prefix + Ctrl-p` and search for `ai` or `aichat`. You can also press `prefix + Space` → `a` → `a`. Every AI title starts with `AI:`, and each helper description names `aichat`. Pane-aware actions capture the active directory, foreground command, and recent scrollback (200 lines by default).
+
+All AI actions open right-side tmux panes with persistent sessions. They accept multi-turn follow-up questions, slash commands (`/git`, `/diff`, `/tree`, `/env`), and `/refresh` to update context. The TUI supports Vim modal navigation (`Tab`, `j`/`k`, `y`/`c` copy, `x`/`b` code block extraction, `X`/`s` command insertion, `m` model switcher, `S`/`E` transcript export, `q`, `Esc`, `?`). Summarize Pane supports changing scrollback depth directly (`1`-`5` for 100/200/500/1000/all lines, `d` to cycle, `r` to reload).
+
+Output can be copied with `y` or `c` to the system clipboard and tmux buffer. Explain Last Copy reads the newest tmux paste buffer without deleting it. It rejects empty buffers or buffers larger than 32 KiB. In Generate Command and Suggest Fix, commands or code blocks can be inserted into the target pane with bracketed paste (`s`, `X`, or `Enter` on empty input). Commands are never executed automatically. Prompt history is saved in `~/.local/share/tmux/ai_history` and navigated with `↑`/`↓` (`Ctrl-p`/`Ctrl-n`).
 
 The `AI Agents` submenu (`prefix + Space` → `a` → `g`) opens Antigravity, Claude Code, Codex, Cursor Agent, fx, and Pi as 45%-wide right-side panes in the active pane directory. Actions use the consistent `<Agent> - Open` and `<Agent> - Resume` naming pattern and stay grouped by agent. Antigravity can start a new conversation or resume its latest conversation (`agy --continue`). Claude Code and Cursor Agent have new-session actions. Codex can start a new session or open its directory-filtered resume picker. fx can start a new session or resume its latest workspace session (`fx session resume last`). Pi can start a new session or resume its latest session (`pi --continue`). These actions require the corresponding `agy`, `claude`, `codex`, `cursor-agent`, `fx`, or `pi` executable in `PATH`. They do not add dedicated tmux key bindings. Focus an agent pane and use `prefix + !` to move the running pane into its own window.
 
@@ -287,7 +291,7 @@ This script:
 - uses `brew bundle` with [`./Brewfile`](./Brewfile) on macOS
 - uses `pacman`, `apt`, or `dnf` for packages available on Linux and prints official guidance for unresolved tools
 - recreates the `~/.tmux.conf` symlink to this repo
-- recreates the `~/.config/tmux/themes` symlink to this repo's `themes/` directory
+- recreates the `~/.config/tmux/themes` symlink to the `themes/` directory in this repo
 - recreates the `~/.config/tmux/scripts/edit-scrollback.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/copy-pane-path.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/show-clients.sh` symlink to this repo
@@ -299,7 +303,7 @@ This script:
 - compiles and installs `tmux-omni` to `~/.config/tmux/scripts/tmux-omni`
 - recreates the `~/.config/tmux-menu` symlink to this repo
 - recreates the `~/.config/tmux-snaglord` symlink to this repo
-- ensures `~/.config/tmux/plugins/` exists
+- creates `~/.config/tmux/plugins/` if missing
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
 
 Dependency checks can also be run directly:
@@ -309,7 +313,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap; Linux setup prints official installation guidance for unresolved tools. On Linux, clipboard integration optionally uses `wl-copy` or `xclip`; without either, copy-path actions fall back to the tmux buffer. Nerd Font installation remains manual because font deployment is desktop-environment specific.
+The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap. On Linux (Fedora, Debian, and Arch), setup configures distribution packages and repositories automatically. This includes RPM Fusion, Terra, and COPRs on Fedora, and Cargo for `tmux-snaglord`. The script prints installation guidance for any remaining tools. On Linux, clipboard integration uses `wl-copy`, `xclip`, or `xsel`, falling back to the tmux buffer. Nerd Font installation remains manual because font deployment is specific to each desktop environment.
 
 ## Validation
 

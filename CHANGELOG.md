@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### 2026-08-28
+
+- Enhanced Linux dependency installer (`scripts/install-deps.sh`) with native Fedora/DNF package support for `onefetch` and `uv`, `bun-bin` detection for Terra/COPR repositories, automated COPR handling for `sesh`, `lazygit`, and `yazi`, and Cargo fallback for `tmux-snaglord`.
+
 ### 2026-08-25
 
 - Added `tmux-omni --states` saved-state inspector (`prefix + Space` → `t` → `S` / `C`) listing Resurrect and Continuum snapshot history newest-first with age, latest indicator, session/window/pane counts, session names, and search across raw snapshot files. Press `<CR>` to make the selected snapshot `last` and restore it, or `<Ctrl-y>` to copy its raw preview.
@@ -46,7 +50,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Implemented native `tmux-omni --validate` configuration linter and validator.
 - Removed legacy Python leader menu and prefix help scripts (`scripts/tmux-menu.py`, `scripts/tmux-prefix-help.py`).
 - Implemented `tmux-omni` in Go + Bubble Tea: sub-10ms unified Which-Key leader menu (`prefix + Space`) and fuzzy Command Palette (`prefix + P`).
-- Added Go to `Brewfile` and `scripts/install-deps.sh`, ensuring `bootstrap.sh` compiles `tmux-omni`.
+- Added Go to `Brewfile` and `scripts/install-deps.sh`, so `bootstrap.sh` compiles `tmux-omni`.
 
 ### 2026-08-13
 
