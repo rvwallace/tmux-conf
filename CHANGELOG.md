@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### 2026-09-18
+
+- Added confirmed `Kill Other Panes`, `Kill Other Windows`, and `Kill Other Sessions` actions to the Omni menu.
+- Fixed popup-launched Omni actions so they target the pane that opened the popup instead of the temporary popup pane.
+- Fixed Omni session creation so it switches the client to the newly created session.
+
 ### 2026-08-28
 
 - Enhanced Linux dependency installer (`scripts/install-deps.sh`) with native Fedora/DNF package support for `onefetch` and `uv`, `bun-bin` detection for Terra/COPR repositories, automated COPR handling for `sesh`, `lazygit`, and `yazi`, and Cargo fallback for `tmux-snaglord`.
