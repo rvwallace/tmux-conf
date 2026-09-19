@@ -120,6 +120,7 @@ Current plugins:
 - `tmux-plugins/tmux-continuum`
 
 `tmux-omni` gives both the leader key menu (`prefix + Space`) and the command palette (`prefix + P` / `prefix + Ctrl-p`). It replaces external which-key and palette plugins with a single repository-owned Go and Bubble Tea tool that starts in under 10ms.
+Popup-launched Omni commands retain the pane that opened the popup, so actions such as window cleanup operate on the originating window rather than the temporary popup pane.
 
 Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps the prompt parser configuration in `./tmux-snaglord/`. It recognizes the final `➜` or `✖` line in Starship prompts and treats the prompt as three terminal lines. As a result, preceding decoration does not leak into adjacent command output. The stock command view in Snaglord supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
 
@@ -166,6 +167,8 @@ The tracked configuration at `./tmux-menu/config.json` is symlinked to:
   - **`/` or `Ctrl-p`**: Switch into Command Palette fuzzy search mode.
   - **`Esc` or `Backspace`**: Navigate up one level. Press `q` or `Esc` at root to close.
 - **Command Palette Mode (`prefix + P` or `prefix + Ctrl-p`)**: Fuzzy search across all actions, categories, descriptions, and key shortcuts. As you type, results update in real time.
+  - **Window cleanup**: In `prefix + Space` → `w` → Windows, `Kill Other Windows` keeps the active window after confirmation.
+  - **Pane cleanup**: In `prefix + Space` → `p` → Panes, `Kill Other Panes` keeps the active pane after confirmation.
   - **`<Enter>`**: Run the selected action.
   - **`Ctrl-y` / `Alt-y`**: Copy the selected action to clipboard.
   - **`Esc`**: Clears search input or returns to Which-Key Leader mode. Press `Backspace` on empty input or `Ctrl-Space` / `Ctrl-l` to return to Leader mode.

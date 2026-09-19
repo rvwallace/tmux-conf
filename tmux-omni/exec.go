@@ -55,6 +55,9 @@ func GetCurrentPaneID(provided string) string {
 	if strings.HasPrefix(clean, "%") {
 		return clean
 	}
+	if target := strings.TrimSpace(os.Getenv("TMUX_OMNI_TARGET_PANE")); strings.HasPrefix(target, "%") {
+		return target
+	}
 	if _, err := exec.LookPath("tmux"); err == nil {
 		out, err := exec.Command("tmux", "display-message", "-p", "#{pane_id}").Output()
 		if err == nil {

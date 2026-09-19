@@ -101,6 +101,8 @@ Inside the TUI:
 | **`Ctrl-d`** / `Alt-d` | **Delete Buffer** | In Paste Buffers inspector, deletes the highlighted paste buffer. |
 
 Quick editing and customization:
+- `prefix + Space` → `p` → Panes → `o`: confirm and kill all other panes in the current window
+- `prefix + Space` → `w` → Windows → `o`: confirm and kill all other windows, keeping the active window
 - `prefix + Space` → `o` → `m`: edit `config.json` in `$EDITOR`
 - `prefix + Space` → `o` → `t`: edit `.tmux.conf` in `$EDITOR`
 - `prefix + Space` → `t` → `M`: open Tmux Messages log inspector (`tmux-omni --messages`)

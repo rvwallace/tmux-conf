@@ -88,6 +88,8 @@ expect_contains "grep -F 'brew \"go\"' \"$REPO_DIR/Brewfile\"" "brew \"go\"" "go
 [ -f "$TARGET_TMUX_MENU_DIR/config.json" ] || fail "tmux-menu config.json missing"
 jq empty "$TARGET_TMUX_MENU_DIR/config.json" || fail "tmux-menu config is invalid JSON"
 pass "tmux-menu config is valid JSON"
+expect_contains "grep -F 'Kill Other Windows' \"$TARGET_TMUX_MENU_DIR/config.json\"" "Kill Other Windows" "window cleanup menu entry"
+expect_contains "grep -F 'Kill Other Panes' \"$TARGET_TMUX_MENU_DIR/config.json\"" "Kill Other Panes" "pane cleanup menu entry"
 
 [ -f "$TARGET_TMUX_MENU_DIR/config.schema.json" ] || fail "config.schema.json missing"
 jq empty "$TARGET_TMUX_MENU_DIR/config.schema.json" || fail "config.schema.json is invalid JSON"

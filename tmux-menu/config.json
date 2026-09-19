@@ -16,6 +16,7 @@
         { "key": "s", "title": "Split Vertical", "icon": "󰘬", "description": "split pane top and bottom", "action": "split-window -v -c '#{pane_current_path}' -t #{pane_id}", "target": "tmux" },
         { "key": "z", "title": "Toggle Zoom", "icon": "󰊓", "description": "zoom or unzoom current pane", "action": "resize-pane -Z -t #{pane_id}", "target": "tmux" },
         { "key": "x", "title": "Kill Pane", "icon": "󰅖", "description": "prompt and kill current pane", "action": "confirm-before -p 'Kill pane? (y/n)' 'kill-pane -t #{pane_id}'", "target": "tmux" },
+        { "key": "o", "title": "Kill Other Panes", "icon": "󰅖", "description": "prompt and kill every other pane in this window", "action": "confirm-before -p 'Kill other panes? (y/n)' 'kill-pane -a -t #{pane_id}'", "target": "tmux" },
         { "key": "c", "title": "Capture Pane to File", "icon": "󰆏", "description": "save pane scrollback to ~/tmux-captures", "action": "run-shell 'mkdir -p \"$HOME/tmux-captures\"; file=\"$HOME/tmux-captures/tmux-capture-$(date +%Y%m%d-%H%M%S).txt\"; tmux capture-pane -pS - -t \"#{pane_id}\" > \"$file\"; tmux display-message \"Captured pane to $file\"'", "target": "tmux" },
         { "key": "y", "title": "Synchronize Panes", "icon": "󰓦", "description": "toggle synchronized keyboard input across panes", "action": "set-window-option synchronize-panes ; refresh-client -S", "target": "tmux" },
         { "key": "C", "title": "Clear Scrollback", "icon": "󰃢", "description": "clear screen buffer and scrollback history", "action": "send-keys -t #{pane_id} C-l ; clear-history -t #{pane_id}", "target": "tmux" },
@@ -64,7 +65,8 @@
         { "key": "w", "title": "Choose Window", "icon": "󰍉", "description": "interactive tree window selector", "action": "choose-tree -w", "target": "tmux" },
         { "key": "m", "title": "Move Window", "icon": "󰒍", "description": "move window to index or session", "action": "command-prompt -p 'Move to:' 'move-window -t \"%%\"'", "target": "tmux" },
         { "key": "s", "title": "Swap Window", "icon": "󰒍", "description": "swap window position", "action": "command-prompt -p 'Swap with:' 'swap-window -t \"%%\"'", "target": "tmux" },
-        { "key": "R", "title": "Rotate Window Panes", "icon": "󰑮", "description": "cycle pane positions", "action": "rotate-window -t #{pane_id}", "target": "tmux" }
+        { "key": "o", "title": "Kill Other Windows", "icon": "󰅖", "description": "prompt and kill every other window in this session", "action": "confirm-before -p 'Kill other windows? (y/n)' 'kill-window -a -t #{window_id}'", "target": "tmux" },
+        { "key": "v", "title": "Rotate Window Panes", "icon": "󰑮", "description": "cycle pane positions", "action": "rotate-window -t #{pane_id}", "target": "tmux" }
       ]
     },
     {
@@ -73,7 +75,7 @@
       "icon": "󰋜",
       "description": "manage sessions, switch, detach, rename",
       "items": [
-        { "key": "n", "title": "New Session", "icon": "󰐕", "description": "create a new tmux session", "action": "new-session", "target": "tmux" },
+        { "key": "n", "title": "New Session", "icon": "󰐕", "description": "create and switch to a new tmux session", "action": "run-shell 'source=$(tmux display-message -p -t \"#{pane_id}\" \"##{session_name}\"); session=$(tmux new-session -dP -F \"##{session_name}\"); client=$(tmux list-clients -F \"##{client_tty} ##{client_session}\" | grep \" $source$\" | cut -d\" \" -f1 | head -1); tmux switch-client -c \"$client\" -t \"$session\"'", "target": "tmux" },
         { "key": "d", "title": "Detach Client", "icon": "󰅖", "description": "detach from current session", "action": "detach-client", "target": "tmux" },
         { "key": "s", "title": "Choose Session", "icon": "󰍉", "description": "interactive session list", "action": "choose-session", "target": "tmux" },
         { "key": "w", "title": "Choose Session Tree", "icon": "󰙅", "description": "interactive session and window tree", "action": "choose-tree", "target": "tmux" },
