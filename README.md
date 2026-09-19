@@ -169,6 +169,7 @@ The tracked configuration at `./tmux-menu/config.json` is symlinked to:
 - **Command Palette Mode (`prefix + P` or `prefix + Ctrl-p`)**: Fuzzy search across all actions, categories, descriptions, and key shortcuts. As you type, results update in real time.
   - **Window cleanup**: In `prefix + Space` → `w` → Windows, `Kill Other Windows` keeps the active window after confirmation.
   - **Pane cleanup**: In `prefix + Space` → `p` → Panes, `Kill Other Panes` keeps the active pane after confirmation.
+  - **Session cleanup**: In `prefix + Space` → `s` → Sessions, `Kill Other Sessions` keeps the current session after confirmation.
   - **`<Enter>`**: Run the selected action.
   - **`Ctrl-y` / `Alt-y`**: Copy the selected action to clipboard.
   - **`Esc`**: Clears search input or returns to Which-Key Leader mode. Press `Backspace` on empty input or `Ctrl-Space` / `Ctrl-l` to return to Leader mode.

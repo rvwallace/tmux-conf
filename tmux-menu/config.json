@@ -81,6 +81,7 @@
         { "key": "w", "title": "Choose Session Tree", "icon": "󰙅", "description": "interactive session and window tree", "action": "choose-tree", "target": "tmux" },
         { "key": "r", "title": "Rename Session", "icon": "󰑕", "description": "prompt to rename current session", "action": "command-prompt -I '#S' 'rename-session -- \"%%\"'", "target": "tmux" },
         { "key": "k", "title": "Kill Session", "icon": "󰅖", "description": "prompt and kill current session", "action": "confirm-before -p 'Kill session? (y/n)' 'kill-session -t #{pane_id}'", "target": "tmux" },
+        { "key": "o", "title": "Kill Other Sessions", "icon": "󰅖", "description": "prompt and kill every other tmux session", "action": "confirm-before -p 'Kill other sessions? (y/n)' 'kill-session -a -t #{session_name}'", "target": "tmux" },
         { "key": "p", "title": "Previous Session", "icon": "󰁍", "description": "switch to previous session", "action": "switch-client -p", "target": "tmux" },
         { "key": "N", "title": "Next Session", "icon": "󰁔", "description": "switch to next session", "action": "switch-client -n", "target": "tmux" }
       ]

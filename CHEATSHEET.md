@@ -103,6 +103,7 @@ Inside the TUI:
 Quick editing and customization:
 - `prefix + Space` → `p` → Panes → `o`: confirm and kill all other panes in the current window
 - `prefix + Space` → `w` → Windows → `o`: confirm and kill all other windows, keeping the active window
+- `prefix + Space` → `s` → Sessions → `o`: confirm and kill all other tmux sessions
 - `prefix + Space` → `o` → `m`: edit `config.json` in `$EDITOR`
 - `prefix + Space` → `o` → `t`: edit `.tmux.conf` in `$EDITOR`
 - `prefix + Space` → `t` → `M`: open Tmux Messages log inspector (`tmux-omni --messages`)
