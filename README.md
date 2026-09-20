@@ -52,7 +52,7 @@ This config intentionally stays small:
 - the session is a left-anchored purple segment with a pointed transition, so it is distinct from the window tabs
 - transient tmux messages appear as compact yellow segments with a rounded right edge instead of full-width blocks
 - pressing the prefix shows a rounded yellow `PREFIX` indicator in the right-side state group
-- window tabs have rounded caps on both sides. The active window is highlighted in blue, inactive windows use a muted raised surface, and zoomed windows are marked.
+- window tabs use angled left markers and pointed right transitions. The active window is highlighted in blue, inactive windows use a muted raised surface, and zoomed windows are marked.
 - the right side can show prefix, copy mode, marked-pane, mouse, and synchronized-pane state indicators
 - the right side shows icon-labeled local date/time, UTC time, and hostname
 - sessions, windows, panes, working directories, and captured pane output can be saved and restored with `tmux-resurrect`
