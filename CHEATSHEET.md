@@ -51,6 +51,7 @@ Ctrl-a
 - `prefix + prefix`: send literal `Ctrl-a` to the current pane
 - `prefix + c`: create a new window in the current pane path
 - `prefix + n`: next window
+- `prefix + Meta-arrow`: resize the current pane by five cells; use `prefix + H` / `J` / `K` / `L` for reliable directional resizing when the terminal does not pass Meta-arrow; hold the binding to repeat it
 - `prefix + "`: split vertically in the current pane path
 - `prefix + %`: split horizontally in the current pane path
 - `prefix + -`: split vertically in the current pane path

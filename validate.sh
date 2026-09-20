@@ -55,7 +55,18 @@ expect_contains() {
   local pattern="$2"
   local label="$3"
 
-  eval "$cmd" | grep -F "$pattern" >/dev/null || fail "$label missing pattern: $pattern"
+  eval "$cmd" | grep -F -- "$pattern" >/dev/null || fail "$label missing pattern: $pattern"
+  pass "$label"
+}
+
+expect_not_contains() {
+  local cmd="$1"
+  local pattern="$2"
+  local label="$3"
+
+  if eval "$cmd" | grep -F -- "$pattern" >/dev/null; then
+    fail "$label unexpectedly contains pattern: $pattern"
+  fi
   pass "$label"
 }
 
@@ -155,6 +166,7 @@ expect_contains "tmux show-window -g pane-border-format" "#{pane_current_command
 expect_contains "tmux show-window -g pane-border-format" "#{b:pane_current_path}" "pane border working directory"
 
 expect_tmux_option "tmux show -g status-style" 'status-style "fg=#c0caf5,bg=#1a1b26"'
+expect_tmux_option "tmux show -g repeat-time" "repeat-time 1000"
 expect_contains "tmux show -g status-left" "#[fg=#1a1b26,bg=#bb9af7,bold]" "purple session segment"
 expect_contains "tmux show -g status-left" "#[fg=#bb9af7,bg=#1a1b26,nobold]" "session pointed transition"
 expect_contains "tmux show -g window-status-format" "#[fg=#24283b,bg=#1a1b26]" "inactive window angled left marker"
@@ -191,6 +203,15 @@ expect_contains "tmux list-keys -T prefix -N" "Open leader key menu" "leader key
 expect_contains "tmux list-keys -T prefix | grep 'bind-key.*Space'" "scripts/tmux-omni" "leader key menu Space binding"
 expect_contains "tmux list-keys -T prefix | grep 'bind-key.*C-p'" "scripts/tmux-omni" "command palette C-p prefix binding"
 expect_contains "tmux list-keys -T prefix | grep 'bind-key.*P'" "scripts/tmux-omni" "command palette P prefix binding"
+expect_not_contains "tmux list-keys -T prefix" "C-Up    resize-pane" "Ctrl-up resize binding removed"
+expect_not_contains "tmux list-keys -T prefix" "C-Down  resize-pane" "Ctrl-down resize binding removed"
+expect_not_contains "tmux list-keys -T prefix" "C-Left  resize-pane" "Ctrl-left resize binding removed"
+expect_not_contains "tmux list-keys -T prefix" "C-Right resize-pane" "Ctrl-right resize binding removed"
+expect_contains "tmux list-keys -T prefix -N" "Resize pane up" "Meta-arrow resize bindings"
+expect_contains "tmux list-keys -T prefix" "-T prefix H       resize-pane -L 5" "H horizontal resize binding"
+expect_contains "tmux list-keys -T prefix" "-T prefix L       resize-pane -R 5" "L horizontal resize binding"
+expect_contains "tmux list-keys -T prefix" "-T prefix K       resize-pane -U 5" "K vertical resize binding"
+expect_contains "tmux list-keys -T prefix" "-T prefix J       resize-pane -D 5" "J vertical resize binding"
 
 expect_contains "tmux list-keys" "bind-key    -T prefix       C-s" "scratch popup binding"
 expect_contains "tmux list-keys -T prefix -N" "Toggle marked pane" "marked pane toggle binding"
