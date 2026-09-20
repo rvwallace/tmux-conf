@@ -8,7 +8,7 @@ The visual settings are maintained in `themes/tokyo-night.conf` and loaded by
 the main `.tmux.conf` entry point.
 
 - left-anchored purple session segment with a terminal icon and pointed transition
-- rounded window tabs with a blue active highlight, muted raised inactive tabs, and a zoom marker
+- angled window tabs with pointed transitions, a blue active highlight, muted raised inactive tabs, and a zoom marker
 - Tokyo Night Storm background and surfaces so the bar stays visually separate from pane content
 - transient messages use a compact yellow segment with a rounded right edge
 - top position
