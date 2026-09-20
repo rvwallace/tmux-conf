@@ -40,6 +40,7 @@ This config intentionally stays small:
 - extended keyboard reporting is enabled for `xterm-256color` and `tmux-256color`, using CSI-u format so modified keys such as `Shift-Enter` can reach apps inside tmux
 - terminal escape-sequence passthrough is enabled, and `TERM` plus `TERM_PROGRAM` are refreshed when clients attach, so graphics-aware applications such as Yazi can show image and PDF previews through tmux in terminals with compatible graphics support, including Ghostty and Kitty
 - the client environment refresh list is set explicitly so repeated config reloads do not accumulate duplicate `TERM` and `TERM_PROGRAM` entries
+- `prefix + Ctrl-arrow` is not assigned by tmux, so it remains available to applications inside panes; use `prefix + Meta-arrow` or `prefix + H` / `J` / `K` / `L` to resize panes by five cells, with repeats controlled by `repeat-time 1000`
 - history limit is `100000`
 - mouse mode starts enabled
 - destroying the attached session switches the client to another session instead of detaching it
@@ -81,6 +82,7 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + prefix`: send literal `Ctrl-a` to the pane
 - `prefix + c`: new window in current pane path
 - `prefix + n`: next window, explicitly restored for long-lived tmux servers
+- `prefix + Meta-arrow`: resize the current pane by five cells; use `prefix + H` / `J` / `K` / `L` for reliable directional resizing when the terminal does not pass Meta-arrow; hold the binding to repeat it
 - `prefix + "`: vertical split in current pane path
 - `prefix + %`: horizontal split in current pane path
 - `prefix + -`: vertical split in current pane path
