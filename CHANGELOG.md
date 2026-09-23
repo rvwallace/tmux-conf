@@ -10,6 +10,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Changed the Starship and Snaglord command prompt marker to `CMD>` so copied command-and-output blocks are clearer and less likely to be misidentified in pane history.
 - Updated validation to check the Snaglord prompt marker and the local Starship success/error prompt markers when Starship is configured.
+- Documented the minimal Starship prompt contract and linked to it from validation failures.
 
 ### 2026-09-18
 
