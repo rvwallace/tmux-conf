@@ -18,6 +18,7 @@ TARGET_WHICH_KEY_POPUP_SCRIPT="${HOME}/.config/tmux/scripts/tmux-which-key-popup
 TARGET_TMUX_OMNI_SCRIPT="${HOME}/.config/tmux/scripts/tmux-omni"
 TARGET_TMUX_MENU_DIR="${HOME}/.config/tmux-menu"
 TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
+TARGET_STARSHIP_CONFIG="${HOME}/.config/starship.toml"
 TPM_DIR="${HOME}/.config/tmux/plugins/tpm"
 
 fail() {
@@ -70,6 +71,16 @@ expect_not_contains() {
   pass "$label"
 }
 
+expect_starship_prompt_symbol() {
+  local symbol_name="$1"
+  local label="$2"
+
+  grep -F "${symbol_name}_symbol =" "$TARGET_STARSHIP_CONFIG" \
+    | grep -F '[CMD>]' >/dev/null \
+    || fail "$label does not emit CMD>"
+  pass "$label emits CMD>"
+}
+
 expect_symlink_target "$TARGET_CONF" "$REPO_DIR/.tmux.conf"
 [ -f "$THEME_FILE" ] || fail "Tokyo Night theme file missing"
 pass "Tokyo Night theme file present"
@@ -88,8 +99,16 @@ expect_symlink_target "$TARGET_WHICH_KEY_POPUP_SCRIPT" "$REPO_DIR/scripts/tmux-w
 pass "tmux-omni executable present at $TARGET_TMUX_OMNI_SCRIPT"
 expect_symlink_target "$TARGET_TMUX_MENU_DIR" "$REPO_DIR/tmux-menu"
 expect_symlink_target "$TARGET_SNAGLORD_DIR" "$REPO_DIR/tmux-snaglord"
+expect_contains "grep -F 'prompt = \"^CMD> +\"' \"$TARGET_SNAGLORD_DIR/config.toml\"" 'prompt = "^CMD> +"' "Snaglord prompt marker"
 expect_contains "grep -F 'prompt_lines = 3' \"$TARGET_SNAGLORD_DIR/config.toml\"" "prompt_lines = 3" "Snaglord multiline prompt height"
 expect_contains "grep -F 'nerd_fonts = true' \"$TARGET_SNAGLORD_DIR/config.toml\"" "nerd_fonts = true" "Snaglord Nerd Font mode"
+
+if command -v starship >/dev/null 2>&1 && [ -f "$TARGET_STARSHIP_CONFIG" ]; then
+  expect_starship_prompt_symbol "success" "Starship success prompt"
+  expect_starship_prompt_symbol "error" "Starship error prompt"
+else
+  pass "Starship prompt integration check skipped (Starship or ~/.config/starship.toml unavailable)"
+fi
 
 "$REPO_DIR/scripts/install-deps.sh" --check || fail "runtime dependencies missing"
 pass "runtime dependencies present"

@@ -124,7 +124,7 @@ Current plugins:
 `tmux-omni` gives both the leader key menu (`prefix + Space`) and the command palette (`prefix + P` / `prefix + Ctrl-p`). It replaces external which-key and palette plugins with a single repository-owned Go and Bubble Tea tool that starts in under 10ms.
 Popup-launched Omni commands retain the pane that opened the popup, so actions such as window cleanup operate on the originating window rather than the temporary popup pane.
 
-Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps the prompt parser configuration in `./tmux-snaglord/`. It recognizes the final `➜` or `✖` line in Starship prompts and treats the prompt as three terminal lines. As a result, preceding decoration does not leak into adjacent command output. The stock command view in Snaglord supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
+Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps the prompt parser configuration in `./tmux-snaglord/`. It recognizes the final `CMD>` line in Starship prompts and treats the prompt as three terminal lines. Starship must emit `CMD>` for both successful and failed commands. As a result, preceding decoration does not leak into adjacent command output. The stock command view in Snaglord supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
 
 `tmux-file-picker` is a standalone CLI rather than a TPM plugin. The upstream script is vendored in `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`, with a small local patch. It uses `fd` and `fzf` to select files or directories. Yazi is available alongside it from both TMUX Tools menus as a multi-file chooser. The virtual search results from fd (`s`) and ripgrep (`S`) in Yazi are normalized to filesystem paths. Both pickers pass selections through a temporary named tmux buffer and delete that buffer after pasting. Selected paths are inserted without being executed. When a pane runs Claude, Gemini, Codex, fx, Pi, Cursor `agent`, or `cursor-agent`, paths are prefixed with `@`. Otherwise, paths are shell-escaped.
 
@@ -339,6 +339,7 @@ It checks:
 - `~/.config/tmux/scripts/tmux-file-picker` symlink target
 - `~/.config/tmux/scripts/tmux-insert-paths.sh` and `tmux-yazi-picker.sh` symlink targets
 - `~/.config/tmux-menu` symlink target
+- Snaglord prompt marker and, when available, Starship success/error prompt markers
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`
 - expected live tmux options, terminal features, plugin declarations, and key bindings
