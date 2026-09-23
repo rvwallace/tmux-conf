@@ -77,7 +77,7 @@ expect_starship_prompt_symbol() {
 
   grep -F "${symbol_name}_symbol =" "$TARGET_STARSHIP_CONFIG" \
     | grep -F '[CMD>]' >/dev/null \
-    || fail "$label does not emit CMD>"
+    || fail "$label does not emit CMD>; see README.md#snaglord-prompt-contract"
   pass "$label emits CMD>"
 }
 

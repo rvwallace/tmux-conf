@@ -126,6 +126,21 @@ Popup-launched Omni commands retain the pane that opened the popup, so actions s
 
 Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps the prompt parser configuration in `./tmux-snaglord/`. It recognizes the final `CMD>` line in Starship prompts and treats the prompt as three terminal lines. Starship must emit `CMD>` for both successful and failed commands. As a result, preceding decoration does not leak into adjacent command output. The stock command view in Snaglord supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
 
+### Snaglord Prompt Contract
+
+Snaglord expects Starship to emit `CMD>` as the final prompt marker for both successful and failed commands. This minimal, valid `starship.toml` shows the required settings:
+
+```toml
+add_newline = true
+format = "$directory$line_break$character"
+
+[character]
+success_symbol = "[CMD>](bold green)"
+error_symbol = "[CMD>](bold red)"
+```
+
+Merge these settings into an existing Starship configuration instead of replacing its unrelated modules. The full Starship configuration is not managed by this repository.
+
 `tmux-file-picker` is a standalone CLI rather than a TPM plugin. The upstream script is vendored in `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`, with a small local patch. It uses `fd` and `fzf` to select files or directories. Yazi is available alongside it from both TMUX Tools menus as a multi-file chooser. The virtual search results from fd (`s`) and ripgrep (`S`) in Yazi are normalized to filesystem paths. Both pickers pass selections through a temporary named tmux buffer and delete that buffer after pasting. Selected paths are inserted without being executed. When a pane runs Claude, Gemini, Codex, fx, Pi, Cursor `agent`, or `cursor-agent`, paths are prefixed with `@`. Otherwise, paths are shell-escaped.
 
 Notes:
