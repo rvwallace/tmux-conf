@@ -141,6 +141,10 @@ error_symbol = "[CMD>](bold red)"
 
 Merge these settings into an existing Starship configuration instead of replacing its unrelated modules. The full Starship configuration is not managed by this repository.
 
+### Snaglord Hyperlink Compatibility
+
+Due to an upstream parser issue in `ansi-to-tui` (used by `tmux-snaglord`), OSC escape sequences terminated by standard ECMA-48 `ST` (`\x1b\`)—such as OSC 8 hyperlinks emitted by `eza --hyperlink` or Nushell's `ls` when `clickable_links` is enabled—cause text and table columns following the hyperlink opening sequence to be treated as escape data and swallowed in the TUI preview. Shells and CLI tools run inside tmux panes should disable OSC 8 hyperlinks (e.g. in Nushell: `$env.config.ls.clickable_links = false` and `$env.config.shell_integration.osc8 = false`; in Zsh: avoid `--hyperlink` on `eza`) until upstream parser support is resolved.
+
 `tmux-file-picker` is a standalone CLI rather than a TPM plugin. The upstream script is vendored in `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`, with a small local patch. It uses `fd` and `fzf` to select files or directories. Yazi is available alongside it from both TMUX Tools menus as a multi-file chooser. The virtual search results from fd (`s`) and ripgrep (`S`) in Yazi are normalized to filesystem paths. Both pickers pass selections through a temporary named tmux buffer and delete that buffer after pasting. Selected paths are inserted without being executed. When a pane runs Claude, Gemini, Codex, fx, Pi, Cursor `agent`, or `cursor-agent`, paths are prefixed with `@`. Otherwise, paths are shell-escaped.
 
 Notes:

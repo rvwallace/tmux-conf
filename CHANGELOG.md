@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### 2026-09-25
+
+- Documented Snaglord terminal hyperlink compatibility and workarounds for shells and CLI tools emitting ST-terminated OSC 8 sequences (such as Nushell `ls` or `eza --hyperlink`).
+
 ### 2026-09-19
 
 - Changed the Starship and Snaglord command prompt marker to `CMD>` so copied command-and-output blocks are clearer and less likely to be misidentified in pane history.
