@@ -7,7 +7,7 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 ## Files
 
 - [`./.tmux.conf`](./.tmux.conf): authoritative entry point, organized into core behavior, terminal capabilities, window and pane defaults, bindings, context menus, theme loading, plugins, and post-plugin overrides.
-- [`./themes/tokyo-night.conf`](./themes/tokyo-night.conf): Tokyo Night status bar, pane borders, messages, copy mode, and which-key popup surface. This file is exposed to tmux through the `~/.config/tmux/themes` symlink.
+- [`./themes/tokyo-night.conf`](./themes/tokyo-night.conf): Tokyo Night status bar, pane borders, messages, copy mode, and popup surfaces and borders. Explicit popup colors keep tmux 3.7 and 3.8 consistent without disabling 3.8's built-in themes. This file is exposed to tmux through the `~/.config/tmux/themes` symlink.
 - [`./bootstrap.sh`](./bootstrap.sh): refreshes repo-managed symlinks and sets up the TPM path on a machine.
 - [`./Brewfile`](./Brewfile): macOS runtime dependencies used by the configuration and palette utilities.
 - [`./validate.sh`](./validate.sh): checks symlinks, TPM, tmux reloadability, and expected live settings.
