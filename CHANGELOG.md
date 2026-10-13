@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### 2026-10-13
+
+- Set explicit Tokyo Night popup and border colors to keep tmux 3.7 and 3.8 consistent. This fixes gray backgrounds in tmux-omni after upgrading to tmux 3.8 without changing Omni or disabling tmux's built-in themes.
+- Added live validation for popup and popup border styles.
+
 ### 2026-09-25
 
 - Documented Snaglord terminal hyperlink compatibility and workarounds for shells and CLI tools emitting ST-terminated OSC 8 sequences (such as Nushell `ls` or `eza --hyperlink`).

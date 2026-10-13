@@ -169,6 +169,8 @@ expect_tmux_option "tmux show-window -g pane-base-index" "pane-base-index 1"
 expect_tmux_option "tmux show -g status-position" "status-position top"
 expect_tmux_option "tmux show -g status-interval" "status-interval 5"
 expect_tmux_option "tmux show -g message-style" 'message-style "fg=#c0caf5,bg=#1a1b26"'
+expect_tmux_option "tmux show-window -g popup-style" 'popup-style "fg=#c0caf5,bg=#1a1b26"'
+expect_tmux_option "tmux show-window -g popup-border-style" 'popup-border-style "fg=#3b4261,bg=#1a1b26"'
 expect_contains "tmux show -g message-format" "#{message}" "message format text"
 expect_contains "tmux show -g message-format" "" "message format rounded right cap"
 expect_contains "tmux show -g message-format" "fill=#e0af68" "command prompt background fill"
