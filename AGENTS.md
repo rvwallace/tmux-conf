@@ -58,6 +58,7 @@ This repository owns the tmux config symlinked to `~/.tmux.conf`.
 
 ## Cursor Cloud specific instructions
 
+- Cloud Agent setup is [`.cursor/environment.json`](./.cursor/environment.json). `install` runs [`.cursor/install.sh`](./.cursor/install.sh); `start` opens a detached session named `dev`.
 - `./validate.sh` is the end-to-end check. It reloads `~/.tmux.conf` on the running tmux server, runs the `tmux-omni` tests, and checks live options and bindings.
 - The Tokyo Night theme needs tmux 3.7 or newer because it sets `message-format`. The environment installs tmux 3.8 at `/usr/local/bin/tmux` and links it ahead of the older image binary. `tmux -V` should report `tmux 3.8`.
 - `tmux-omni` requires Go 1.26.5 from `/usr/local/go`. The Ubuntu `golang-go` package is too old for `tmux-omni/go.mod`.

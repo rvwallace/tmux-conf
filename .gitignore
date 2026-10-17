@@ -11,7 +11,10 @@ memory/
 
 # IDEs & editors
 .vscode/
-.cursor/
+.cursor/*
+!.cursor/environment.json
+!.cursor/install.sh
+!.cursor/start.sh
 .antigravity/
 *.swp
 *.swo
