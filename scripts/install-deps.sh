@@ -14,7 +14,7 @@ case "${mode}" in
 esac
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-commands=(bash btop bun fd fzf fzf-tmux git go jq lazygit nvim onefetch python3 sesh tmux tmux-snaglord tree uv yazi zoxide)
+commands=(bash btop bun fd fzf fzf-tmux git go jq lazygit nvim onefetch python3 sesh tmux tree uv yazi zoxide)
 missing=()
 
 find_missing() {
@@ -108,7 +108,6 @@ print_linux_guidance() {
           printf '  onefetch:      https://github.com/o2sh/onefetch#installation\n'
         fi
         ;;
-      tmux-snaglord) printf '  tmux-snaglord: cargo install --locked tmux-snaglord\n' ;;
       uv)
         if command -v dnf >/dev/null 2>&1; then
           printf '  uv:            sudo dnf install uv (or curl -LsSf https://astral.sh/uv/install.sh | sh)\n'
@@ -198,13 +197,6 @@ install_linux() {
     if [[ " ${missing[*]} " =~ " yazi " ]] && ! command -v yazi >/dev/null 2>&1; then
       printf 'Attempting yazi installation via COPR...\n'
       sudo dnf copr enable -y atim/yazi && sudo dnf install -y yazi || true
-    fi
-  fi
-
-  if [[ " ${missing[*]} " =~ " tmux-snaglord " ]] && ! command -v tmux-snaglord >/dev/null 2>&1; then
-    if command -v cargo >/dev/null 2>&1; then
-      printf 'Installing tmux-snaglord with cargo...\n'
-      cargo install --locked tmux-snaglord || true
     fi
   fi
 

@@ -28,7 +28,7 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 - [`./scripts/tmux-which-key-popup.sh`](./scripts/tmux-which-key-popup.sh): runs inspection-oriented helper popups without fragile nested shell quoting.
 - [`./tmux-omni/`](./tmux-omni/): fast Go + Bubble Tea unified leader menu and command palette with LazyVim/NvChad styling, dynamic target modifiers, and error guard with clipboard copy (binary installed to `~/.config/tmux/scripts/tmux-omni`).
 - [`./tmux-menu/config.json`](./tmux-menu/config.json): unified command and group registry, symlinked through `~/.config/tmux-menu`.
-- [`./tmux-snaglord/config.toml`](./tmux-snaglord/config.toml): prompt parser config for stock `tmux-snaglord`, symlinked through `~/.config/tmux-snaglord`.
+- [`./scripts/tmux-history.py`](./scripts/tmux-history.py): repo-owned fzf command/output picker adapted from the Rex history picker, linked at `~/.config/tmux/scripts/tmux-history.py`.
 
 ## Current Behavior
 
@@ -59,7 +59,7 @@ This config intentionally stays small:
 - sessions, windows, panes, working directories, and captured pane output can be saved and restored with `tmux-resurrect`
 - sessions are autosaved every 15 minutes while tmux is running and the status line is enabled
 - saved sessions are restored automatically when a new tmux server starts
-- command history can be browsed as searchable command/output blocks in a Snaglord popup
+- command history can be browsed as searchable command/output blocks in a command history popup
 - files and directories can be fuzzy-selected in a popup and inserted at the cursor in the active pane
 
 ## Key Bindings Added Here
@@ -71,7 +71,7 @@ These are the bindings this repo adds or overrides directly:
 - `prefix + M`: mark or unmark the current pane for later swap/join operations. The `MARK` indicator updates immediately.
 - `prefix + Ctrl-e`: capture the current pane plus scrollback into `$VISUAL` or `$EDITOR` in a new tmux window
 - `prefix + Ctrl-f`: fuzzy-find files under the current pane directory and insert one or more selected paths
-- `prefix + Ctrl-y`: open the Snaglord command/output browser for the current pane
+- `prefix + Ctrl-y`: open the command history picker for the current pane
 - `prefix + Ctrl-s`: open a popup attached to the reusable `Scratch-Terminal` session
 - `prefix + S`: save the current tmux state with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
@@ -124,11 +124,15 @@ Current plugins:
 `tmux-omni` gives both the leader key menu (`prefix + Space`) and the command palette (`prefix + P` / `prefix + Ctrl-p`). It replaces external which-key and palette plugins with a single repository-owned Go and Bubble Tea tool that starts in under 10ms.
 Popup-launched Omni commands retain the pane that opened the popup, so actions such as window cleanup operate on the originating window rather than the temporary popup pane.
 
-Snaglord is a standalone CLI launched by tmux, not a TPM plugin. The repo keeps the prompt parser configuration in `./tmux-snaglord/`. It recognizes the final `CMD>` line in Starship prompts and treats the prompt as three terminal lines. Starship must emit `CMD>` for both successful and failed commands. As a result, preceding decoration does not leak into adjacent command output. The stock command view in Snaglord supports `c` for command-only copy, `y` or `Enter` for output-only copy, and `Y` for the final prompt line plus output.
+The Command History menu entry and `prefix + Ctrl-y` launch the repo-owned Python/fzf history picker, adapted from `rex-config` and `rex-scrollback-tool`. The popup captures the originating pane's full retained history as plain text, joining wrapped lines. Commands appear newest first; type to search command text. The right preview uses 60% of the picker width.
 
-### Snaglord Prompt Contract
+Press Enter to copy output, Ctrl-y to copy the command, or Ctrl-b to copy the final prompt line plus output. Ctrl-d/Ctrl-u scroll the preview; Esc cancels. Copy uses `pbcopy`, `wl-copy`, `xclip`, or `xsel`, with a tmux buffer fallback. Failed clipboard commands also fall back. The picker never executes selected commands.
 
-Snaglord expects Starship to emit `CMD>` as the final prompt marker for both successful and failed commands. This minimal, valid `starship.toml` shows the required settings:
+The parser recognizes `CMD>` and assumes a three-line Starship prompt. It excludes the preceding decoration from command output. Both success and error prompts must emit the marker. Multiline commands, prompt-like output, and changed prompt layouts can cause parsing errors. A pane without matching commands shows a message. Prompt matching can be adjusted for direct use with `--prompt` and `--prompt-lines`.
+
+### History Picker Prompt Contract
+
+The history picker expects Starship to emit `CMD>` as the final prompt marker for both successful and failed commands. This minimal, valid `starship.toml` shows the required settings:
 
 ```toml
 add_newline = true
@@ -141,9 +145,13 @@ error_symbol = "[CMD>](bold red)"
 
 Merge these settings into an existing Starship configuration instead of replacing its unrelated modules. The full Starship configuration is not managed by this repository.
 
-### Snaglord Hyperlink Compatibility
+The picker uses plain-text tmux capture, which preserves hyperlink labels without parsing terminal escape sequences. Preview and clipboard content have no terminal colors.
 
-Due to an upstream parser issue in `ansi-to-tui` (used by `tmux-snaglord`), OSC escape sequences terminated by standard ECMA-48 `ST` (`\x1b\`)—such as OSC 8 hyperlinks emitted by `eza --hyperlink` or Nushell's `ls` when `clickable_links` is enabled—cause text and table columns following the hyperlink opening sequence to be treated as escape data and swallowed in the TUI preview. Shells and CLI tools run inside tmux panes should disable OSC 8 hyperlinks (e.g. in Nushell: `$env.config.ls.clickable_links = false` and `$env.config.shell_integration.osc8 = false`; in Zsh: avoid `--hyperlink` on `eza`) until upstream parser support is resolved.
+To inspect a saved capture without opening the picker:
+
+```sh
+python3 scripts/tmux-history.py preview --input /path/to/capture.txt
+```
 
 `tmux-file-picker` is a standalone CLI rather than a TPM plugin. The upstream script is vendored in `./scripts/` at the commit recorded in `tmux-file-picker.UPSTREAM.md`, with a small local patch. It uses `fd` and `fzf` to select files or directories. Yazi is available alongside it from both TMUX Tools menus as a multi-file chooser. The virtual search results from fd (`s`) and ripgrep (`S`) in Yazi are normalized to filesystem paths. Both pickers pass selections through a temporary named tmux buffer and delete that buffer after pasting. Selected paths are inserted without being executed. When a pane runs Claude, Gemini, Codex, fx, Pi, Cursor `agent`, or `cursor-agent`, paths are prefixed with `@`. Otherwise, paths are shell-escaped.
 
@@ -327,7 +335,7 @@ This script:
 - recreates the `~/.config/tmux/scripts/tmux-which-key-popup.sh` symlink to this repo
 - compiles and installs `tmux-omni` to `~/.config/tmux/scripts/tmux-omni`
 - recreates the `~/.config/tmux-menu` symlink to this repo
-- recreates the `~/.config/tmux-snaglord` symlink to this repo
+- recreates the `~/.config/tmux/scripts/tmux-history.py` symlink to this repo
 - creates `~/.config/tmux/plugins/` if missing
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
 
@@ -338,7 +346,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, `tmux-snaglord`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. Homebrew installs Snaglord from its official tap. On Linux (Fedora, Debian, and Arch), setup configures distribution packages and repositories automatically. This includes RPM Fusion, Terra, and COPRs on Fedora, and Cargo for `tmux-snaglord`. The script prints installation guidance for any remaining tools. On Linux, clipboard integration uses `wl-copy`, `xclip`, or `xsel`, falling back to the tmux buffer. Nerd Font installation remains manual because font deployment is specific to each desktop environment.
+The managed command set is `tmux`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. On Linux (Fedora, Debian, and Arch), setup configures distribution packages and repositories automatically. This includes RPM Fusion, Terra, and COPRs on Fedora, other distribution packages. The script prints installation guidance for any remaining tools. On Linux, clipboard integration uses `wl-copy`, `xclip`, or `xsel`, falling back to the tmux buffer. Nerd Font installation remains manual because font deployment is specific to each desktop environment.
 
 ## Validation
 
@@ -358,7 +366,7 @@ It checks:
 - `~/.config/tmux/scripts/tmux-file-picker` symlink target
 - `~/.config/tmux/scripts/tmux-insert-paths.sh` and `tmux-yazi-picker.sh` symlink targets
 - `~/.config/tmux-menu` symlink target
-- Snaglord prompt marker and, when available, Starship success/error prompt markers
+- History picker prompt marker and, when available, Starship success/error prompt markers
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`
 - expected live tmux options, terminal features, plugin declarations, and key bindings

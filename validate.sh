@@ -17,7 +17,7 @@ TARGET_DEFER_TMUX_SCRIPT="${HOME}/.config/tmux/scripts/defer-tmux-command.sh"
 TARGET_WHICH_KEY_POPUP_SCRIPT="${HOME}/.config/tmux/scripts/tmux-which-key-popup.sh"
 TARGET_TMUX_OMNI_SCRIPT="${HOME}/.config/tmux/scripts/tmux-omni"
 TARGET_TMUX_MENU_DIR="${HOME}/.config/tmux-menu"
-TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
+TARGET_HISTORY_SCRIPT="${HOME}/.config/tmux/scripts/tmux-history.py"
 TARGET_STARSHIP_CONFIG="${HOME}/.config/starship.toml"
 TPM_DIR="${HOME}/.config/tmux/plugins/tpm"
 
@@ -77,7 +77,7 @@ expect_starship_prompt_symbol() {
 
   grep -F "${symbol_name}_symbol =" "$TARGET_STARSHIP_CONFIG" \
     | grep -F '[CMD>]' >/dev/null \
-    || fail "$label does not emit CMD>; see README.md#snaglord-prompt-contract"
+    || fail "$label does not emit CMD>; see README.md#history-picker-prompt-contract"
   pass "$label emits CMD>"
 }
 
@@ -98,10 +98,8 @@ expect_symlink_target "$TARGET_WHICH_KEY_POPUP_SCRIPT" "$REPO_DIR/scripts/tmux-w
 [ -x "$TARGET_TMUX_OMNI_SCRIPT" ] || fail "tmux-omni executable missing at $TARGET_TMUX_OMNI_SCRIPT"
 pass "tmux-omni executable present at $TARGET_TMUX_OMNI_SCRIPT"
 expect_symlink_target "$TARGET_TMUX_MENU_DIR" "$REPO_DIR/tmux-menu"
-expect_symlink_target "$TARGET_SNAGLORD_DIR" "$REPO_DIR/tmux-snaglord"
-expect_contains "grep -F 'prompt = \"^CMD> +\"' \"$TARGET_SNAGLORD_DIR/config.toml\"" 'prompt = "^CMD> +"' "Snaglord prompt marker"
-expect_contains "grep -F 'prompt_lines = 3' \"$TARGET_SNAGLORD_DIR/config.toml\"" "prompt_lines = 3" "Snaglord multiline prompt height"
-expect_contains "grep -F 'nerd_fonts = true' \"$TARGET_SNAGLORD_DIR/config.toml\"" "nerd_fonts = true" "Snaglord Nerd Font mode"
+expect_symlink_target "$TARGET_HISTORY_SCRIPT" "$REPO_DIR/scripts/tmux-history.py"
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s "$REPO_DIR/tests" -p test_tmux_history.py || fail "history picker checks"
 
 if command -v starship >/dev/null 2>&1 && [ -f "$TARGET_STARSHIP_CONFIG" ]; then
   expect_starship_prompt_symbol "success" "Starship success prompt"
@@ -265,14 +263,14 @@ expect_contains "tmux list-keys -T prefix" "tmux-resurrect/scripts/restore.sh" "
 expect_contains "tmux list-keys" "bind-key    -T prefix       C-e" "scrollback editor binding"
 expect_contains "tmux list-keys -T prefix -N" "Insert file paths" "tmux-file-picker popup binding"
 expect_contains "tmux list-keys -T prefix" "scripts/tmux-file-picker" "tmux-file-picker popup command"
-expect_contains "tmux list-keys -T prefix -N" "Open Snaglord command-output browser" "Snaglord popup binding"
-expect_contains "tmux list-keys -T prefix | grep 'bind-key.*C-y'" "tmux-snaglord" "Snaglord popup command"
+expect_contains "tmux list-keys -T prefix -N" "Open command history picker" "command history popup binding"
+expect_contains "tmux list-keys -T prefix | grep 'bind-key.*C-y'" "tmux-history.py" "command history popup command"
 expect_contains "tmux list-keys -T prefix -N" "Open links with fuzzy finder (tmux-fzf-links plugin)" "tmux-fzf-links prefix binding"
 expect_contains "grep -F '\"title\": \"Resurrect\"' \"$REPO_DIR/tmux-menu/config.json\"" "Resurrect" "tmux-resurrect menu group"
 expect_contains "grep -F '\"title\": \"Continuum\"' \"$REPO_DIR/tmux-menu/config.json\"" "Continuum" "tmux-continuum menu group"
 expect_contains "grep -F '\"title\": \"Extrakto\"' \"$REPO_DIR/tmux-menu/config.json\"" "Extrakto" "Extrakto menu group"
-expect_contains "grep -F '\"title\": \"Snaglord\"' \"$REPO_DIR/tmux-menu/config.json\"" "Snaglord" "Snaglord menu entry"
-expect_contains "grep -F 'tmux-snaglord' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-snaglord" "Snaglord menu command"
+expect_contains "grep -F '\"title\": \"Command History\"' \"$REPO_DIR/tmux-menu/config.json\"" "Command History" "Command History menu entry"
+expect_contains "grep -F 'tmux-history.py' \"$REPO_DIR/tmux-menu/config.json\"" "tmux-history.py" "Command History menu command"
 expect_contains "grep -F '\"title\": \"File Picker\"' \"$REPO_DIR/tmux-menu/config.json\"" "File Picker" "tmux-file-picker menu group"
 expect_contains "grep -F '\"title\": \"Lazygit\"' \"$REPO_DIR/tmux-menu/config.json\"" "Lazygit" "Lazygit menu entry"
 expect_contains "grep -F '\"title\": \"System Monitor (btop)\"' \"$REPO_DIR/tmux-menu/config.json\"" "System Monitor (btop)" "system monitor menu entry"

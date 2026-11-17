@@ -31,7 +31,7 @@ func TestIsInspectorCommand(t *testing.T) {
 		// Non-inspectors
 		{"lazygit", "", false},
 		{"btop", "", false},
-		{"tmux-snaglord", "", false},
+		{"python3 ~/.config/tmux/scripts/tmux-history.py --pane %1", "", false},
 		{"~/.config/tmux/scripts/tmux-omni ai ask \"#{pane_id}\"", "", false},
 		{"~/.config/tmux/scripts/tmux-omni --search", "", false},
 		{"onefetch ; printf '\\nPress Enter to close' ; read -r _", "", false},

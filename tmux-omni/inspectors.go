@@ -845,7 +845,7 @@ func categorizeKey(key, desc, cmd string) string {
 	if strings.Contains(d, "buffer") || strings.Contains(d, "copy") || strings.Contains(d, "paste") || strings.Contains("[]#=", key) {
 		return "Buffers"
 	}
-	if strings.Contains(d, "plugin") || strings.Contains(c, "extrakto") || strings.Contains(c, "snaglord") || strings.Contains(c, "cowboy") || strings.Contains(c, "fzf") || strings.Contains(c, "yazi") || strings.Contains(c, "picker") {
+	if strings.Contains(d, "plugin") || strings.Contains(c, "extrakto") || strings.Contains(c, "tmux-history.py") || strings.Contains(c, "cowboy") || strings.Contains(c, "fzf") || strings.Contains(c, "yazi") || strings.Contains(c, "picker") {
 		return "Tools"
 	}
 	return "System"

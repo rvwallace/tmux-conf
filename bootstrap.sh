@@ -17,7 +17,7 @@ TARGET_DEFER_TMUX_SCRIPT="${SCRIPT_DIR}/defer-tmux-command.sh"
 TARGET_WHICH_KEY_POPUP_SCRIPT="${SCRIPT_DIR}/tmux-which-key-popup.sh"
 TARGET_TMUX_OMNI_SCRIPT="${SCRIPT_DIR}/tmux-omni"
 TARGET_TMUX_MENU_DIR="${HOME}/.config/tmux-menu"
-TARGET_SNAGLORD_DIR="${HOME}/.config/tmux-snaglord"
+TARGET_HISTORY_SCRIPT="${SCRIPT_DIR}/tmux-history.py"
 PLUGIN_DIR="${HOME}/.config/tmux/plugins"
 TPM_DIR="${PLUGIN_DIR}/tpm"
 TPM_REPO="https://github.com/tmux-plugins/tpm"
@@ -139,15 +139,8 @@ echo "Linked ${TARGET_TMUX_MENU_DIR} -> ${REPO_DIR}/tmux-menu"
 rm -f "${SCRIPT_DIR}/tmux-menu.py" "${SCRIPT_DIR}/tmux-prefix-help.py" "${SCRIPT_DIR}/aichat-tui.py" 2>/dev/null || true
 rm -f "${HOME}/.config/tmux-palette" "${HOME}/.config/tmux-which-key" 2>/dev/null || true
 
-if [ -L "${TARGET_SNAGLORD_DIR}" ]; then
-  rm -f "${TARGET_SNAGLORD_DIR}"
-elif [ -e "${TARGET_SNAGLORD_DIR}" ]; then
-  backup="${TARGET_SNAGLORD_DIR}.backup.$(date +%Y%m%d-%H%M%S)"
-  mv "${TARGET_SNAGLORD_DIR}" "${backup}"
-  echo "Moved existing ${TARGET_SNAGLORD_DIR} to ${backup}"
-fi
-ln -s "${REPO_DIR}/tmux-snaglord" "${TARGET_SNAGLORD_DIR}"
-echo "Linked ${TARGET_SNAGLORD_DIR} -> ${REPO_DIR}/tmux-snaglord"
+ln -sfn "${REPO_DIR}/scripts/tmux-history.py" "${TARGET_HISTORY_SCRIPT}"
+echo "Linked ${TARGET_HISTORY_SCRIPT} -> ${REPO_DIR}/scripts/tmux-history.py"
 
 if [ ! -d "${TPM_DIR}/.git" ]; then
   git clone "${TPM_REPO}" "${TPM_DIR}"

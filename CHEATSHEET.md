@@ -40,7 +40,7 @@ Ctrl-a
 - `prefix + M`: mark or unmark the current pane; `MARK` refreshes immediately
 - `prefix + Ctrl-e`: open current pane output plus scrollback in `$VISUAL` or `$EDITOR`
 - `prefix + Ctrl-f`: fuzzy-find files under the current pane directory and insert selected paths
-- `prefix + Ctrl-y`: open the Snaglord command/output browser
+- `prefix + Ctrl-y`: open the command history picker
 - `prefix + Ctrl-s`: open the reusable `Scratch-Terminal` popup session
 - `prefix + S`: save tmux state now with `tmux-resurrect`
 - `prefix + Ctrl-r`: restore the most recent saved tmux state with `tmux-resurrect`
@@ -153,17 +153,19 @@ AI Actions:
 - `Pi - Open`: split pane and launch `pi`
 - `Pi - Resume`: split pane and resume the latest `pi` session (`pi --continue`)
 
-## Snaglord (Output Browser)
+## Command History
 
-- `prefix + Ctrl-y`: open the Snaglord popup for the active pane
-- `c`: copy command text only
-- `y` or `Enter`: copy command output only
-- `Y`: copy final prompt line and command output
-- `j`/`k`, `Ctrl-n`/`Ctrl-p`, `↑`/`↓`: navigate entries
-- `/`: filter entries
-- `q` or `Esc`: close Snaglord
+The existing menu entry now uses the repo-owned fzf picker adapted from Rex.
 
-The stock Snaglord CLI intentionally does not include preceding multiline Starship decoration in a command block.
+- `prefix + Ctrl-y`: browse commands from the originating pane, newest first
+- Type to search command text; `↑`/`↓` or `Ctrl-p`/`Ctrl-n` select entries
+- `Enter`: copy output only
+- `Ctrl-y`: copy command text only
+- `Ctrl-b`: copy final `CMD>` prompt line plus output
+- `Ctrl-d` / `Ctrl-u`: scroll the right-hand preview
+- `Esc`: cancel
+
+The parser expects a three-line prompt ending with `CMD>`. Copy uses the system clipboard when available, otherwise the tmux buffer (`prefix + ]` to paste). The Tools → Command History entry uses the same picker. For full scrollback review, use `prefix + Ctrl-e`.
 
 ## File Picker
 

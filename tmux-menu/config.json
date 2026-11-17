@@ -184,14 +184,14 @@
       "key": "t",
       "title": "Tools",
       "icon": "󰆍",
-      "description": "snaglord, file pickers, btop, scratch terminal",
+      "description": "command history, file pickers, btop, scratch terminal",
       "items": [
         {
           "key": "s",
-          "title": "Snaglord",
+          "title": "Command History",
           "icon": "󰘬",
           "description": "browse and copy previous command outputs",
-          "action": "tmux-snaglord",
+          "action": "python3 ~/.config/tmux/scripts/tmux-history.py --pane \"#{pane_id}\"",
           "target": "popup",
           "popup_width": "70%",
           "popup_height": "75%"

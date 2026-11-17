@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### 2026-11-17
+
+- Replaced the Snaglord launcher with a repo-owned Python/fzf history picker adapted from Rex. Kept prefix + Ctrl-y and renamed the Tools menu entry to Command History, with command search, output preview, and separate copy actions. Added Linux clipboard support and tmux buffer fallback.
+- Removed the legacy parser config and stock Snaglord from managed dependencies, added the picker setup symlink, and updated runtime validation and documentation.
+
 ### 2026-10-13
 
 - Set explicit Tokyo Night popup and border colors to keep tmux 3.7 and 3.8 consistent. This fixes gray backgrounds in tmux-omni after upgrading to tmux 3.8 without changing Omni or disabling tmux's built-in themes.
