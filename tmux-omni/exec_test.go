@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestSplitTmuxCommands(t *testing.T) {
@@ -262,4 +263,97 @@ func TestRunTmuxTargetSend_PasteBufferError(t *testing.T) {
 	if !strings.Contains(logContent, "Failed to paste buffer") {
 		t.Errorf("log missing error display-message call: %s", logContent)
 	}
+}
+
+func TestClipboardCandidatesOrder(t *testing.T) {
+	got := clipboardCandidates()
+	want := []string{"pbcopy", "clip.exe", "wl-copy", "xclip", "xsel"}
+	if len(got) != len(want) {
+		t.Fatalf("got %d candidates, want %d: %#v", len(got), len(want), got)
+	}
+	for i, name := range want {
+		if got[i].name != name {
+			t.Errorf("candidate %d = %q, want %q", i, got[i].name, name)
+		}
+	}
+}
+
+func TestCopyToClipboardPrefersClipExeOverWlCopy(t *testing.T) {
+	origLook, origRun := lookPath, runClipboard
+	t.Cleanup(func() {
+		lookPath = origLook
+		runClipboard = origRun
+	})
+	var called []string
+	lookPath = func(file string) (string, error) {
+		switch file {
+		case "clip.exe", "wl-copy", "xsel", "tmux":
+			return file, nil
+		default:
+			return "", os.ErrNotExist
+		}
+	}
+	runClipboard = func(name string, args []string, text string, timeout time.Duration) bool {
+		called = append(called, name)
+		return name == "clip.exe"
+	}
+	if !CopyToClipboard("copied") {
+		t.Fatal("expected success")
+	}
+	if len(called) != 1 || called[0] != "clip.exe" {
+		t.Fatalf("called %v, want only clip.exe", called)
+	}
+}
+
+func TestCopyToClipboardPbcopyStillWins(t *testing.T) {
+	origLook, origRun := lookPath, runClipboard
+	t.Cleanup(func() {
+		lookPath = origLook
+		runClipboard = origRun
+	})
+	var called []string
+	lookPath = func(file string) (string, error) {
+		if file == "pbcopy" || file == "clip.exe" {
+			return file, nil
+		}
+		return "", os.ErrNotExist
+	}
+	runClipboard = func(name string, args []string, text string, timeout time.Duration) bool {
+		called = append(called, name)
+		return name == "pbcopy"
+	}
+	if !CopyToClipboard("copied") {
+		t.Fatal("expected success")
+	}
+	if len(called) != 1 || called[0] != "pbcopy" {
+		t.Fatalf("called %v, want only pbcopy", called)
+	}
+}
+
+func TestRunClipboardTimesOut(t *testing.T) {
+	start := time.Now()
+	if runClipboardCmd("sleep", []string{"10"}, "", 200*time.Millisecond) {
+		t.Fatal("expected timeout to fail")
+	}
+	elapsed := time.Since(start)
+	if elapsed > 2*time.Second {
+		t.Fatalf("timeout took %s, want around 200ms", elapsed)
+	}
+}
+
+func TestRunClipboardSuccess(t *testing.T) {
+	if !runClipboardCmd("true", nil, "hello", time.Second) {
+		t.Fatal("true should succeed")
+	}
+}
+
+func TestCopyToClipboardLiveTiming(t *testing.T) {
+	if os.Getenv("TMUX_OMNI_LIVE_CLIP") == "" {
+		t.Skip("set TMUX_OMNI_LIVE_CLIP=1 to time the real clipboard helper")
+	}
+	start := time.Now()
+	if !CopyToClipboard("tmux-omni-live-clip-check") {
+		t.Fatal("CopyToClipboard failed")
+	}
+	t.Logf("CopyToClipboard took %s", time.Since(start))
 }

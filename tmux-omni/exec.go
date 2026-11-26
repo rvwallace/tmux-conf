@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,38 +12,64 @@ import (
 	"time"
 )
 
-// CopyToClipboard copies text to the system clipboard across macOS, Wayland, X11, or tmux buffer.
+// clipboardTimeout caps how long a clipboard helper may block the tmux popup.
+const clipboardTimeout = 2 * time.Second
+
+type clipboardCmd struct {
+	name string
+	args []string
+}
+
+// clipboardCandidates is pbcopy, then clip.exe (WSL/Windows), then Wayland/X11 tools.
+// macOS keeps using pbcopy because it is listed first and clip.exe is not on PATH there.
+func clipboardCandidates() []clipboardCmd {
+	return []clipboardCmd{
+		{name: "pbcopy"},
+		{name: "clip.exe"},
+		{name: "wl-copy"},
+		{name: "xclip", args: []string{"-selection", "clipboard"}},
+		{name: "xsel", args: []string{"--clipboard", "--input"}},
+	}
+}
+
+// lookPath and runClipboard are vars so tests can stub them.
+var lookPath = exec.LookPath
+var runClipboard = runClipboardCmd
+
+// runClipboardCmd writes text to a clipboard helper without inheriting the popup
+// tty, then waits up to timeout. Stdin is a finite reader (closed after write).
+// The child is placed in a new session so a forked wl-copy daemon cannot keep
+// the popup open. A hung helper is killed and treated as failure.
+func runClipboardCmd(name string, args []string, text string, timeout time.Duration) bool {
+	if timeout <= 0 {
+		timeout = clipboardTimeout
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, name, args...)
+	cmd.Stdin = strings.NewReader(text)
+	cmd.Stdout = io.Discard
+	cmd.Stderr = io.Discard
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+	return cmd.Run() == nil
+}
+
+// CopyToClipboard copies text to the system clipboard across macOS, WSL, Wayland, X11, or tmux buffer.
 func CopyToClipboard(text string) bool {
-	if _, err := exec.LookPath("pbcopy"); err == nil {
-		cmd := exec.Command("pbcopy")
-		cmd.Stdin = strings.NewReader(text)
-		if err := cmd.Run(); err == nil {
+	for _, candidate := range clipboardCandidates() {
+		if _, err := lookPath(candidate.name); err != nil {
+			continue
+		}
+		if runClipboard(candidate.name, candidate.args, text, clipboardTimeout) {
 			return true
 		}
 	}
-	if _, err := exec.LookPath("wl-copy"); err == nil {
-		cmd := exec.Command("wl-copy")
-		cmd.Stdin = strings.NewReader(text)
-		if err := cmd.Run(); err == nil {
-			return true
-		}
-	}
-	if _, err := exec.LookPath("xclip"); err == nil {
-		cmd := exec.Command("xclip", "-selection", "clipboard")
-		cmd.Stdin = strings.NewReader(text)
-		if err := cmd.Run(); err == nil {
-			return true
-		}
-	}
-	if _, err := exec.LookPath("xsel"); err == nil {
-		cmd := exec.Command("xsel", "--clipboard", "--input")
-		cmd.Stdin = strings.NewReader(text)
-		if err := cmd.Run(); err == nil {
-			return true
-		}
-	}
-	if _, err := exec.LookPath("tmux"); err == nil {
-		cmd := exec.Command("tmux", "set-buffer", "--", text)
+	if _, err := lookPath("tmux"); err == nil {
+		ctx, cancel := context.WithTimeout(context.Background(), clipboardTimeout)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, "tmux", "set-buffer", "--", text)
+		cmd.Stdout = io.Discard
+		cmd.Stderr = io.Discard
 		if err := cmd.Run(); err == nil {
 			return true
 		}
