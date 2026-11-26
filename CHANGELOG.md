@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### 2026-11-25
 
+- Try Fedora and Terra packages for Lazygit and Yazi before COPR. Use the same RPM Fusion release URLs and Terra release package setup as Fedora Bootstrap.
+
 - On WSL, the history picker and pane-path copy now prefer `clip.exe` over `wl-copy`. WSLg advertises `WAYLAND_DISPLAY`, so `wl-copy` was selected and could delay closing the history popup after Ctrl-b/Enter/Ctrl-y. macOS still uses `pbcopy` first.
 - `tmux-omni` now uses the same clipboard order (`pbcopy`, `clip.exe`, `wl-copy`, `xclip`, `xsel`, tmux buffer). Clipboard helpers are run with a 2s timeout, discarded stdout/stderr, and a new session so a hung `wl-copy` cannot keep the popup open.
 

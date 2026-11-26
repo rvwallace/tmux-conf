@@ -346,7 +346,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. On Linux (Fedora, Debian, and Arch), setup configures distribution packages and repositories automatically. This includes RPM Fusion, Terra, and COPRs on Fedora, other distribution packages. The script prints installation guidance for any remaining tools. On Linux, clipboard integration uses `clip.exe` when running under WSL, otherwise `wl-copy`, `xclip`, or `xsel`, falling back to the tmux buffer. Nerd Font installation remains manual because font deployment is specific to each desktop environment.
+The managed command set is `tmux`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. On Linux (Fedora, Debian, and Arch), setup configures distribution packages and repositories automatically. On Fedora, setup enables RPM Fusion and Terra if needed. For Lazygit and Yazi, it tries Fedora first, then Terra (`golang-github-jesseduffield-lazygit` and `yazi`), then the corresponding `atim` COPR. Sesh uses the `buckaroogeek/Tmux_sesh` COPR. The script prints installation guidance for any remaining tools. On Linux, clipboard integration uses `clip.exe` when running under WSL, otherwise `wl-copy`, `xclip`, or `xsel`, falling back to the tmux buffer. Nerd Font installation remains manual because font deployment is specific to each desktop environment.
 
 ## Validation
 

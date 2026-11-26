@@ -130,22 +130,34 @@ print_linux_guidance() {
 }
 
 setup_fedora_repos() {
-  if ! rpm -q rpmfusion-free-release >/dev/null 2>&1 || ! rpm -q rpmfusion-nonfree-release >/dev/null 2>&1; then
+  local fedora_ver
+  fedora_ver="$(rpm -E %fedora 2>/dev/null || true)"
+  if [[ -z "$fedora_ver" || "$fedora_ver" == %fedora ]]; then
+    return 0
+  fi
+  if ! rpm -q "rpmfusion-free-release-${fedora_ver}.noarch" \
+    "rpmfusion-nonfree-release-${fedora_ver}.noarch" >/dev/null 2>&1; then
     printf 'Enabling RPM Fusion (free and nonfree)...\n'
-    local fedora_ver
-    fedora_ver="$(rpm -E %fedora 2>/dev/null || true)"
-    if [ -n "${fedora_ver}" ] && [ "${fedora_ver}" != "%fedora" ]; then
-      sudo dnf install -y \
-        "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm" \
-        "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm" || true
-    fi
+    sudo dnf install -y \
+      "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm" \
+      "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm" || true
   fi
 
   if ! rpm -q terra-release >/dev/null 2>&1 && [ ! -f /etc/yum.repos.d/terra.repo ]; then
     printf 'Enabling Terra repository...\n'
-    sudo dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release 2>/dev/null || \
-      sudo dnf config-manager addrepo --from-repofile=https://terra.fyralabs.com/terra.repo 2>/dev/null || true
+    # DNF expands $releasever in the repository URL.
+    # shellcheck disable=SC2016
+    sudo dnf install -y --nogpgcheck \
+      --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release || true
   fi
+}
+
+install_fedora_tool() {
+  local tool="$1" terra_package="$2"
+  printf 'Attempting %s installation from Fedora, then Terra, then COPR...\n' "$tool"
+  sudo dnf install -y --from-repo=fedora,updates "$tool" ||
+    sudo dnf install -y --from-repo=terra "$terra_package" ||
+    { sudo dnf copr enable -y "atim/$tool" && sudo dnf install -y "$tool"; } || true
 }
 
 install_linux() {
@@ -175,7 +187,7 @@ install_linux() {
   local command_name package_name
   for command_name in "${missing[@]}"; do
     if package_name="$(linux_package_for "${manager}" "${command_name}")"; then
-      if [[ ! " ${packages[*]} " =~ " ${package_name} " ]]; then
+      if [[ " ${packages[*]} " != *" ${package_name} "* ]]; then
         packages+=("${package_name}")
       fi
     fi
@@ -191,12 +203,10 @@ install_linux() {
       sudo dnf copr enable -y buckaroogeek/Tmux_sesh && sudo dnf install -y tmux-sesh || true
     fi
     if [[ " ${missing[*]} " =~ " lazygit " ]] && ! command -v lazygit >/dev/null 2>&1; then
-      printf 'Attempting lazygit installation via COPR...\n'
-      sudo dnf copr enable -y atim/lazygit && sudo dnf install -y lazygit || true
+      install_fedora_tool lazygit golang-github-jesseduffield-lazygit
     fi
     if [[ " ${missing[*]} " =~ " yazi " ]] && ! command -v yazi >/dev/null 2>&1; then
-      printf 'Attempting yazi installation via COPR...\n'
-      sudo dnf copr enable -y atim/yazi && sudo dnf install -y yazi || true
+      install_fedora_tool yazi yazi
     fi
   fi
 
