@@ -47,8 +47,13 @@ def clean_label(text):
 
 def copy_text(text):
     """Use the local clipboard when available; otherwise use a tmux buffer."""
+    # clip.exe is listed ahead of wl-copy so WSL (where WSLg sets
+    # WAYLAND_DISPLAY) uses the fast Windows interop path. pbcopy stays
+    # first, so macOS behavior is unchanged. clip.exe is absent on macOS
+    # and native Linux, so those paths also stay the same.
     candidates = [
         (["pbcopy"], True),
+        (["clip.exe"], True),
         (["wl-copy"], bool(os.environ.get("WAYLAND_DISPLAY"))),
         (["xclip", "-selection", "clipboard"], bool(os.environ.get("DISPLAY"))),
         (["xsel", "--clipboard", "--input"], bool(os.environ.get("DISPLAY"))),

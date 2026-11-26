@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### 2026-11-25
+
+- On WSL, the history picker and pane-path copy now prefer `clip.exe` over `wl-copy`. WSLg advertises `WAYLAND_DISPLAY`, so `wl-copy` was selected and could delay closing the history popup after Ctrl-b/Enter/Ctrl-y. macOS still uses `pbcopy` first.
+
 ### 2026-11-17
 
 - Replaced the Snaglord launcher with a repo-owned Python/fzf history picker adapted from Rex. Kept prefix + Ctrl-y and renamed the Tools menu entry to Command History, with command search, output preview, and separate copy actions. Added Linux clipboard support and tmux buffer fallback.

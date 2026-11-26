@@ -69,6 +69,7 @@ class HistoryTests(unittest.TestCase):
     def test_clipboard_platforms(self):
         for program, env, command in [
             ("pbcopy", {}, ["pbcopy"]),
+            ("clip.exe", {}, ["clip.exe"]),
             ("wl-copy", {"WAYLAND_DISPLAY": "wayland-0"}, ["wl-copy"]),
             ("xclip", {"DISPLAY": ":0"}, ["xclip", "-selection", "clipboard"]),
             ("xsel", {"DISPLAY": ":0"}, ["xsel", "--clipboard", "--input"]),
@@ -79,9 +80,23 @@ class HistoryTests(unittest.TestCase):
                 history.copy_text("copied")
                 run.assert_called_once_with(command, input="copied", text=True)
 
+    def test_wsl_prefers_clip_exe_over_wl_copy(self):
+        with patch.dict(os.environ, {"WAYLAND_DISPLAY": "wayland-0", "DISPLAY": ":0", "WSL_DISTRO_NAME": "fedora"}, clear=True), \
+             patch.object(history.shutil, "which", side_effect=lambda name: name if name in {"clip.exe", "wl-copy", "xsel"} else None), \
+             patch.object(history.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)) as run:
+            history.copy_text("copied")
+            run.assert_called_once_with(["clip.exe"], input="copied", text=True)
+
+    def test_pbcopy_still_wins_when_clip_exe_exists(self):
+        with patch.dict(os.environ, {}, clear=True), \
+             patch.object(history.shutil, "which", side_effect=lambda name: name if name in {"pbcopy", "clip.exe"} else None), \
+             patch.object(history.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)) as run:
+            history.copy_text("copied")
+            run.assert_called_once_with(["pbcopy"], input="copied", text=True)
+
     def test_failed_clipboard_falls_back_to_buffer(self):
         with patch.dict(os.environ, {}, clear=True), \
-             patch.object(history.shutil, "which", return_value="pbcopy"), \
+             patch.object(history.shutil, "which", side_effect=lambda name: name if name == "pbcopy" else None), \
              patch.object(history.subprocess, "run", side_effect=[
                  subprocess.CompletedProcess([], 1), subprocess.CompletedProcess([], 0),
                  subprocess.CompletedProcess([], 0)

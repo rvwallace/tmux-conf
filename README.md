@@ -126,7 +126,7 @@ Popup-launched Omni commands retain the pane that opened the popup, so actions s
 
 The Command History menu entry and `prefix + Ctrl-y` launch the repo-owned Python/fzf history picker, adapted from `rex-config` and `rex-scrollback-tool`. The popup captures the originating pane's full retained history as plain text, joining wrapped lines. Commands appear newest first; type to search command text. The right preview uses 60% of the picker width.
 
-Press Enter to copy output, Ctrl-y to copy the command, or Ctrl-b to copy the final prompt line plus output. Ctrl-d/Ctrl-u scroll the preview; Esc cancels. Copy uses `pbcopy`, `wl-copy`, `xclip`, or `xsel`, with a tmux buffer fallback. Failed clipboard commands also fall back. The picker never executes selected commands.
+Press Enter to copy output, Ctrl-y to copy the command, or Ctrl-b to copy the final prompt line plus output. Ctrl-d/Ctrl-u scroll the preview; Esc cancels. Copy uses `pbcopy`, `clip.exe` (WSL/Windows), `wl-copy`, `xclip`, or `xsel`, with a tmux buffer fallback. Failed clipboard commands also fall back. The picker never executes selected commands.
 
 The parser recognizes `CMD>` and assumes a three-line Starship prompt. It excludes the preceding decoration from command output. Both success and error prompts must emit the marker. Multiline commands, prompt-like output, and changed prompt layouts can cause parsing errors. A pane without matching commands shows a message. Prompt matching can be adjusted for direct use with `--prompt` and `--prompt-lines`.
 
@@ -346,7 +346,7 @@ Dependency checks can also be run directly:
 ./scripts/install-deps.sh --install
 ```
 
-The managed command set is `tmux`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. On Linux (Fedora, Debian, and Arch), setup configures distribution packages and repositories automatically. This includes RPM Fusion, Terra, and COPRs on Fedora, other distribution packages. The script prints installation guidance for any remaining tools. On Linux, clipboard integration uses `wl-copy`, `xclip`, or `xsel`, falling back to the tmux buffer. Nerd Font installation remains manual because font deployment is specific to each desktop environment.
+The managed command set is `tmux`, Git, Bash, `jq`, `fzf`/`fzf-tmux`, `fd`, Sesh, Zoxide, `tree`, `uv`, Yazi, Bun, Python 3, Neovim, Lazygit, `btop`, and Onefetch. On Linux (Fedora, Debian, and Arch), setup configures distribution packages and repositories automatically. This includes RPM Fusion, Terra, and COPRs on Fedora, other distribution packages. The script prints installation guidance for any remaining tools. On Linux, clipboard integration uses `clip.exe` when running under WSL, otherwise `wl-copy`, `xclip`, or `xsel`, falling back to the tmux buffer. Nerd Font installation remains manual because font deployment is specific to each desktop environment.
 
 ## Validation
 

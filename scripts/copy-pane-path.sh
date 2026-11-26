@@ -11,6 +11,8 @@ pane_path="$(tmux display-message -p -t "${pane_id}" '#{pane_current_path}')"
 
 if command -v pbcopy >/dev/null 2>&1; then
   printf '%s' "${pane_path}" | pbcopy
+elif command -v clip.exe >/dev/null 2>&1; then
+  printf '%s' "${pane_path}" | clip.exe
 elif command -v wl-copy >/dev/null 2>&1; then
   printf '%s' "${pane_path}" | wl-copy
 elif command -v xclip >/dev/null 2>&1; then
