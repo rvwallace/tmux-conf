@@ -118,8 +118,12 @@ echo "Linked ${TARGET_WHICH_KEY_POPUP_SCRIPT} -> ${REPO_DIR}/scripts/tmux-which-
 
 if [ -d "${REPO_DIR}/tmux-omni" ]; then
   if command -v go >/dev/null 2>&1; then
-    (cd "${REPO_DIR}/tmux-omni" && go build -ldflags="-s -w" -o "${TARGET_TMUX_OMNI_SCRIPT}" .)
-    echo "Built and installed ${TARGET_TMUX_OMNI_SCRIPT}"
+    if command -v make >/dev/null 2>&1; then
+      make -C "${REPO_DIR}/tmux-omni" install
+    else
+      (cd "${REPO_DIR}/tmux-omni" && go build -ldflags="-s -w" -o "${TARGET_TMUX_OMNI_SCRIPT}" .)
+      echo "Built and installed ${TARGET_TMUX_OMNI_SCRIPT}"
+    fi
   else
     echo "Warning: 'go' is not installed; skipped building ${TARGET_TMUX_OMNI_SCRIPT}. Run ./scripts/install-deps.sh to install Go." >&2
   fi

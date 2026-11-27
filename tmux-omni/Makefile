@@ -5,12 +5,14 @@ INSTALL_DIR ?= $(HOME)/.config/tmux/scripts
 
 all: build
 
-build:
-	go build -ldflags="-s -w" -o $(TARGET) .
+build: $(TARGET)
+
+$(TARGET): $(wildcard *.go) go.mod go.sum Makefile
+	go build -ldflags="-s -w" -o "$@" .
 
 install: build
-	mkdir -p $(INSTALL_DIR)
-	install -m 755 $(TARGET) $(INSTALL_DIR)/$(TARGET)
+	mkdir -p "$(INSTALL_DIR)"
+	install -m 755 "$(TARGET)" "$(INSTALL_DIR)/$(TARGET)"
 	@echo "Installed $(TARGET) to $(INSTALL_DIR)/$(TARGET)"
 
 test:

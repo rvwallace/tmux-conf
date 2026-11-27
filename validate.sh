@@ -95,6 +95,15 @@ expect_symlink_target "$TARGET_INSERT_PATHS_SCRIPT" "$REPO_DIR/scripts/tmux-inse
 expect_symlink_target "$TARGET_YAZI_PICKER_SCRIPT" "$REPO_DIR/scripts/tmux-yazi-picker.sh"
 expect_symlink_target "$TARGET_DEFER_TMUX_SCRIPT" "$REPO_DIR/scripts/defer-tmux-command.sh"
 expect_symlink_target "$TARGET_WHICH_KEY_POPUP_SCRIPT" "$REPO_DIR/scripts/tmux-which-key-popup.sh"
+if [ ! -x "$TARGET_TMUX_OMNI_SCRIPT" ] && command -v go >/dev/null 2>&1; then
+  if command -v make >/dev/null 2>&1; then
+    make -C "$REPO_DIR/tmux-omni" install || fail "tmux-omni build/install failed"
+  else
+    mkdir -p "$(dirname "$TARGET_TMUX_OMNI_SCRIPT")"
+    (cd "$REPO_DIR/tmux-omni" && go build -ldflags="-s -w" -o "$TARGET_TMUX_OMNI_SCRIPT" .) ||
+      fail "tmux-omni build/install failed"
+  fi
+fi
 [ -x "$TARGET_TMUX_OMNI_SCRIPT" ] || fail "tmux-omni executable missing at $TARGET_TMUX_OMNI_SCRIPT"
 pass "tmux-omni executable present at $TARGET_TMUX_OMNI_SCRIPT"
 expect_symlink_target "$TARGET_TMUX_MENU_DIR" "$REPO_DIR/tmux-menu"

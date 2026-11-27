@@ -333,11 +333,13 @@ This script:
 - recreates the `~/.config/tmux/scripts/tmux-insert-paths.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-yazi-picker.sh` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-which-key-popup.sh` symlink to this repo
-- compiles and installs `tmux-omni` to `~/.config/tmux/scripts/tmux-omni`
+- builds and installs `tmux-omni` for the current machine with `make -C tmux-omni install`, or builds directly with Go if Make is unavailable
 - recreates the `~/.config/tmux-menu` symlink to this repo
 - recreates the `~/.config/tmux/scripts/tmux-history.py` symlink to this repo
 - creates `~/.config/tmux/plugins/` if missing
 - clones TPM into `~/.config/tmux/plugins/tpm` if needed
+
+To update just `tmux-omni`, run `make -C tmux-omni install` on each machine after syncing the sources. Make rebuilds `tmux-omni/tmux-omni` when it is missing or older than the Go sources, module files, or Makefile, then installs it to `~/.config/tmux/scripts/tmux-omni`. Git and the Hexa–Shion Unison sync ignore the repo build output. The installed binary is outside both sync profiles' paths.
 
 Dependency checks can also be run directly:
 
@@ -366,6 +368,7 @@ It checks:
 - `~/.config/tmux/scripts/tmux-file-picker` symlink target
 - `~/.config/tmux/scripts/tmux-insert-paths.sh` and `tmux-yazi-picker.sh` symlink targets
 - `~/.config/tmux-menu` symlink target
+- `~/.config/tmux/scripts/tmux-omni` is executable, with a build and install attempted if it is missing and Go is available
 - History picker prompt marker and, when available, Starship success/error prompt markers
 - TPM installation path
 - `tmux source-file ~/.tmux.conf`
