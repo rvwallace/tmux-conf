@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### 2026-11-27
+
+- Detach the history picker's clipboard helpers from the popup so it closes as soon as the copy command returns. On Wayland, `wl-copy` can keep serving the clipboard after the popup closes.
+- Apply the same detach treatment to `copy-pane-path.sh`: clipboard helpers run in a new session with stdout and stderr discarded. Candidate order is unchanged (`pbcopy`, `clip.exe`, `wl-copy`, `xclip`, `xsel`, then a tmux buffer).
+
 ### 2026-11-25
 
 - Try Fedora and Terra packages for Lazygit and Yazi before COPR. Use the same RPM Fusion release URLs and Terra release package setup as Fedora Bootstrap.

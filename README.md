@@ -16,7 +16,7 @@ The entry point in this repo is symlinked to `~/.tmux.conf`. It loads repo-owned
 - [`./AGENTS.md`](./AGENTS.md): maintenance rules for future edits.
 - [`./LICENSE`](./LICENSE): MIT license for using, modifying, and distributing this configuration.
 - [`./scripts/edit-scrollback.sh`](./scripts/edit-scrollback.sh): captures pane output and opens it in `$VISUAL` or `$EDITOR`.
-- [`./scripts/copy-pane-path.sh`](./scripts/copy-pane-path.sh): safely copies the active pane directory to the system clipboard or tmux buffer.
+- [`./scripts/copy-pane-path.sh`](./scripts/copy-pane-path.sh): safely copies the active pane directory to the system clipboard or tmux buffer. Clipboard helpers run in a new session with output discarded so a Wayland `wl-copy` owner cannot keep a popup open.
 - [`./scripts/show-clients.sh`](./scripts/show-clients.sh): lists each attached tmux client and waits so the palette popup remains visible.
 - [`./scripts/install-deps.sh`](./scripts/install-deps.sh): checks or installs runtime dependencies on macOS and Linux.
 - [`./scripts/launch-agent-pane.sh`](./scripts/launch-agent-pane.sh): opens Antigravity, Claude Code, Codex, Cursor Agent, fx, or Pi in a right-side pane rooted at the active pane directory, with resume modes where supported.
@@ -126,7 +126,7 @@ Popup-launched Omni commands retain the pane that opened the popup, so actions s
 
 The Command History menu entry and `prefix + Ctrl-y` launch the repo-owned Python/fzf history picker, adapted from `rex-config` and `rex-scrollback-tool`. The popup captures the originating pane's full retained history as plain text, joining wrapped lines. Commands appear newest first; type to search command text. The right preview uses 60% of the picker width.
 
-Press Enter to copy output, Ctrl-y to copy the command, or Ctrl-b to copy the final prompt line plus output. Ctrl-d/Ctrl-u scroll the preview; Esc cancels. Copy uses `pbcopy`, `clip.exe` (WSL/Windows), `wl-copy`, `xclip`, or `xsel`, with a tmux buffer fallback. Failed clipboard commands also fall back. The picker never executes selected commands.
+Press Enter to copy output, Ctrl-y to copy the command, or Ctrl-b to copy the final prompt line plus output. Ctrl-d/Ctrl-u scroll the preview; Esc cancels. Copy tries `pbcopy`, `clip.exe` (WSL/Windows), `wl-copy`, `xclip`, and `xsel` in that order, then falls back to a tmux buffer. Clipboard helpers run separately from the popup so the clipboard stays available after it closes. The picker never executes selected commands.
 
 The parser recognizes `CMD>` and assumes a three-line Starship prompt. It excludes the preceding decoration from command output. Both success and error prompts must emit the marker. Multiline commands, prompt-like output, and changed prompt layouts can cause parsing errors. A pane without matching commands shows a message. Prompt matching can be adjusted for direct use with `--prompt` and `--prompt-lines`.
 

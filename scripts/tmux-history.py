@@ -60,7 +60,11 @@ def copy_text(text):
     ]
     for command, available in candidates:
         if available and shutil.which(command[0]):
-            result = subprocess.run(command, input=text, text=True)
+            # A clipboard owner can outlive the launcher. Keep it off the popup PTY.
+            result = subprocess.run(
+                command, input=text, text=True, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL, start_new_session=True,
+            )
             if result.returncode == 0:
                 return
     subprocess.run(["tmux", "load-buffer", "-"], input=text, text=True, check=True)

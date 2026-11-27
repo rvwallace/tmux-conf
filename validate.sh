@@ -100,6 +100,9 @@ pass "tmux-omni executable present at $TARGET_TMUX_OMNI_SCRIPT"
 expect_symlink_target "$TARGET_TMUX_MENU_DIR" "$REPO_DIR/tmux-menu"
 expect_symlink_target "$TARGET_HISTORY_SCRIPT" "$REPO_DIR/scripts/tmux-history.py"
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s "$REPO_DIR/tests" -p test_tmux_history.py || fail "history picker checks"
+pass "history picker checks, including clipboard helper detachment and order"
+bash "$REPO_DIR/tests/test_copy_pane_path.sh" || fail "copy-pane-path clipboard helper checks"
+pass "copy-pane-path clipboard helper detachment and order"
 
 if command -v starship >/dev/null 2>&1 && [ -f "$TARGET_STARSHIP_CONFIG" ]; then
   expect_starship_prompt_symbol "success" "Starship success prompt"

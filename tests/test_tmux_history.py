@@ -78,21 +78,30 @@ class HistoryTests(unittest.TestCase):
                  patch.object(history.shutil, "which", side_effect=lambda name: name == program), \
                  patch.object(history.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)) as run:
                 history.copy_text("copied")
-                run.assert_called_once_with(command, input="copied", text=True)
+                run.assert_called_once_with(
+                    command, input="copied", text=True, stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL, start_new_session=True,
+                )
 
     def test_wsl_prefers_clip_exe_over_wl_copy(self):
         with patch.dict(os.environ, {"WAYLAND_DISPLAY": "wayland-0", "DISPLAY": ":0", "WSL_DISTRO_NAME": "fedora"}, clear=True), \
              patch.object(history.shutil, "which", side_effect=lambda name: name if name in {"clip.exe", "wl-copy", "xsel"} else None), \
              patch.object(history.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)) as run:
             history.copy_text("copied")
-            run.assert_called_once_with(["clip.exe"], input="copied", text=True)
+            run.assert_called_once_with(
+                ["clip.exe"], input="copied", text=True, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL, start_new_session=True,
+            )
 
     def test_pbcopy_still_wins_when_clip_exe_exists(self):
         with patch.dict(os.environ, {}, clear=True), \
              patch.object(history.shutil, "which", side_effect=lambda name: name if name in {"pbcopy", "clip.exe"} else None), \
              patch.object(history.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)) as run:
             history.copy_text("copied")
-            run.assert_called_once_with(["pbcopy"], input="copied", text=True)
+            run.assert_called_once_with(
+                ["pbcopy"], input="copied", text=True, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL, start_new_session=True,
+            )
 
     def test_failed_clipboard_falls_back_to_buffer(self):
         with patch.dict(os.environ, {}, clear=True), \
